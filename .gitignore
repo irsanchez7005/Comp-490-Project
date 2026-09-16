@@ -4,3 +4,8 @@ venv/
 env/
 .venv/
 .env
+*.sqlite3
+.vscode/
+.idea/
+staticfiles/
+media/
