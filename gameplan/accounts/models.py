@@ -4,11 +4,19 @@ from django.db import models
 
 
 class User(AbstractUser):
+    class Role(models.TextChoices):
+        PLAYER = "player", "Player"
+        INSTRUCTOR = "instructor", "Instructor"
+        OWNER = "owner", "Facility Owner"
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email_verified = models.BooleanField(default=False)
     phone_verified = models.BooleanField(default=False)
+    role = models.CharField(max_length=20, choices = Role.choices, default=Role.PLAYER)
 
+    def __str__(self):
+        #add username?
+        return f"{User.role}: {User.email}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

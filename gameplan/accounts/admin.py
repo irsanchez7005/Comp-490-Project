@@ -4,4 +4,4 @@ from .models import User, Profile, VerificationCode
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Profile)
-admin.site.register(VerificationCode)ç
+admin.site.register(VerificationCode)
