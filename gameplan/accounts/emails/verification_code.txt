@@ -1,0 +1,5 @@
+Hi {{user.username}},
+
+Your Verification Code is: {{code}}
+
+It will expire in {{minutes}} minutes. If you didn't sign up, you can ignore this.

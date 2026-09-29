@@ -129,4 +129,6 @@ MAILERS = {
     },
 }
 
+DEFAULT_FROM_EMAIL = "GamePlan <onboarding@resend.dev>"
+
 AUTH_USER_MODEL = "accounts.User"
