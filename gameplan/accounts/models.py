@@ -33,3 +33,6 @@ class VerificationCode(models.Model):
     code = models.CharField(max_length=6)
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
+
+class Post(models.Model):
+    post_Id: models
