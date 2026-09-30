@@ -1,0 +1,16 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Logged Out | GamePlan{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-card panel auth-message">
+    <div class="auth-check" aria-hidden="true">&#10003;</div>
+    <p class="eyebrow">SEE YOU NEXT ROUND</p>
+    <h1>You are logged out</h1>
+    <p class="auth-intro">Thanks for using GamePlan. Come back soon and keep playing.</p>
+    <a class="btn wide" href="{% url 'login' %}">Log In Again</a>
+    <a class="auth-home-link" href="{% url 'home' %}">Return to homepage</a>
+  </div>
+</section>
+{% endblock %}

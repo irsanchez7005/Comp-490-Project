@@ -1,0 +1,72 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}GamePlan | Find Your Next Round{% endblock %}
+
+{% block content %}
+<section class="home-wrap">
+  <div class="hero homepage-hero-carousel" data-hero-carousel tabindex="0" role="region" aria-roledescription="carousel" aria-label="Featured golf images">
+    <div class="homepage-hero-slides" aria-live="off">
+      <div class="homepage-hero-slide active" data-hero-slide aria-hidden="false" role="img" aria-label="Scenic golf course at sunset" style="background-image:url('{% static 'images/homepage/hero-primary.webp' %}')"></div>
+      <div class="homepage-hero-slide" data-hero-slide aria-hidden="true" role="img" aria-label="Golf green surrounded by trees" style="background-image:url('{% static 'images/homepage/hero-secondary.jpg' %}')"></div>
+    </div>
+    <div class="homepage-hero-overlay" aria-hidden="true"></div>
+
+    <div class="hero-copy">
+      <small>GOLF BOOKING MADE EASY</small>
+      <h1>Find Your<br><em>Next Round</em></h1>
+      <p>Discover great courses. Book tee times. Play more.</p>
+    </div>
+
+    <form class="hero-search" action="#" method="get" data-template-placeholder="true">
+      <label><span>Location / ZIP / Course</span><input name="location" value="91306" aria-label="Location, ZIP, or course" placeholder="Enter city, ZIP, or course"></label>
+      <label><span>Date</span><input type="date" name="date" aria-label="Date"></label>
+      <label><span>Players</span><select name="golfers" aria-label="Players"><option>1 Player</option><option selected>2 Players</option><option>3 Players</option><option>4 Players</option></select></label>
+      <button class="btn hero-search-button" type="submit">Search</button>
+    </form>
+
+    <button class="homepage-hero-arrow previous" type="button" data-hero-previous aria-label="Previous hero image">&#8249;</button>
+    <button class="homepage-hero-arrow next" type="button" data-hero-next aria-label="Next hero image">&#8250;</button>
+    <div class="homepage-hero-dots" aria-label="Choose hero image">
+      <button type="button" class="active" data-hero-dot="0" aria-label="Go to slide 1" aria-current="true"></button>
+      <button type="button" data-hero-dot="1" aria-label="Go to slide 2" aria-current="false"></button>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div><p class="eyebrow">PLAY NEARBY</p><h2>Featured Golf Courses</h2><span>Course listings will connect here when the feature is ready.</span></div>
+    <a href="#" data-template-placeholder="true">View all courses <span aria-hidden="true">&rarr;</span></a>
+  </div>
+
+  <div class="course-grid" aria-label="Course preview placeholders">
+    <article class="course-card">
+      <div class="course-photo" style="background-image:url('{% static 'images/courses/encino.jpg' %}')"><span class="badge">Coming Soon</span></div>
+      <div class="course-body"><h3>Course listing preview</h3><p>Course details and tee times will appear here.</p><a class="card-link" href="#" data-template-placeholder="true">View course <span aria-hidden="true">&rarr;</span></a></div>
+    </article>
+    <article class="course-card">
+      <div class="course-photo" style="background-image:url('{% static 'images/courses/griffith.jpg' %}')"><span class="badge badge-light">Coming Soon</span></div>
+      <div class="course-body"><h3>Course listing preview</h3><p>Course details and tee times will appear here.</p><a class="card-link" href="#" data-template-placeholder="true">View course <span aria-hidden="true">&rarr;</span></a></div>
+    </article>
+    <article class="course-card">
+      <div class="course-photo" style="background-image:url('{% static 'images/courses/rancho.jpg' %}')"><span class="badge">Coming Soon</span></div>
+      <div class="course-body"><h3>Course listing preview</h3><p>Course details and tee times will appear here.</p><a class="card-link" href="#" data-template-placeholder="true">View course <span aria-hidden="true">&rarr;</span></a></div>
+    </article>
+    <article class="course-card">
+      <div class="course-photo" style="background-image:url('{% static 'images/courses/woodley.jpg' %}')"><span class="badge badge-light">Coming Soon</span></div>
+      <div class="course-body"><h3>Course listing preview</h3><p>Course details and tee times will appear here.</p><a class="card-link" href="#" data-template-placeholder="true">View course <span aria-hidden="true">&rarr;</span></a></div>
+    </article>
+  </div>
+
+  <section class="homepage-promo" style="background-image:linear-gradient(90deg,rgba(0,55,35,.95),rgba(0,55,35,.32)),url('{% static 'images/courses/coyote.jpg' %}')">
+    <div><p class="eyebrow">BETTER GOLF STARTS HERE</p><h2>Take Your Game to the Next Level</h2><p>Connect with local instructors and find a lesson that fits your game, your schedule, and your goals.</p><a class="btn btn-light" href="#" data-template-placeholder="true">Explore lessons</a></div>
+  </section>
+
+  <section class="feature-strip" aria-label="GamePlan benefits">
+    <div class="feature-intro"><p class="eyebrow">WHY GAMEPLAN</p><strong>Everything you need to play more.</strong></div>
+    <div><span aria-hidden="true">&#9906;</span><b>Great Courses</b><small>Find the right round nearby</small></div>
+    <div><span aria-hidden="true">&#128197;</span><b>Easy Booking</b><small>Reserve your tee time fast</small></div>
+    <div><span aria-hidden="true">&#9733;</span><b>Trusted Reviews</b><small>Choose with confidence</small></div>
+    <div><span aria-hidden="true">&#9825;</span><b>Play Together</b><small>Connect with your golf community</small></div>
+  </section>
+</section>
+{% endblock %}

@@ -15,9 +15,9 @@ class User(AbstractUser):
     phone_verified = models.BooleanField(default=False)
     role = models.CharField(max_length=20, choices = Role.choices, default=Role.PLAYER)
 
-    def __str__(self):
-        #add username?
-        return f"{User.role}: {User.email}"
+    # def __str__(self):
+    #     #add username?
+    #     return f"{self.username}: {self.get_role_display()}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

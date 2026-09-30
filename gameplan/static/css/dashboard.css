@@ -1,0 +1,18 @@
+/* GamePlan account/dashboard foundation adapted from the Demo project.
+   These classes are ready for later templates; no backend behavior is included. */
+.panel { padding: 22px; border: 1px solid var(--border); border-radius: 16px; background: rgba(255, 255, 255, .94); box-shadow: var(--shadow-sm); }
+.muted { color: var(--muted); }
+.dashboard-wrap { width: min(1460px, 100%); margin: auto; padding: 30px 3% 60px; }
+.dashboard-cards { margin-bottom: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.metric-card { display: flex; flex-direction: column; gap: 8px; }
+.metric-card small { color: var(--muted); font-weight: 600; }
+.metric-card strong { color: var(--dark); font-size: 30px; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, .8fr); gap: 18px; }
+.status-pill { display: inline-block; padding: 6px 10px; border-radius: 99px; background: #e4f3e6; color: #125631; font-size: 12px; font-weight: 700; }
+.form-page { width: min(920px, 100%); margin: 30px auto; padding: 0 20px 60px; }
+.form-card { width: min(660px, 100%); margin: auto; }
+.form-card input, .form-card select, .form-card textarea { width: 100%; padding: 12px 13px; border: 1px solid var(--border); border-radius: 9px; background: white; }
+
+@media (max-width: 820px) {
+  .dashboard-cards, .dashboard-grid { grid-template-columns: 1fr; }
+}
