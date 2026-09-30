@@ -1,0 +1,23 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if user.profile.avatar %}
+      <img src="{{ user.profile.avatar.url }}" width="150">
+    {% endif %}
+    <h1>Welcome back, {{ user.username }}</h1>
+    <p>{{ user.email }}</p>
+    {% if user.profile.city %}<p>{{ user.profile.city }}</p>{% endif %}
+    {% if user.profile.skill_level %}
+      <p>Skill level: {{ user.profile.get_skill_level_display }}</p>
+    {% endif %}
+    {% if user.profile.bio %}<p>{{ user.profile.bio }}</p>{% endif %}
+    <p><a href="{% url 'profile' %}">Edit profile</a></p>
+  {% else %}
+    <h1>GamePlan</h1>
+    <p>Book tee times. Find players. Take lessons.</p>
+    <p>
+      <a href="{% url 'signup' %}">Create an account</a> or
+      <a href="{% url 'login' %}">log in</a>
+    </p>
+  {% endif %}
+{% endblock %}

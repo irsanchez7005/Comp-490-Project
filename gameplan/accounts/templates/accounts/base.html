@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>GamePlan</title></head>
+<body>
+  <nav>
+    <a href="{% url 'home' %}">GamePlan</a> |
+    {% if user.is_authenticated %}
+      <a href="{% url 'profile' %}">{{ user.username }}</a> |
+      <form method="post" action="{% url 'logout' %}" style="display:inline">
+        {% csrf_token %}<button type="submit">Log out</button>
+      </form>
+    {% else %}
+      <a href="{% url 'login' %}">Log in</a> |
+      <a href="{% url 'signup' %}">Sign up</a>
+    {% endif %}
+  </nav>
+  <hr>
+  {% block content %}{% endblock %}
+</body>
+</html>
