@@ -1,7 +1,7 @@
-# accounts/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -29,9 +29,18 @@ class Profile(models.Model):
 
 
 class VerificationCode(models.Model):
+    class Channel(models.TextChoices):
+        EMAIL = "email", "Email"
+        PHONE = "phone", "Phone"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    channel = models.CharField(max_length=10)   # "email" or "phone"
+    channel = models.CharField(max_length=10, choices=Channel.choices) 
     code = models.CharField(max_length=6)
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
 
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"{self.user.username} - {self.channel}- {'used' if self.used else 'active'}"
