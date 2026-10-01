@@ -35,5 +35,3 @@ class VerificationCode(models.Model):
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
 
-class Post(models.Model):
-    post_Id: models
