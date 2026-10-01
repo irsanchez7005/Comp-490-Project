@@ -21,3 +21,9 @@ class Comment(models.Model):
     price=models.DecimalField(max_digit=10,decimal_places=2, null=True,blank=True)
     content=models.TextField()
     rating_score=models.FloatField(null=True,blank=True)
+
+class SavedPost(models.Model):
+    post=models.ForeignKey(Post, on_delete=models.CASCADE,related_name="savedPosts")
+    owner=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="savedPosts")
+    saved_at=models.DateField(auto_now_add=True)
+
