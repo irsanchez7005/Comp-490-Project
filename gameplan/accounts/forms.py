@@ -8,3 +8,6 @@ class AccountRegisterForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ['username', 'email']
+
+class VerifyCodeForm(forms.Form):
+    code = forms.CharField(max_length=6, min_length=6, label="Verification Code")
