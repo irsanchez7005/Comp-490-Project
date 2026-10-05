@@ -24,10 +24,12 @@
     </button>
 
     <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation" data-primary-nav>
-      <a class="active" href="{% url 'home' %}">Golf</a>
-      <a href="#" data-template-placeholder="true">Courses</a>
+      {% with current=request.resolver_match.url_name %}
+      <a{% if current == 'home' %} class="active" aria-current="page"{% endif %} href="{% url 'home' %}">Golf</a>
+      <a{% if current == 'courses' %} class="active" aria-current="page"{% endif %} href="{% url 'courses' %}">Courses</a>
       <a href="#" data-template-placeholder="true">Lessons</a>
       <a href="#" data-template-placeholder="true">Community</a>
+      {% endwith %}
     </nav>
 
     <div class="top-actions">
