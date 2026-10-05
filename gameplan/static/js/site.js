@@ -110,6 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.querySelectorAll('.btn-read-more').forEach((button) => {
+    const text = button.closest('.course-body')?.querySelector('.course-desc');
+    if (!text) return;
+    button.addEventListener('click', () => {
+      const expanded = text.classList.toggle('expanded');
+      button.textContent = expanded ? 'Read Less' : 'Read More';
+      button.setAttribute('aria-expanded', String(expanded));
+    });
+  });
+
   document.querySelectorAll('a[href="#"]').forEach((link) => {
     link.addEventListener('click', (event) => event.preventDefault());
   });
