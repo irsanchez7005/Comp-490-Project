@@ -21,9 +21,11 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'),
+    path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'), path('courses/', TemplateView.as_view(template_name='courses/courses-page.html'), name='courses'),
     path('admin/', admin.site.urls),
     path('register/', user_views.createAccount, name='createAccount'),
     path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='accounts/logout.html'), name='logout'),
+    path('verify/', user_views.verifyEmail, name='verifyEmail'),
+    path('verify/resend', user_views.resendCode, name='resendCode'),
 ]

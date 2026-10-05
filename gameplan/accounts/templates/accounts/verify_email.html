@@ -1,0 +1,23 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Log In | GamePlan{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-card panel">
+    <h1>Check your email</h1>
+    <p>We sent a 6-digit code to <strong>{{ email }}</strong></p>
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn wide" type="submit">Verify</button>
+    </form>
+  </div>
+  <div>
+    <form method="post" action="{%url 'resendCode' %}">
+        {% csrf_token %}
+        <button class="btn small" type="submit">Resend code</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

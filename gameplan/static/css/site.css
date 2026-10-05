@@ -67,6 +67,9 @@ img { display: block; max-width: 100%; }
 .btn.wide { width: 100%; }
 .btn-light { background: white; color: var(--dark) !important; }
 .btn-light:hover { background: var(--mint); }
+.btn-read-more { padding: 9px 16px; font-size: 13px; margin: 6px 0; }
+.course-desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+.course-desc.expanded { -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }
 .mobile-menu-toggle { display: none; width: 42px; height: 42px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: white; cursor: pointer; }
 .mobile-menu-toggle > span:not(.sr-only) { display: block; height: 2px; margin: 4px 0; border-radius: 3px; background: var(--dark); transition: transform .2s ease, opacity .2s ease; }
 
