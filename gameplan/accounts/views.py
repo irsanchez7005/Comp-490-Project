@@ -1,10 +1,11 @@
+import secrets
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import AccountRegisterForm
+from .forms import AccountRegisterForm, VerifyCodeForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
 from .models import User, VerificationCode
-from .forms import VerifyCodeForm
 from django.views.decorators.http import require_POST
 
 def createAccount(request):
@@ -38,7 +39,8 @@ def verifyEmail(request):
             )
             entered = form.cleaned_data['code']
 
-            if (verification is None or verification.is_expired()):
+            if (verification is None or verification.is_expired()
+                    or not secrets.compare_digest(entered, verification.code)):
                 form.add_error("code", "That code is invalid or has expired.")
             else:
                 verification.used = True
