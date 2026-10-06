@@ -2,11 +2,10 @@ import secrets
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import AccountRegisterForm
+from .forms import AccountRegisterForm, VerifyCodeForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
 from .models import User, VerificationCode
-from .forms import VerifyCodeForm
 from django.views.decorators.http import require_POST
 
 def createAccount(request):

@@ -130,7 +130,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Authentication redirects
 
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
 
