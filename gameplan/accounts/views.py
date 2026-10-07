@@ -1,17 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import AccountRegisterForm
+from .forms import AccountRegisterForm, ProfileForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
-from .models import User, VerificationCode
-from .forms import VerifyCodeForm
+from .forms import AccountRegisterForm, ProfileForm, VerifyCodeForm
+from .models import User, VerificationCode, Profile
 from django.views.decorators.http import require_POST
+
+def home(request):
+    return render(request, 'accounts/home.html')
+
 
 def createAccount(request):
     if request.method == "POST":
         form = AccountRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            Profile.objects.create(user=user)
             user.is_active=False
             user.save()
             send_email_code(user)
@@ -66,4 +71,16 @@ def resendCode(request):
 
 @login_required
 def accountProfile(request):
-    return render(request, '') #user profile page
+    profile_obj, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=profile_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated.")
+            return redirect("profile")
+    else:
+        form = ProfileForm(instance=profile_obj)
+    return render(request, "accounts/profile.html", {"form": form})
+
+profile = accountProfile
+signup = createAccount
