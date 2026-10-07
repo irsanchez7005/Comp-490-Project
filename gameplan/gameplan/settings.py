@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'courses',
+    'facility',
+    'community',
 ]
 
 MIDDLEWARE = [
@@ -126,7 +130,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Authentication redirects
 
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
 

@@ -18,7 +18,7 @@ class Comment(models.Model):
     owner=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="comments")
     created_at=models.DateTimeField(auto_now_add=True)
     sport_type=models.CharField(max_length=50,blank=True)
-    price=models.DecimalField(max_digit=10,decimal_places=2, null=True,blank=True)
+    price=models.DecimalField(max_digits=10,decimal_places=2, null=True,blank=True)
     content=models.TextField()
     rating_score=models.FloatField(null=True,blank=True)
 
