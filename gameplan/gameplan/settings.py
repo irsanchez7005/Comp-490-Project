@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'courses',
     'facility',
     'community',
+    'reservation'
 ]
 
 MIDDLEWARE = [
