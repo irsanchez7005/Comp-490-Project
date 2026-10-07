@@ -12,7 +12,7 @@ def createAccount(request):
     if request.method == "POST":
         form = AccountRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
             user.is_active=False
             user.save()
             send_email_code(user)
