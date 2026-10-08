@@ -5,6 +5,9 @@ from .models import User, Profile, VerificationCode
 admin.site.register(Profile)
 admin.site.register(VerificationCode)
 
+
+
+
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     fieldsets= UserAdmin.fieldsets + (

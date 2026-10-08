@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import User
 #This is for facilities, sport, reviews
 # Create your models here.
 class Facility(models.Model):
@@ -12,7 +14,7 @@ class Facility(models.Model):
 
 class Sport(models.Model):
     #Facility can potentially have many sports
-    sport_Id=models.BigAutoField(primary_key==True)
+    sport_Id=models.BigAutoField(primary_key=True)
     name=models.CharField(max_length=50)
     max_number_of_players=models.IntegerField()
     min_number_of_players=models.IntegerField()
@@ -36,6 +38,17 @@ class Instructor(models.Model):
    def __str__(self):
       return f"{self.first_name}{self.last_name}"
 
+class Session(models.Model):
+    facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="sessions")
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="sessions")
+    instructor=models.ForeignKey(Instructor,on_delete=models.SET_NULL, null=True,blank=True,related_name="sessions")
 
+    #participants
+    number_of_players=models.IntegerField()
+    start_time=models.DateTimeField()
+    end_time=models.DateTimeField()
+
+    def _str_(self):
+        return f"Session{self.id} at {self.facility.name}"
 
     
