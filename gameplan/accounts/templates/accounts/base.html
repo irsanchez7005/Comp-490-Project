@@ -50,7 +50,7 @@
           </summary>
           <nav aria-label="Account navigation">
             <a href="#" data-template-placeholder="true">My GamePlan</a>
-            <a href="#" data-template-placeholder="true">My Profile</a>
+            <a href="{% url 'profile' %}">My Profile</a>
             <a href="#" data-template-placeholder="true">My Bookings</a>
             <a href="#" data-template-placeholder="true">Settings</a>
             <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit">Log Out</button></form>

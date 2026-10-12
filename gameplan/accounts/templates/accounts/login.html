@@ -21,7 +21,7 @@
       {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
       <button class="btn wide" type="submit">Log In</button>
     </form>
-
+    <p class="auth-switch"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
     <p class="auth-switch">New to GamePlan? <a href="{% url 'createAccount' %}">Create an account</a></p>
   </div>
 </section>

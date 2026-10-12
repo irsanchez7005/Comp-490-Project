@@ -1,0 +1,21 @@
+{% extends "accounts/base.html" %}
+{% block title %}My Profile · GamePlan{% endblock %}
+{% block content %}
+<section style="max-width: 640px; margin: 2rem auto; padding: 0 1rem;">
+  <h1>My Profile</h1>
+
+  {% if user.profile.avatar %}
+    <img src="{{ user.profile.avatar.url }}" width="150" style="border-radius: 50%; margin-bottom: 1rem;">
+  {% endif %}
+
+  <p><strong>{{ user.username }}</strong></p>
+  <p>{{ user.email }}</p>
+
+  <h2>Edit</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save changes</button>
+  </form>
+</section>
+{% endblock %}

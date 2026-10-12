@@ -15,6 +15,9 @@ class User(AbstractUser):
     phone_verified = models.BooleanField(default=False)
     role = models.CharField(max_length=20, choices = Role.choices, default=Role.PLAYER)
 
+    #changed the username to email 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
     # def __str__(self):
     #     #add username?
     #     return f"{self.username}: {self.get_role_display()}"

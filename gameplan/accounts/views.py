@@ -2,17 +2,23 @@ import secrets
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import AccountRegisterForm, VerifyCodeForm
+from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
 from .models import User, VerificationCode
+from .forms import VerifyCodeForm, EmailLoginForm
 from django.views.decorators.http import require_POST
+from django.contrib.auth.views import LoginView
+
+def home(request):
+    return render(request, 'accounts/home.html')
+
 
 def createAccount(request):
     if request.method == "POST":
         form = AccountRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
+            user = form.save()
             user.is_active=False
             user.save()
             send_email_code(user)
@@ -56,6 +62,18 @@ def verifyEmail(request):
 
     return render(request, "accounts/verify_email.html", {"form": form, "email": user.email})
 
+class EmailLoginView(LoginView):
+    template_name='accounts/login.html'
+    authentication_form=EmailLoginForm
+
+    def form_invalid(self, form):
+        user =getattr(form, 'unverified_user', None)
+        if user:
+            send_email_code(user)
+            self.request.session['pending_user_id'] = user.pk
+            return redirect('verifyEmail')
+        return super().form_invalid(form)
+
 @require_POST
 def resendCode(request):
     user_id = request.session.get("pending_user_id")
@@ -68,4 +86,16 @@ def resendCode(request):
 
 @login_required
 def accountProfile(request):
-    return render(request, '') #user profile page
+    profile_obj, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=profile_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated.")
+            return redirect("profile")
+    else:
+        form = ProfileForm(instance=profile_obj)
+    return render(request, "accounts/profile.html", {"form": form})
+
+profile = accountProfile
+signup = createAccount
