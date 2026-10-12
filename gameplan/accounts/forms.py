@@ -27,6 +27,20 @@ class EmailLoginForm(AuthenticationForm):
         'invalid_login': "Please enter a correct email and password.",
     }
 
+    def clean(self):
+        email = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        if email and password:
+            user=user.objects.filter(email=email).first()
+            if (user and not user.is_active and 
+                not user.email_verified and 
+                user.check_password(password)):
+                self.unverified_user = user
+                raise forms.ValidationError(
+                    "Please verify your email before logging in.", code="unverified"
+                )
+        return super().clean()
+
     def clean_username(self):
         return self.cleaned_data['username'].strip().lower()
 
