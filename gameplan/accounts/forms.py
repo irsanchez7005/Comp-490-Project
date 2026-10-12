@@ -31,7 +31,7 @@ class EmailLoginForm(AuthenticationForm):
         email = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
         if email and password:
-            user=user.objects.filter(email=email).first()
+            user=User.objects.filter(email=email).first()
             if (user and not user.is_active and 
                 not user.email_verified and 
                 user.check_password(password)):

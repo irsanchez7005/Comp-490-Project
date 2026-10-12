@@ -6,8 +6,9 @@ from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
 from .models import User, VerificationCode
-from .forms import VerifyCodeForm
+from .forms import VerifyCodeForm, EmailLoginForm
 from django.views.decorators.http import require_POST
+from django.contrib.auth.views import LoginView
 
 def home(request):
     return render(request, 'accounts/home.html')
@@ -60,6 +61,18 @@ def verifyEmail(request):
         form = VerifyCodeForm()
 
     return render(request, "accounts/verify_email.html", {"form": form, "email": user.email})
+
+class EmailLoginView(LoginView):
+    template_name='accounts/login.html'
+    authentication_form=EmailLoginForm
+
+    def form_invalid(self, form):
+        user =getattr(form, 'unverified_user', None)
+        if user:
+            send_email_code(user)
+            self.request.session['pending_user_id'] = user.pk
+            return redirect('verifyEmail')
+        return super().form_invalid(form)
 
 @require_POST
 def resendCode(request):
