@@ -71,6 +71,7 @@ class EmailLoginView(LoginView):
         if user:
             send_email_code(user)
             self.request.session['pending_user_id'] = user.pk
+            messages.info(self.request, "Please verify your email. We've sent you a new code.")
             return redirect('verifyEmail')
         return super().form_invalid(form)
 
