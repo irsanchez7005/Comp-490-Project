@@ -19,10 +19,12 @@ from django.urls import path
 from accounts import views as user_views
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
+from facility import views as facility_views
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'), path('courses/', TemplateView.as_view(template_name='courses-page.html'), name='courses'),
-    path('admin/', admin.site.urls),
+    path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'),
+    path('courses/', facility_views.facility_list, name='courses'),
+   path('admin/', admin.site.urls),
     path('register/', user_views.createAccount, name='createAccount'),
     path('login/', user_views.EmailLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='accounts/logout.html'), name='logout'),
@@ -48,4 +50,5 @@ path('password-reset/complete/',
      auth_views.PasswordResetCompleteView.as_view(
          template_name='accounts/password_reset_complete.html'),
      name='password_reset_complete'),
+path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),     
 ]

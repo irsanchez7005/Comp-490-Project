@@ -1,4 +1,8 @@
+from django.conf import settings
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import User
+
 #This is for facilities, sport, reviews
 # Create your models here.
 class Facility(models.Model):
@@ -10,5 +14,84 @@ class Facility(models.Model):
     sport_type=models.CharField(max_length=20)
     rating=models.FloatField(null=True,blank=True)
 
+class Sport(models.Model):
+    #Facility can potentially have many sports
+    sport_Id=models.BigAutoField(primary_key=True)
+    name=models.CharField(max_length=50)
+    max_number_of_players=models.IntegerField()
+    min_number_of_players=models.IntegerField()
+    facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="sports")
 
-    
+    def _str_(self):
+     return self.name
+
+class Instructor(models.Model):
+   #Facility is foreign key
+   facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="instructors")
+   first_name=models.CharField(max_length=50)
+   last_name=models.CharField(max_length=50)
+   email=models.EmailField()
+   location=models.CharField(max_length=255)
+   lesson_type=models.CharField(max_length=100)
+
+   hourly_price=models.DecimalField(max_digits=8,decimal_places=2)
+   rating=models.DecimalField(max_digits=3,decimal_places=2,default=0)
+   contact_phone=models.CharField(max_length=20)
+   def __str__(self):
+      return f"{self.first_name}{self.last_name}"
+
+class Session(models.Model):
+    facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="sessions")
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="sessions")
+    instructor=models.ForeignKey(Instructor,on_delete=models.SET_NULL, null=True,blank=True,related_name="sessions")
+
+    #participants
+    number_of_players=models.IntegerField()
+    start_time=models.DateTimeField()
+    end_time=models.DateTimeField()
+
+    def _str_(self):
+        return f"Session{self.id} at {self.facility.name}"
+    def __str__(self):
+        return self.facility_name
+
+
+class TimeSlot(models.Model):
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="slots")
+    date = models.DateField()
+    start_time = models.TimeField()
+    price_per_player = models.DecimalField(max_digits=6, decimal_places=2)
+    holes = models.PositiveSmallIntegerField(
+        choices=[(9, "9 holes"), (18, "18 holes")], null=True, blank=True
+    )
+    max_players = models.PositiveSmallIntegerField(default=4)
+
+    class Meta:
+        ordering = ["date", "start_time"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["facility", "date", "start_time"], name="unique_slot"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.facility.facility_name} — {self.date} {self.start_time}"
+
+
+class Booking(models.Model):
+    class Status(models.TextChoices):
+        CONFIRMED = "confirmed", "Confirmed"
+        CANCELLED = "cancelled", "Cancelled"
+
+    slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE, related_name="bookings")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookings"
+    )
+    num_players = models.PositiveSmallIntegerField(default=1)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.CONFIRMED
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} — {self.slot}"

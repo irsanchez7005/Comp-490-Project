@@ -2,6 +2,8 @@ import secrets
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+
+from facility.models import Facility
 from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
@@ -10,9 +12,13 @@ from .forms import VerifyCodeForm, EmailLoginForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
 
+
 def home(request):
     return render(request, 'accounts/home.html')
 
+def facility_list(request):
+    facilities = Facility.objects.all()
+    return render(request, "courses/courses-page.html", {"facilities": facilities})
 
 def createAccount(request):
     if request.method == "POST":
