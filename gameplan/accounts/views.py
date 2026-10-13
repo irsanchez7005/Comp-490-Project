@@ -7,8 +7,8 @@ from facility.models import Facility
 from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code
-from .models import User, VerificationCode
-from .forms import VerifyCodeForm, EmailLoginForm
+from .models import User, VerificationCode, Profile
+from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
 
@@ -103,6 +103,3 @@ def accountProfile(request):
     else:
         form = ProfileForm(instance=profile_obj)
     return render(request, "accounts/profile.html", {"form": form})
-
-profile = accountProfile
-signup = createAccount
