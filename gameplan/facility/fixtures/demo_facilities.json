@@ -1,0 +1,38 @@
+[
+{
+  "model": "facility.facility",
+  "pk": 1,
+  "fields": {
+    "facility_name": "The Riviera Country",
+    "street_address": "1250 Capri Drive",
+    "city": "Los Angeles",
+    "zip_code": "90272-4099",
+    "sport_type": "Golf",
+    "rating": 4.4
+  }
+},
+{
+  "model": "facility.timeslot",
+  "pk": 1,
+  "fields": {
+    "facility": 1,
+    "date": "2026-10-16",
+    "start_time": "12:00:00",
+    "price_per_player": "100.00",
+    "holes": 18,
+    "max_players": 4
+  }
+},
+{
+  "model": "facility.timeslot",
+  "pk": 2,
+  "fields": {
+    "facility": 1,
+    "date": "2026-10-13",
+    "start_time": "06:00:00",
+    "price_per_player": "100.00",
+    "holes": 18,
+    "max_players": 4
+  }
+}
+]

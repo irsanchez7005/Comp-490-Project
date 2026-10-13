@@ -15,7 +15,7 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save changes</button>
+    <button class="btn small" type="submit">Save changes</button>
   </form>
 </section>
 {% endblock %}
