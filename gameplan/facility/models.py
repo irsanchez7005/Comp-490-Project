@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.conf import settings
 #This is for facilities, sport, reviews
 # Create your models here.
 class Facility(models.Model):
