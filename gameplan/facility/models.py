@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -52,21 +51,18 @@ class Session(models.Model):
 
     def _str_(self):
         return f"Session{self.id} at {self.facility.name}"
-    def __str__(self):
-        return self.facility_name
-
 
 class TimeSlot(models.Model):
-    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="slots")
-    date = models.DateField()
-    start_time = models.TimeField()
-    price_per_player = models.DecimalField(max_digits=6, decimal_places=2)
-    holes = models.PositiveSmallIntegerField(
+        facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="slots")
+        date = models.DateField()
+        start_time = models.TimeField()
+        price_per_player = models.DecimalField(max_digits=6, decimal_places=2)
+        holes = models.PositiveSmallIntegerField(
         choices=[(9, "9 holes"), (18, "18 holes")], null=True, blank=True
     )
-    max_players = models.PositiveSmallIntegerField(default=4)
+        max_players = models.PositiveSmallIntegerField(default=4)
 
-    class Meta:
+class Meta:
         ordering = ["date", "start_time"]
         constraints = [
             models.UniqueConstraint(
@@ -74,8 +70,8 @@ class TimeSlot(models.Model):
             )
         ]
 
-    def __str__(self):
-        return f"{self.facility.facility_name} — {self.date} {self.start_time}"
+        def __str__(self):
+            return f"{self.facility.facility_name} — {self.date} {self.start_time}"
 
 
 class Booking(models.Model):
