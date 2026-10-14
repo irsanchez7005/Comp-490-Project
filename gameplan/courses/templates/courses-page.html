@@ -1,11 +1,288 @@
-{% extends "accounts/base.html" %}
-{% load static %}
+{% extends "accounts/base.html" %} {% load static %} {% block title %}GamePlan |
+Courses{% endblock %} {% block content %}
 
-{% block title %}GamePlan | Courses{% endblock %}
-
-{% block content %}
 <section class="home-wrap">
-    <h1>Golf Courses</h1>
-    <p>Here is the content for the courses page.</p>
+  <h1>Golf Courses</h1>
+  <p><strong>Find a Course</strong></p>
+
+  <div class="courses-layout">
+    <aside class="courses-filter">
+      <!--Filter box goes here ---->
+    </aside>
+
+    <div class="courses-main">
+      <div class="courses-content">
+        <!---Information about booking and announcements--->
+        <div class="information">
+          <h3>Price Range</h3>
+          <h4>Senior Rates (60+) - $80 & ALL-INCLUSIVE ADD-ON $10</h4>
+          <p>
+            Provided/adjusted at time of check-in after age verification.
+            Available Monday-Thursday, Non-Holiday.
+          </p>
+          <h4>
+            Players Club Rates (Membership Required and Reserve up to 16 days)
+          </h4>
+          <p>
+            Online reservations now available, please log into reservation
+            system and Players Club Rates will be visible to valid membership
+            holders. Non-member guests are subject to the prevailing public rate
+            based on day and time of play.
+          </p>
+          <h4>Cancellation/No-Show Policy</h4>
+          <p>
+            Cancellations must be made 24 hours in advance of a scheduled tee
+            time. Cancellations made inside the 24-hour cancellation window are
+            subject to a "Cancellation" fee of up to 100% of the reserved rate.
+            Reservations that fail to check-in are subject to No-Show fee up to
+            100% of the reserved rate. Failure to comply with the Cancellation
+            policy will result in fees assess to the credit card used to reserve
+            tee time. Cancellations can be completed online 24 hours a day by
+            logging into your account and selecting Reservations. All pre-paid
+            tee times are non-refundable.
+          </p>
+          <p>Join our Players Club HERE!</p>
+          <p>
+            Don't see the time you are looking for? Join Our Virtual Tee Time
+            Waitlist! PT for scheduled maintenance. We'll be back up and ready
+            for your next round shortly after!***
+          </p>
+          <p>
+            ***Online tee time booking will be briefly unavailable Monday 9 PM –
+            Tuesday 2 AM PT for scheduled maintenance. We'll be back up and
+            ready for your next round shortly after!***
+          </p>
+        </div>
+      </div>
+      <!-- end courses-content (green box) -->
+
+      <!-- Tee times -->
+      {% comment %} (backend): replacement for the loop for TimeSlot: {% for
+      slot in slots %}
+      <!--- Loop through available tee times and display them --->
+      <article class="tee-card">
+        <header class="card-header">
+          <time>{{ slot.start_time|time:"g:i A" }}</time>
+          <div class="details">
+            <span class="players">1 - {{ slot.max_players }}</span>
+            <span class="holes">{{ slot.holes }}</span>
+          </div>
+        </header>
+        <div class="course-info">
+          <h2>{{ slot.facility.facility_name }}</h2>
+          <!-- Display the course name -->
+          <p>${{ slot.price_per_player }}</p>
+          <!-- Display the price per player -->
+        </div>
+        <button type="button">Choose Rate</button>
+      </article>
+      {% empty %}
+      <!--- If no tee times are available, display a message --->
+      <p>No tee times available.</p>
+      {% endfor %} {% endcomment %}
+      <!--- Hardcoded tee times for demonstration --->
+      <!--- Tee time number 1-->
+      <section class="tee-times" aria-label="Available golf tee times">
+        <article class="tee-card">
+          <header class="card-header">
+            <time>10:00 AM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Book Now</button>
+        </article>
+        <!--tee time number 2-->
+        <article class="tee-card">
+          <header class="card-header">
+            <time>10:30 AM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Choose Rate</button>
+        </article>
+        <!--- Tee time number 3-->
+        <article class="tee-card">
+          <header class="card-header">
+            <time>11:00 AM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Book Now</button>
+        </article>
+        <!--- Tee time number 4-->
+        <article class="tee-card">
+          <header class="card-header">
+            <time>11:30 AM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Choose Rate</button>
+        </article>
+        <!--- Tee time number 5-->
+        <article class="tee-card">
+          <header class="card-header">
+            <time>12:00 PM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Choose Rate</button>
+        </article>
+        <!--- Tee time number 6-->
+        <article class="tee-card">
+          <header class="card-header">
+            <time>12:30 PM</time>
+            <div class="details">
+              <span class="players">1 - 3</span>
+              <span class="holes">18</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <h2>Coyote Hills Golf Course</h2>
+            <p><strong>$90.00 – $107.00</strong></p>
+          </div>
+          <button type="button">Choose Rate</button>
+        </article>
+      </section>
+    </div>
+  </div>
 </section>
+<!-- booking dialog.-->
+<dialog
+  class="booking-dialog"
+  id="booking-dialog"
+  aria-labelledby="booking-title"
+>
+  <form class="booking-form" action="/cart" method="post">
+    {% csrf_token %}
+    <!-- Hidden inputs to store the selected course and tee time -->
+    <input type="hidden" name="course" id="booking-course" />
+    <input type="hidden" name="tee_time" id="booking-time" />
+    <!-- Add any other hidden inputs as needed -->
+    <header class="booking-header">
+      <h2 class="booking-title" id="booking-title">
+        <strong id="booking-course-name"></strong>
+        at <span id="booking-time-label"></span>
+      </h2>
+      <button
+        class="booking-close"
+        type="button"
+        aria-label="Close booking panel"
+        data-close-booking
+      >
+        &times;
+      </button>
+    </header>
+    <!-- Close button for the booking dialog -->
+    <div class="booking-body">
+      <fieldset class="booking-fieldset">
+        <legend>Select Rate</legend>
+        <!-- Radio buttons for selecting the rate -->
+        <label class="rate-option">
+          <input type="radio" name="rate" value="18-riding" checked />
+          <span class="rate-card">
+            <span class="rate-row">
+              <!-- Radio button mark -->
+              <span class="rate-name"
+                ><span class="radio-mark" aria-hidden="true"></span>18
+                Riding</span
+              >
+              <strong>$110.00</strong>
+            </span>
+            <span class="rate-details"
+              >1–4 golfers · 18 holes · Cart included</span
+            >
+          </span>
+        </label>
+        <!-- Additional rate options can be added here -->
+        <label class="rate-option">
+          <input type="radio" name="rate" value="players-club" />
+          <span class="rate-card">
+            <span class="rate-row">
+              <span class="rate-name"
+                ><span class="radio-mark" aria-hidden="true"></span>18 Riding
+                Players Club</span
+              >
+              <strong>$90.00</strong>
+            </span>
+            <span class="rate-details"
+              >1–4 golfers · 18 holes · Cart included</span
+            >
+            <span class="member-note"><mark>Players Club membership required.</mark></span>
+          </span>
+        </label>
+      </fieldset>
+      <!-- Additional golfer options can be added here -->
+      <div>
+        <fieldset class="booking-fieldset">
+          <!-- This is a placeholder for the golfer options -->
+          <legend>Select Number of Golfers</legend>
+          <div class="golfer-options">
+            {% for count in "1234" %}
+            <!-- Add a radio button for each golfer option -->
+            <label class="golfer-option">
+              <input
+                type="radio"
+                name="golfers"
+                value="{{ count }}"
+                {%
+                if
+                forloop.first
+                %}checked{%
+                endif
+                %}
+              />
+              <!-- Radio button mark -->
+              <span>{{ count }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <!-- This is a placeholder for the booking details -->
+        <section
+          class="booking-details"
+          aria-labelledby="booking-details-title"
+        >
+          <h3 id="booking-details-title">Tee Time Details</h3>
+          <ul>
+            <li>18 holes</li>
+            <li>Cart included</li>
+            <li id="booking-details-time"></li>
+          </ul>
+        </section>
+
+        <button class="booking-submit" type="submit">Add to Cart</button>
+      </div>
+    </div>
+  </form>
+</dialog>
 {% endblock %}
