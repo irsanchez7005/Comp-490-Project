@@ -14,20 +14,10 @@
         <h1>{{ user.username }}</h1>
       </div>
       <div class="profile-actions">
-        <button class="btn btn-light" type="button" disabled>My GamePlan</button>
         <button class="btn" type="button" disabled>Edit Profile</button>
       </div>
     </div>
   </section>
-
-  <nav class="profile-tabs" aria-label="Profile sections">
-    <a href="#posts">Posts</a>
-    <a href="#friends">Friends</a>
-    <a href="#saved">Saved</a>
-    <a href="#reviews">Reviews</a>
-    <a href="#games">Games</a>
-    <a href="#about">About</a>
-  </nav>
 
   <div class="profile-layout">
     <aside>
@@ -38,32 +28,28 @@
       <section class="panel" id="friends">
         <h2>Friends</h2>
       </section>
-    </aside>
 
-    <section class="profile-feed" aria-label="Profile activity">
-      <div class="panel profile-composer">
-        <span class="profile-avatar">{{ user.username|slice:':1'|upper }}</span>
-        <button type="button" disabled>What's on your mind?</button>
-      </div>
-
-      <section id="posts">
-        <h2>Posts</h2>
-        <div class="panel"></div>
-      </section>
-
-      <section class="profile-section" id="saved">
-        <h2>Saved</h2>
-        <div class="panel"></div>
-      </section>
-
-      <section class="profile-section" id="reviews">
-        <h2>Reviews</h2>
-        <div class="panel"></div>
-      </section>
-
-      <section class="panel profile-section" id="games">
+      <section class="panel" id="games">
         <h2>Games</h2>
       </section>
+
+      <section class="panel" id="saved">
+        <h2>Saved</h2>
+      </section>
+
+      <section class="panel" id="reviews">
+        <h2>Reviews</h2>
+      </section>
+    </aside>
+
+    <section class="panel profile-feed" id="posts" aria-labelledby="profile-posts-title">
+      <div class="profile-composer">
+        <h2 id="profile-posts-title">Posts</h2>
+        <button class="btn" type="button" disabled>Create Post</button>
+      </div>
+      <div class="profile-empty-state">
+        <p class="muted">No posts yet</p>
+      </div>
     </section>
   </div>
 </div>
