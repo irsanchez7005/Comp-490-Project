@@ -1,21 +1,70 @@
 {% extends "accounts/base.html" %}
-{% block title %}My Profile · GamePlan{% endblock %}
+{% block title %}My Profile &middot; GamePlan{% endblock %}
 {% block content %}
-<section style="max-width: 640px; margin: 2rem auto; padding: 0 1rem;">
-  <h1>My Profile</h1>
+<div class="profile-page">
+  <section class="profile-hero">
+    <div class="profile-cover-photo"></div>
+    <div class="profile-identity">
+      {% if user.profile.avatar %}
+        <img class="profile-avatar-xl" src="{{ user.profile.avatar.url }}" alt="Your profile photo">
+      {% else %}
+        <div class="profile-avatar-xl">{{ user.username|slice:':1'|upper }}</div>
+      {% endif %}
+      <div class="profile-info">
+        <h1>{{ user.username }}</h1>
+      </div>
+      <div class="profile-actions">
+        <button class="btn btn-light" type="button" disabled>My GamePlan</button>
+        <button class="btn" type="button" disabled>Edit Profile</button>
+      </div>
+    </div>
+  </section>
 
-  {% if user.profile.avatar %}
-    <img src="{{ user.profile.avatar.url }}" width="150" style="border-radius: 50%; margin-bottom: 1rem;">
-  {% endif %}
+  <nav class="profile-tabs" aria-label="Profile sections">
+    <a href="#posts">Posts</a>
+    <a href="#friends">Friends</a>
+    <a href="#saved">Saved</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#games">Games</a>
+    <a href="#about">About</a>
+  </nav>
 
-  <p><strong>{{ user.username }}</strong></p>
-  <p>{{ user.email }}</p>
+  <div class="profile-layout">
+    <aside>
+      <section class="panel" id="about">
+        <h2>Intro</h2>
+      </section>
 
-  <h2>Edit</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn small" type="submit">Save changes</button>
-  </form>
-</section>
+      <section class="panel" id="friends">
+        <h2>Friends</h2>
+      </section>
+    </aside>
+
+    <section class="profile-feed" aria-label="Profile activity">
+      <div class="panel profile-composer">
+        <span class="profile-avatar">{{ user.username|slice:':1'|upper }}</span>
+        <button type="button" disabled>What's on your mind?</button>
+      </div>
+
+      <section id="posts">
+        <h2>Posts</h2>
+        <div class="panel"></div>
+      </section>
+
+      <section class="profile-section" id="saved">
+        <h2>Saved</h2>
+        <div class="panel"></div>
+      </section>
+
+      <section class="profile-section" id="reviews">
+        <h2>Reviews</h2>
+        <div class="panel"></div>
+      </section>
+
+      <section class="panel profile-section" id="games">
+        <h2>Games</h2>
+      </section>
+    </section>
+  </div>
+</div>
 {% endblock %}
