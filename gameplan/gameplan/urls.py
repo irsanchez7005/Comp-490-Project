@@ -31,20 +31,16 @@ urlpatterns = [
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
-    path('password-reset/',
-     auth_views.PasswordResetView.as_view(
-         template_name='accounts/password_reset.html'),
+    path('password-reset/',user_views.passwordResetRequest,
      name='password_reset'),
 
-    path('password-reset/verify/',auth_views.PasswordResetDoneView.as_view(
-         template_name='accounts/password_reset_sent.html'),
+    path('password-reset/verify/',user_views.passwordVerifyEmail,
         name='password_reset_done'),
 
-    path('password-reset/new-password/',auth_views.PasswordResetConfirmView.as_view(
-         template_name='accounts/password_reset_confirm.html'),
+    path('password-reset/new-password/',user_views.passwordResetConfirm,
         name='password_reset_confirm'),
 
-    path('password-reset/resend/',user_views.resendCode,
+    path('password-reset/resend/',user_views.resendPasswordCode,
         name='password_reset_resend'),
 
     path('password-reset/complete/',auth_views.PasswordResetCompleteView.as_view(
