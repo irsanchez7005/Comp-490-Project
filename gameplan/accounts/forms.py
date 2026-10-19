@@ -51,3 +51,6 @@ class ProfileForm(forms.ModelForm):
 
 class VerifyCodeForm(forms.Form):
     code = forms.CharField(max_length=6, min_length=6, label="Verification Code")
+
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(label='Email')

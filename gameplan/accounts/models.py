@@ -36,14 +36,19 @@ class VerificationCode(models.Model):
         EMAIL = "email", "Email"
         PHONE = "phone", "Phone"
 
+    class Purpose(models.TextChoices):
+        SIGNUP = 'signup', 'Signup'
+        PASSWORD_RESET = 'password_reset', 'Password_reset'
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel = models.CharField(max_length=10, choices=Channel.choices) 
     code = models.CharField(max_length=6)
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
+    purpose = models.CharField(max_length=20, choices=Purpose.choices, default=Purpose.SIGNUP)
 
     def is_expired(self):
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return f"{self.user.username} - {self.channel}- {'used' if self.used else 'active'}"
+        return f"{self.user.username} - {self.channel}- {'used' if self.used else 'active'} for {self.purpose}"
