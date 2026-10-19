@@ -8,7 +8,7 @@ from .models import Facility, Sport, Instructor, Session, TimeSlot, Booking
 
 class TimeSlotForm(forms.ModelForm):
     TIME_CHOICES = [
-        (time(h, m), time(h, m).strftime("%-I:%M %p"))
+        (time(h, m), time(h, m).strftime("%I:%M %p"))
         for h in range(6, 19)
         for m in (0, 15, 30, 45)
     ]

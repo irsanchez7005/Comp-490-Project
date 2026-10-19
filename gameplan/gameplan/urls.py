@@ -24,31 +24,28 @@ from facility import views as facility_views
 urlpatterns = [
     path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'),
     path('courses/', facility_views.facility_list, name='courses'),
-   path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('register/', user_views.createAccount, name='createAccount'),
     path('login/', user_views.EmailLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='accounts/logout.html'), name='logout'),
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
-    path('password-reset/',
-     auth_views.PasswordResetView.as_view(
-         template_name='accounts/password_reset.html'),
+    path('password-reset/',user_views.passwordResetRequest,
      name='password_reset'),
 
-path('password-reset/sent/',
-     auth_views.PasswordResetDoneView.as_view(
-         template_name='accounts/password_reset_sent.html'),
-     name='password_reset_done'),
+    path('password-reset/verify/',user_views.passwordVerifyEmail,
+        name='password_reset_done'),
 
-path('password-reset/<uidb64>/<token>/',
-     auth_views.PasswordResetConfirmView.as_view(
-         template_name='accounts/password_reset_confirm.html'),
-     name='password_reset_confirm'),
+    path('password-reset/new-password/',user_views.passwordResetConfirm,
+        name='password_reset_confirm'),
 
-path('password-reset/complete/',
-     auth_views.PasswordResetCompleteView.as_view(
+    path('password-reset/resend/',user_views.resendPasswordCode,
+        name='password_reset_resend'),
+
+    path('password-reset/complete/',auth_views.PasswordResetCompleteView.as_view(
          template_name='accounts/password_reset_complete.html'),
-     name='password_reset_complete'),
-path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),     
+        name='password_reset_complete'),
+        
+    path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),     
 ]
