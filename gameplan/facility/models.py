@@ -64,7 +64,7 @@ class InstructorSchedule(models.Model):
           constraints = [
                models.CheckConstraint(
                     condition=models.Q(
-                         end_time_gt=models.F("start_time")
+                         end_time__gt=models.F("start_time")
                     ),
                     name="instructor_schedule_valid_times"
                )
@@ -90,7 +90,7 @@ class FacilitySchedule(models.Model):
                     constraints = [
                          models.CheckConstraint(
                               condition=models.Q(
-                                   end_time_gt=models.F("start_time")
+                                   end_time__gt=models.F("start_time")
                               ),
                               name="facility_schedule_valid_times"
                          )

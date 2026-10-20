@@ -5,9 +5,9 @@ from django.utils import timezone
 from .models import Facility, Booking,InstructorSchedule
 from .utils import generate_slots
 
-schedule = InstructorSchedule.objects.get(id=1)
+#schedule = InstructorSchedule.objects.get(id=1)
 
-slots= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration)
+#slots= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration)
 
 
 def facility_list(request):

@@ -8,12 +8,12 @@ from .models import Facility, Sport, Instructor, Session, TimeSlot, Booking,Faci
 
 @admin.register(FacilitySchedule)
 class FacilityScheduleAdmin(admin.ModelAdmin):
-    list_display=["facility","days_of_week","start_time","end_time","slot_duration","gap_duration"]
+    list_display=["facility","day_of_week","start_time","end_time","slot_duration","gap_duration"]
     list_filter = ["day_of_week"]
 
 @admin.register(InstructorSchedule)
 class InstructorScheduleAdmin(admin.ModelAdmin):
-    list_display=["instructor","days_of_week","start_time","end_time","slot_duration","gap_duration"]
+    list_display=["instructor","day_of_week","start_time","end_time","slot_duration","gap_duration"]
     list_filter = ["day_of_week"]
 
 
