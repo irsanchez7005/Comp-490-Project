@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from accounts import views as user_views
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from facility import views as facility_views
 
@@ -31,6 +32,8 @@ urlpatterns = [
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
+    path('my-gameplan/', login_required(TemplateView.as_view(
+        template_name='accounts/my_gameplan/dashboard.html')), name='my_gameplan'),
     path('password-reset/',user_views.passwordResetRequest,
      name='password_reset'),
 
