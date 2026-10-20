@@ -44,6 +44,59 @@ class Instructor(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+class InstructorSchedule(models.Model):
+     #Courses and instructors can run every 15,30,45 or hour and we generate the time slots 
+     DAY_CHOICES=[(0,"Monday"),(1,"Tuesday"),(2,"Wednesday"),(3,"Thursday"),(4,"Friday"),(5,"Saturday"),(6,"Sunday")]
+     SLOT_CHOICES=[(15,"15 minutes"),(30,"30 minutes"),(45,"45"),(60, 1)]
+
+     instructor=models.ForeignKey("Instructor",on_delete=models.CASCADE,related_name="schedules")
+    #they can choose days of week time slot for that day and then we generate they can also add a gap if they want
+     day_of_week=models.IntegerField(choices=DAY_CHOICES)
+     start_time=models.TimeField()
+     end_time=models.TimeField()
+     slot_duration=models.PositiveIntegerField(choices=SLOT_CHOICES,default=30)
+     gap_duration=models.PositiveIntegerField(default=0)
+     def __str__(self):
+          return ( f"{self.instructor}-"
+                    f"{self.get_day_of_week_display()}"
+                    f"{self.start_time} - {self.end_time}")
+     class Meta: 
+          constraints = [
+               models.CheckConstraint(
+                    condition=models.Q(
+                         end_time_gt=models.F("start_time")
+                    ),
+                    name="instructor_schedule_valid_times"
+               )
+          ]
+
+class FacilitySchedule(models.Model):
+     #Courses and instructors can run every 15,30,45 or hour and we generate the time slots 
+          DAY_CHOICES=[(0,"Monday"),(1,"Tuesday"),(2,"Wednesday"),(3,"Thursday"),(4,"Friday"),(5,"Saturday"),(6,"Sunday")]
+          SLOT_CHOICES=[(15,"15 minutes"),(30,"30 minutes"),(45,"45"),(60, 1)]
+
+          facility=models.ForeignKey("Facility",on_delete=models.CASCADE,related_name="schedules")
+          day_of_week=models.IntegerField(choices=DAY_CHOICES)
+          start_time=models.TimeField()
+          end_time=models.TimeField()
+          slot_duration=models.PositiveIntegerField(choices=SLOT_CHOICES,default=30)
+          gap_duration=models.PositiveIntegerField(default=0)
+
+          def __str__(self):
+               return (f"{self.facility} -"
+                       f"{self.get_day_of_week_display()}"
+                       f"{self.start_time}-{self.end_time}")
+          class Meta: 
+                    constraints = [
+                         models.CheckConstraint(
+                              condition=models.Q(
+                                   end_time_gt=models.F("start_time")
+                              ),
+                              name="facility_schedule_valid_times"
+                         )
+                    ]
+        
+
 
 class Session(models.Model):
     facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="sessions")
