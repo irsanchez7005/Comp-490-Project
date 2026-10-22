@@ -7,7 +7,26 @@ Courses{% endblock %} {% block content %}
 
   <div class="courses-layout">
     <aside class="courses-filter">
-      <!--Filter box goes here ---->
+      <h3>Course</h3>
+      <ul class="filter-list">
+        <li>
+          <a
+            href="?{% if selected_date %}date={{ selected_date }}{% endif %}"
+            class="{% if not selected_facility %}active{% endif %}"
+            >All courses</a
+          >
+        </li>
+        {% for f in facilities %}
+        <li>
+          <a
+            href="?facility={{ f.pk }}{% if selected_date %}&date={{ selected_date }}{% endif %}"
+            class="{% if selected_facility == f.pk|stringformat:'s' %}active{% endif %}"
+          >
+            {{ f.facility_name }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
     </aside>
 
     <div class="courses-main">
@@ -56,126 +75,65 @@ Courses{% endblock %} {% block content %}
       </div>
       <!-- end courses-content (green box) -->
 
-      <!-- Tee times -->
-      {% comment %} (backend): replacement for the loop for TimeSlot: {% for
-      slot in slots %}
-      <!--- Loop through available tee times and display them --->
-      <article class="tee-card">
-        <header class="card-header">
-          <time>{{ slot.start_time|time:"g:i A" }}</time>
-          <div class="details">
-            <span class="players">1 - {{ slot.max_players }}</span>
-            <span class="holes">{{ slot.holes }}</span>
-          </div>
-        </header>
-        <div class="course-info">
-          <h2>{{ slot.facility.facility_name }}</h2>
-          <!-- Display the course name -->
-          <p>${{ slot.price_per_player }}</p>
-          <!-- Display the price per player -->
-        </div>
-        <button type="button">Choose Rate</button>
-      </article>
-      {% empty %}
-      <!--- If no tee times are available, display a message --->
-      <p>No tee times available.</p>
-      {% endfor %} {% endcomment %}
-      <!--- Hardcoded tee times for demonstration --->
-      <!--- Tee time number 1-->
+      <!-- Date picker strip -->
+      <h2 class="section-heading">Pick a date</h2>
+      <div class="calendar-grid">
+        {% for day in calendar_days %} {% if day.has_slots %}
+        <a
+          href="?date={{ day.date|date:'Y-m-d' }}{% if selected_facility %}&facility={{ selected_facility }}{% endif %}"
+          class="cal-day{% if day.date|date:'Y-m-d' == selected_date %} selected{% endif %}"
+        >
+          <span class="dow">{{ day.date|date:"D" }}</span>
+          <span class="num">{{ day.date|date:"j" }}</span>
+          <span class="mon">{{ day.date|date:"M" }}</span>
+        </a>
+        {% else %}
+        <span class="cal-day disabled">
+          <span class="dow">{{ day.date|date:"D" }}</span>
+          <span class="num">{{ day.date|date:"j" }}</span>
+          <span class="mon">{{ day.date|date:"M" }}</span>
+        </span>
+        {% endif %} {% endfor %}
+      </div>
+
+      {% if selected_date or selected_facility %}
+      <p class="active-filters">
+        Showing
+        {% if selected_facility %}{% for f in facilities %}{% if selected_facility == f.pk|stringformat:'s' %}{{ f.facility_name }}{% endif %}{% endfor %}{% else %}all courses{% endif %}
+        {% if selected_date %}on {{ selected_date }}{% endif %}
+        <a class="clear-filters" href="?">Clear</a>
+      </p>
+      {% endif %}
+
+      <!-- Tee times pulled from the database -->
       <section class="tee-times" aria-label="Available golf tee times">
+        {% for slot in slots %}
         <article class="tee-card">
           <header class="card-header">
-            <time>10:00 AM</time>
+            <time>{{ slot.start_time|time:"g:i A" }}</time>
             <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
+              <span class="players">1 - {{ slot.open_spots }}</span>
+              <span class="holes">{{ slot.holes }}</span>
             </div>
           </header>
           <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
+            <h2>{{ slot.facility.facility_name }}</h2>
+            <p><strong>${{ slot.price_per_player }}</strong></p>
           </div>
+          {% if slot.open_spots > 0 %}
           <button type="button">Book Now</button>
+          {% else %}
+          <span class="full">Full</span>
+          {% endif %}
         </article>
-        <!--tee time number 2-->
-        <article class="tee-card">
-          <header class="card-header">
-            <time>10:30 AM</time>
-            <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
-            </div>
-          </header>
-          <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
-          </div>
-          <button type="button">Choose Rate</button>
-        </article>
-        <!--- Tee time number 3-->
-        <article class="tee-card">
-          <header class="card-header">
-            <time>11:00 AM</time>
-            <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
-            </div>
-          </header>
-          <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
-          </div>
-          <button type="button">Book Now</button>
-        </article>
-        <!--- Tee time number 4-->
-        <article class="tee-card">
-          <header class="card-header">
-            <time>11:30 AM</time>
-            <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
-            </div>
-          </header>
-          <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
-          </div>
-          <button type="button">Choose Rate</button>
-        </article>
-        <!--- Tee time number 5-->
-        <article class="tee-card">
-          <header class="card-header">
-            <time>12:00 PM</time>
-            <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
-            </div>
-          </header>
-          <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
-          </div>
-          <button type="button">Choose Rate</button>
-        </article>
-        <!--- Tee time number 6-->
-        <article class="tee-card">
-          <header class="card-header">
-            <time>12:30 PM</time>
-            <div class="details">
-              <span class="players">1 - 3</span>
-              <span class="holes">18</span>
-            </div>
-          </header>
-          <div class="course-info">
-            <h2>Coyote Hills Golf Course</h2>
-            <p><strong>$90.00 – $107.00</strong></p>
-          </div>
-          <button type="button">Choose Rate</button>
-        </article>
+        {% empty %}
+        <p class="no-times">No tee times available for this selection.</p>
+        {% endfor %}
       </section>
     </div>
   </div>
 </section>
+
 <!-- booking dialog.-->
 <dialog
   class="booking-dialog"
@@ -237,7 +195,9 @@ Courses{% endblock %} {% block content %}
             <span class="rate-details"
               >1–4 golfers · 18 holes · Cart included</span
             >
-            <span class="member-note"><mark>Players Club membership required.</mark></span>
+            <span class="member-note"
+              ><mark>Players Club membership required.</mark></span
+            >
           </span>
         </label>
       </fieldset>
