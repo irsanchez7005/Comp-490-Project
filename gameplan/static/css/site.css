@@ -361,3 +361,51 @@ mark {background: green; color: white; }
   .booking-form { padding: 18px; }
   .booking-body { grid-template-columns: 1fr; gap: 24px; }
 }
+.section-heading { margin: 4px 0 14px; color: var(--dark); font-size: 18px; letter-spacing: -.4px; }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.cal-day:hover { border-color: var(--green); transform: translateY(-2px); }
+.cal-day .num { color: var(--dark); font-size: 20px; font-weight: 800; line-height: 1.1; }
+.cal-day .dow, .cal-day .mon { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cal-day.disabled { opacity: .32; pointer-events: none; background: transparent; box-shadow: none; }
+.cal-day.selected { border-color: var(--green); border-width: 2px; background: var(--mint); }
+.cal-day.selected .num { color: var(--green); }
+
+/* ---- Sidebar course filter ---- */
+.courses-filter h3 { margin: 0 0 12px; color: var(--dark); font-size: 14px; font-weight: 800; }
+.filter-list { margin: 0; padding: 0; list-style: none; }
+.filter-list a { display: block; padding: 9px 12px; border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 600; }
+.filter-list a:hover { background: var(--mint); color: var(--green); }
+.filter-list a.active { background: var(--green); color: var(--white); font-weight: 800; }
+
+/* ---- Active filter summary ---- */
+.active-filters { margin: 0; color: var(--muted); font-size: 13px; }
+.clear-filters { margin-left: 10px; color: var(--green); font-weight: 800; }
+.no-times { grid-column: 1 / -1; padding: 28px 0; color: var(--muted); text-align: center; }
+
+/* ---- Full badge ---- */
+.tee-card .full { width: 100%; min-height: 25px; display: grid; place-items: center; padding: 5px 8px; border: 1px solid var(--border); border-radius: 5px; background: var(--mint); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+
+@media (max-width: 720px) {
+  .calendar-grid { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
+  .cal-day .num { font-size: 17px; }
+}
