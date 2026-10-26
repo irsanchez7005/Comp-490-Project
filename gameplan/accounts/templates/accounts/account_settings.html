@@ -1,0 +1,62 @@
+{% extends "accounts/base.html" %}
+{% block title %}Settings · GamePlan{% endblock %}
+{% block content %}
+<section class="settings-page">
+  <header class="settings-header">
+    <h3 class="eyebrow">ACCOUNT</h3>
+    <h1>Settings</h1>
+    <p class="auth-intro">Manage your username, email, and password.</p>
+  </header>
+
+  {# ---------- Account info ---------- #}
+  <div class="panel settings-card">
+    <div class="settings-card-head">
+      <h2>Account info</h2>
+    </div>
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% if account_form.non_field_errors %}<div class="form-errors">{{ account_form.non_field_errors }}</div>{% endif %}
+      {% for field in account_form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+      {% endfor %}
+      <div class="settings-actions">
+        <button class="btn small" type="submit" name="update_account">Save changes</button>
+      </div>
+    </form>
+  </div>
+
+  {# ---------- Password ---------- #}
+  <div class="panel settings-card">
+    <div class="settings-card-head">
+      <h2>Password</h2>
+      <p>Enter your current password, then choose a new one.</p>
+    </div>
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% if password_form.non_field_errors %}<div class="form-errors">{{ password_form.non_field_errors }}</div>{% endif %}
+      {% for field in password_form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="helptext">{{ field.help_text|safe }}</small>{% endif %}
+        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+      {% endfor %}
+      <div class="settings-actions">
+        <button class="btn small" type="submit" name="change_password">Update password</button>
+      </div>
+    </form>
+  </div>
+
+  {# ---------- Danger zone ---------- #}
+  <div class="panel settings-card danger-zone">
+    <div class="settings-card-head">
+      <h2>Delete account</h2>
+      <p>Permanently delete your account, profile, and all related data. This cannot be undone.</p>
+    </div>
+    <div class="settings-actions">
+      <a class="btn small btn-danger" href="{% url 'delete_account' %}">Delete my account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

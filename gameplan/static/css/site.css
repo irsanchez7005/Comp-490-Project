@@ -361,6 +361,28 @@ mark {background: green; color: white; }
   .booking-form { padding: 18px; }
   .booking-body { grid-template-columns: 1fr; gap: 24px; }
 }
+
+/* ---------- Settings ---------- */
+.settings-page { width: min(720px, 100%); margin: 40px auto 64px; padding: 0 16px; display: flex; flex-direction: column; gap: 20px; }
+.settings-header h1 { margin: 8px 0 6px; color: var(--dark); font-size: clamp(30px, 4vw, 40px); letter-spacing: -1.2px; }
+.settings-header .auth-intro { margin-bottom: 4px; }
+.settings-card { padding: 28px; }
+.settings-card-head { margin-bottom: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.settings-card-head h2 { margin: 0 0 4px; color: var(--dark); font-size: 19px; }
+.settings-card-head p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.settings-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.settings-actions .btn { margin-top: 8px; }
+
+.danger-zone { border-color: #f1c9c6; background: #fffafa; }
+.danger-zone .settings-card-head { border-bottom-color: #f1c9c6; }
+.danger-zone h2, .danger-text { color: #a33131; }
+.btn-danger { background: #b42318; }
+.btn-danger:hover { background: #8f1c13; box-shadow: 0 8px 22px rgba(180, 35, 24, .2); }
+
+@media (max-width: 560px) {
+  .settings-card { padding: 20px; }
+  .settings-actions .btn { width: 100%; }
+}
 .section-heading { margin: 4px 0 14px; color: var(--dark); font-size: 18px; letter-spacing: -.4px; }
 
 .calendar-grid {

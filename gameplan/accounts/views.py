@@ -2,16 +2,16 @@ import secrets
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
+from django.contrib.auth import logout, update_session_auth_hash
 from facility.models import Facility
 from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code, send_password_reset_code
 from .models import User, VerificationCode, Profile
-from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm
+from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm, UpdateAccountForm, DeleteAccountForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.forms import SetPasswordForm, PasswordChangeForm
 
 def home(request):
     return render(request, 'accounts/home.html')
@@ -103,6 +103,37 @@ def accountProfile(request):
     else:
         form = ProfileForm(instance=profile_obj)
     return render(request, "accounts/profile.html", {"form": form})
+
+@login_required
+def accountSettings(request):
+    account_form = UpdateAccountForm(instance=request.user)
+    password_form = PasswordChangeForm(request.user)
+    if request.method == "POST":
+        if "update_account" in request.POST:
+            account_form = UpdateAccountForm(request.POST, instance=request.user)
+            if account_form.is_valid():
+                account_form.save()
+                messages.success(request, "Account updated.")
+                return redirect("settings")
+        elif "change_password" in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Password changed.")
+                return redirect("settings")
+    return render(request, "accounts/account_settings.html", 
+                  {"account_form": account_form, "password_form": password_form})
+
+@login_required
+def deleteAccount(request):
+    form = DeleteAccountForm()
+    if request.method == "POST":
+        user = request.user
+        logout(request)
+        user.delete()
+        return redirect('home')
+    return render(request, "accounts/delete_confirm.html", {"form": form})
 
 def passwordVerifyEmail(request):
     email = request.session.get("reset_email")
