@@ -1,21 +1,56 @@
 {% extends "accounts/base.html" %}
-{% block title %}My Profile · GamePlan{% endblock %}
+{% block title %}My Profile &middot; GamePlan{% endblock %}
 {% block content %}
-<section style="max-width: 640px; margin: 2rem auto; padding: 0 1rem;">
-  <h1>My Profile</h1>
+<div class="profile-page">
+  <section class="profile-hero">
+    <div class="profile-cover-photo"></div>
+    <div class="profile-identity">
+      {% if user.profile.avatar %}
+        <img class="profile-avatar-xl" src="{{ user.profile.avatar.url }}" alt="Your profile photo">
+      {% else %}
+        <div class="profile-avatar-xl">{{ user.username|slice:':1'|upper }}</div>
+      {% endif %}
+      <div class="profile-info">
+        <h1>{{ user.username }}</h1>
+      </div>
+      <div class="profile-actions">
+        <button class="btn" type="button" disabled>Edit Profile</button>
+      </div>
+    </div>
+  </section>
 
-  {% if user.profile.avatar %}
-    <img src="{{ user.profile.avatar.url }}" width="150" style="border-radius: 50%; margin-bottom: 1rem;">
-  {% endif %}
+  <div class="profile-layout">
+    <aside>
+      <section class="panel" id="about">
+        <h2>Intro</h2>
+      </section>
 
-  <p><strong>{{ user.username }}</strong></p>
-  <p>{{ user.email }}</p>
+      <section class="panel" id="friends">
+        <h2>Friends</h2>
+      </section>
 
-  <h2>Edit</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn small" type="submit">Save changes</button>
-  </form>
-</section>
+      <section class="panel" id="games">
+        <h2>Games</h2>
+      </section>
+
+      <section class="panel" id="saved">
+        <h2>Saved</h2>
+      </section>
+
+      <section class="panel" id="reviews">
+        <h2>Reviews</h2>
+      </section>
+    </aside>
+
+    <section class="panel profile-feed" id="posts" aria-labelledby="profile-posts-title">
+      <div class="profile-composer">
+        <h2 id="profile-posts-title">Posts</h2>
+        <button class="btn" type="button" disabled>Create Post</button>
+      </div>
+      <div class="profile-empty-state">
+        <p class="muted">No posts yet</p>
+      </div>
+    </section>
+  </div>
+</div>
 {% endblock %}

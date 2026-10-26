@@ -1,0 +1,58 @@
+{% extends "accounts/base.html" %}
+{% block title %}{{ facility.facility_name }} | GamePlan{% endblock %}
+
+{% block content %}
+<section class="home-wrap">
+  <h1>{{ facility.facility_name }}</h1>
+  <p>{{ facility.street_address }}, {{ facility.city }} {{ facility.zip_code }}</p>
+
+  <h2>Pick a date</h2>
+  <div class="calendar-grid">
+    {% for day in calendar_days %}
+      {% if day.has_slots %}
+        <a href="?date={{ day.date|date:'Y-m-d' }}"
+           class="cal-day{% if day.date|date:'Y-m-d' == selected_date %} selected{% endif %}">
+          <span class="dow">{{ day.date|date:"D" }}</span>
+          <span class="num">{{ day.date|date:"j" }}</span>
+          <span class="mon">{{ day.date|date:"M" }}</span>
+        </a>
+      {% else %}
+        <span class="cal-day disabled">
+          <span class="dow">{{ day.date|date:"D" }}</span>
+          <span class="num">{{ day.date|date:"j" }}</span>
+          <span class="mon">{{ day.date|date:"M" }}</span>
+        </span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if selected_date %}
+    <h2>Tee times for {{ selected_date }}</h2>
+    <section class="tee-times">
+      {% for slot in slots %}
+        <article class="tee-card">
+          <header class="card-header">
+            <time>{{ slot.start_time|time:"g:i A" }}</time>
+            <div class="details">
+              <span class="players">{{ slot.open_spots }} open</span>
+              <span class="holes">{{ slot.holes }}</span>
+            </div>
+          </header>
+          <div class="course-info">
+            <p><strong>${{ slot.price_per_player }}</strong> per player</p>
+          </div>
+          {% if slot.open_spots > 0 %}
+            <button type="button">Book Now</button>
+          {% else %}
+            <span class="full">Full</span>
+          {% endif %}
+        </article>
+      {% empty %}
+        <p>No tee times for this date.</p>
+      {% endfor %}
+    </section>
+  {% else %}
+    <p>Select a date to see available tee times.</p>
+  {% endif %}
+</section>
+{% endblock %}
