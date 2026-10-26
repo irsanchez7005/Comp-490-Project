@@ -7,3 +7,5 @@ python-decouple==3.8
 sqlparse==0.6.0
 typing_extensions==4.16.0
 tzdata==2026.4
+djangorestframework==3.18.3
+
