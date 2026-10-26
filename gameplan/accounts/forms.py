@@ -54,3 +54,25 @@ class VerifyCodeForm(forms.Form):
 
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(label='Email')
+
+class UpdateAccountForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+    def clean_username(self):
+        #case-insensitive check 
+        username = self.cleaned_data['username'].strip()
+        if User.objects.filter(username__iexact=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("That username is already taken.")
+        return username
+
+    def clean_email(self):
+        #case-insensitive check
+        email = self.cleaned_data['email'].strip().lower()
+        #check if there's another same email in database
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists(): 
+            raise forms.ValidationError("An account with this email already exists.")
+        return email
+
+class DeleteAccountForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput, label="Confirm your password")

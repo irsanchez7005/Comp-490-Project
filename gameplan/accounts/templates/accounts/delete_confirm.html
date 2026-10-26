@@ -1,0 +1,25 @@
+{% extends "accounts/base.html" %}
+{% block title %}Delete Account · GamePlan{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-card panel danger-zone">
+    <h3 class="eyebrow danger-text">DELETE ACCOUNT</h3>
+    <h1>Are you sure?</h1>
+    <p class="auth-intro">
+      This action will permanently delete <strong>{{ user.email }}</strong> along with your profile
+      and all related data. <strong>This cannot be undone.</strong>
+    </p>
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+      {% endfor %}
+      <button class="btn wide btn-danger" type="submit">Yes, delete my account</button>
+    </form>
+    <p class="auth-switch"><a href="{% url 'settings' %}">Cancel, take me back</a></p>
+  </div>
+</section>
+{% endblock %}
