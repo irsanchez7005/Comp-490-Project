@@ -48,5 +48,6 @@ urlpatterns = [
         name='password_reset_complete'),
 
     path('settings/', user_views.accountSettings, name='settings'),
-    path('settings/delete/', user_views.deleteAccount, name='delete_account'),     
+    path('settings/delete/', user_views.deleteAccount, name='delete_account'),
+    path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),     
 ]
