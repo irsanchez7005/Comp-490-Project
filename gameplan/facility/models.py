@@ -81,7 +81,11 @@ class FacilitySchedule(models.Model):
           end_time=models.TimeField()
           slot_duration=models.PositiveIntegerField(choices=SLOT_CHOICES,default=30)
           gap_duration=models.PositiveIntegerField(default=0)
-
+          slot_interval=models.PositiveIntegerField(
+               default=15,
+               help_text="Minutes between available bookin start times"
+          )
+           
           def __str__(self):
                return (f"{self.facility} -"
                        f"{self.get_day_of_week_display()}"
