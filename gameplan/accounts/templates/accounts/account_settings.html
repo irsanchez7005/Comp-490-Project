@@ -13,39 +13,36 @@
     <div class="settings-card-head">
       <h2>Account info</h2>
     </div>
-    <form method="post" class="auth-form">
-      {% csrf_token %}
-      {% if account_form.non_field_errors %}<div class="form-errors">{{ account_form.non_field_errors }}</div>{% endif %}
-      {% for field in account_form %}
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
-      {% endfor %}
-      <div class="settings-actions">
-        <button class="btn small" type="submit" name="update_account">Save changes</button>
+        <div class="settings-row">
+      <div class="settings-row-text">
+        <span class="settings-label">Username</span>
+        <span class="settings-value">{{ user.username }}</span>
       </div>
-    </form>
+      <button type="button" class="btn small btn-outline" data-dialog-open="username-dialog">Update</button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <span class="settings-label">Email</span>
+        <span class="settings-value">{{ user.email }}</span>
+      </div>
+      <button type="button" class="btn small btn-outline" data-dialog-open="email-dialog">Update</button>
+    </div>
+  </div>
   </div>
 
   {# ---------- Password ---------- #}
   <div class="panel settings-card">
     <div class="settings-card-head">
-      <h2>Password</h2>
-      <p>Enter your current password, then choose a new one.</p>
+      <h2>Security</h2>
     </div>
-    <form method="post" class="auth-form">
-      {% csrf_token %}
-      {% if password_form.non_field_errors %}<div class="form-errors">{{ password_form.non_field_errors }}</div>{% endif %}
-      {% for field in password_form %}
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}<small class="helptext">{{ field.help_text|safe }}</small>{% endif %}
-        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
-      {% endfor %}
-      <div class="settings-actions">
-        <button class="btn small" type="submit" name="change_password">Update password</button>
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <span class="settings-label">Password</span>
+        <span class="settings-value settings-dots">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span>
       </div>
-    </form>
+        <button class="btn small btn-outline" type="button" name="change_password" data-dialog-open="password-dialog">Update password</button>
+      </div>
   </div>
 
   {# ---------- Danger zone ---------- #}
@@ -59,4 +56,40 @@
     </div>
   </div>
 </section>
+
+{% include "accounts/_settings_dialog.html" with dialog_id="username-dialog" action="username" form=username_form title="Change username" intro="Pick a new name other players will see." submit_label="Save username" %}
+{% include "accounts/_settings_dialog.html" with dialog_id="email-dialog" action="email" form=email_form title="Change email" intro="You'll use this email to log in." submit_label="Save email" %}
+{% include "accounts/_settings_dialog.html" with dialog_id="password-dialog" action="verify_password" form=confirm_form step="STEP 1 OF 2" title="Confirm it's you" intro="Enter your current password to continue." submit_label="Next" %}
+{% include "accounts/_settings_dialog.html" with dialog_id="new-password-dialog" action="set_password" form=new_password_form step="STEP 2 OF 2" title="Choose a new password" submit_label="Update password" %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const openDialog = (dialog) => {
+    if (!dialog) return;
+    dialog.showModal();
+    dialog.querySelector('input:not([type="hidden"])')?.focus();
+  };
+
+  document.querySelectorAll("[data-dialog-open]").forEach((button) => {
+    button.addEventListener("click", () =>
+      openDialog(document.getElementById(button.dataset.dialogOpen)),
+    );
+  });
+
+  document.querySelectorAll(".settings-dialog").forEach((dialog) => {
+    dialog.querySelectorAll("[data-dialog-close]").forEach((button) => {
+      button.addEventListener("click", () => dialog.close());
+    });
+    //click on the blurred backdrop closes it
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+
+  //reopen the dialog that had errors (or password step 2)
+  document.querySelectorAll(".settings-dialog[data-open-on-load]").forEach(openDialog);
+});
+</script>
 {% endblock %}
