@@ -2,8 +2,12 @@ from django.db.models import Count, Min, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from .models import Facility, Booking,InstructorSchedule,TimeSlot
+from .utils import generate_slots
 
-from .models import Facility, Booking, TimeSlot
+#schedule = InstructorSchedule.objects.get(id=1)
+
+#slots= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration)
 
 
 def facility_list(request):
