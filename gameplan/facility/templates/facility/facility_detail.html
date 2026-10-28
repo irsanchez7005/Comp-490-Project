@@ -78,7 +78,9 @@
         <p><strong>${{ slot.price_per_player }}</strong></p>
       </div>
       {% if slot.open_spots > 0 %}
-      <button type="button">Book Now</button>
+      <button type="button"
+              data-slot-id="{{ slot.pk }}"
+              data-open-spots="{{ slot.open_spots }}">Book Now</button>
       {% else %}
       <span class="full">Full</span>
       {% endif %}
@@ -89,10 +91,11 @@
   </section>
 </section>
 
-<!-- Booking dialog, opened by site.js when a Book Now button is clicked -->
+<!-- Booking dialog -->
 <dialog class="booking-dialog" id="booking-dialog" aria-labelledby="booking-title">
-  <form class="booking-form" action="/cart" method="post">
+  <form class="booking-form" action="{% url 'book_slot' %}" method="post">
     {% csrf_token %}
+    <input type="hidden" name="slot_id" id="booking-slot-id" />
     <input type="hidden" name="course" id="booking-course" />
     <input type="hidden" name="tee_time" id="booking-time" />
 
@@ -111,13 +114,13 @@
         <legend>Select Rate</legend>
 
         <label class="rate-option">
-          <input type="radio" name="rate" value="18-riding" checked />
+          <input type="radio" name="rate" value="standard" checked />
           <span class="rate-card">
             <span class="rate-row">
-              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>18 Riding</span>
-              <strong>$110.00</strong>
+              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>Standard</span>
+              <strong id="booking-price"></strong>
             </span>
-            <span class="rate-details">1–4 golfers · 18 holes · Cart included</span>
+            <span class="rate-details">Cart included</span>
           </span>
         </label>
 
@@ -125,10 +128,10 @@
           <input type="radio" name="rate" value="players-club" />
           <span class="rate-card">
             <span class="rate-row">
-              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>18 Riding Players Club</span>
-              <strong>$90.00</strong>
+              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>Players Club</span>
+              <strong id="booking-price-member"></strong>
             </span>
-            <span class="rate-details">1–4 golfers · 18 holes · Cart included</span>
+            <span class="rate-details">Cart included</span>
             <span class="member-note"><mark>Players Club membership required.</mark></span>
           </span>
         </label>
@@ -137,7 +140,7 @@
       <div>
         <fieldset class="booking-fieldset">
           <legend>Select Number of Golfers</legend>
-          <div class="golfer-options">
+          <div class="golfer-options" id="golfer-options">
             {% for count in "1234" %}
             <label class="golfer-option">
               <input type="radio" name="golfers" value="{{ count }}" {% if forloop.first %}checked{% endif %} />
@@ -150,19 +153,26 @@
         <section class="booking-details" aria-labelledby="booking-details-title">
           <h3 id="booking-details-title">Tee Time Details</h3>
           <ul>
-            <li>18 holes</li>
-            <li>Cart included</li>
+            <li id="booking-details-date"></li>
             <li id="booking-details-time"></li>
+            <li id="booking-details-spots"></li>
           </ul>
         </section>
 
-        <button class="booking-submit" type="submit">Add to Cart</button>
+        {% if user.is_authenticated %}
+        <button class="booking-submit" type="submit">Confirm Booking</button>
+        {% else %}
+        <a class="booking-submit" href="{% url 'login' %}" style="display:grid;place-items:center;text-decoration:none;">
+          Log in to book
+        </a>
+        {% endif %}
       </div>
     </div>
   </form>
 </dialog>
 
 <script>
+/* ---- Calendar picker ---- */
 (function () {
   const slotsByDate = JSON.parse(document.getElementById("slots-data").textContent);
   const dialog  = document.getElementById("picker-dialog");
@@ -253,6 +263,48 @@
 
   if (chosen) pickDate(chosen);
   render();
+})();
+
+/* ---- Booking dialog ---- */
+(function () {
+  const dialog = document.getElementById("booking-dialog");
+
+  document.querySelectorAll(".tee-card button[data-slot-id]").forEach(btn => {
+    btn.onclick = () => {
+      const card  = btn.closest(".tee-card");
+      const time  = card.querySelector("time").textContent.trim();
+      const date  = card.querySelector(".slot-date").textContent.trim();
+      const price = card.querySelector(".course-info strong").textContent.trim();
+      const spots = btn.dataset.openSpots;
+
+      document.getElementById("booking-slot-id").value = btn.dataset.slotId;
+      document.getElementById("booking-course").value = "{{ facility.facility_name|escapejs }}";
+      document.getElementById("booking-time").value = time;
+      document.getElementById("booking-course-name").textContent = "{{ facility.facility_name|escapejs }}";
+      document.getElementById("booking-time-label").textContent = time;
+      document.getElementById("booking-price").textContent = price;
+      document.getElementById("booking-price-member").textContent = price;
+      document.getElementById("booking-details-date").textContent = date;
+      document.getElementById("booking-details-time").textContent = time;
+      document.getElementById("booking-details-spots").textContent =
+        spots + " spot" + (spots === "1" ? "" : "s") + " left";
+
+      // Only let them pick as many golfers as there is room for.
+      document.querySelectorAll("#golfer-options input").forEach(input => {
+        input.disabled = Number(input.value) > Number(spots);
+        if (input.disabled) input.checked = false;
+      });
+      const first = document.querySelector("#golfer-options input:not(:disabled)");
+      if (first) first.checked = true;
+
+      dialog.showModal();
+    };
+  });
+
+  dialog.querySelectorAll("[data-close-booking]").forEach(b => {
+    b.onclick = () => dialog.close();
+  });
+  dialog.onclick = e => { if (e.target === dialog) dialog.close(); };
 })();
 </script>
 {% endblock %}
