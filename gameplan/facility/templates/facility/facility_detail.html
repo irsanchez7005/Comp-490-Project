@@ -1,0 +1,258 @@
+{% extends "accounts/base.html" %} {% load static %}
+{% block title %}{{ facility.facility_name }} | GamePlan{% endblock %}
+{% block content %}
+
+<section class="home-wrap">
+  <a class="back-link" href="{% url 'courses' %}">&lsaquo; All courses</a>
+
+  <div class="course-header">
+    <div>
+      <h1>{{ facility.facility_name }}</h1>
+      <p>{{ facility.street_address }}, {{ facility.city }} {{ facility.zip_code }}</p>
+      {% if facility.rating %}<p class="stars">★ {{ facility.rating }}</p>{% endif %}
+    </div>
+  </div>
+
+  {{ slots_by_date|json_script:"slots-data" }}
+
+  <div class="picker-bar">
+    <button type="button" class="picker-trigger" id="open-picker">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M3 10h18M8 3v4M16 3v4" />
+      </svg>
+      <span>{% if selected_date %}{{ selected_date }}{% else %}Select date &amp; time{% endif %}</span>
+    </button>
+    {% if selected_date %}
+    <a class="picker-clear" href="{% url 'facility_detail' facility.pk %}">Clear</a>
+    {% endif %}
+  </div>
+
+  <dialog class="picker-dialog" id="picker-dialog">
+    <div class="picker-head">
+      <h2>Select a date &amp; time</h2>
+      <button type="button" class="picker-close" id="close-picker">&times;</button>
+    </div>
+
+    <div class="picker-body">
+      <div class="cal-head">
+        <button type="button" class="cal-nav" id="prev-month">&lsaquo;</button>
+        <strong id="cal-label"></strong>
+        <button type="button" class="cal-nav" id="next-month">&rsaquo;</button>
+      </div>
+
+      <div class="cal-weekdays">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+        <span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+
+      <div class="cal-days" id="cal-days"></div>
+
+      <label class="picker-field">
+        <span>Tee time</span>
+        <select id="time-select" disabled>
+          <option value="">Pick a date first</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="picker-foot">
+      <button type="button" class="btn btn-light" id="cancel-picker">Cancel</button>
+      <button type="button" class="btn" id="confirm-picker" disabled>Show tee times</button>
+    </div>
+  </dialog>
+
+  <section class="tee-times" aria-label="Available tee times">
+    {% for slot in slots %}
+    <article class="tee-card">
+      <header class="card-header">
+        <time>{{ slot.start_time|time:"g:i A" }}</time>
+        <div class="details">
+          <span class="players">1 - {{ slot.open_spots }}</span>
+          <span class="holes">{{ slot.holes }}</span>
+        </div>
+      </header>
+      <div class="course-info">
+        <h2>{{ facility.facility_name }}</h2>
+        <p class="slot-date">{{ slot.date|date:"D M j" }}</p>
+        <p><strong>${{ slot.price_per_player }}</strong></p>
+      </div>
+      {% if slot.open_spots > 0 %}
+      <button type="button">Book Now</button>
+      {% else %}
+      <span class="full">Full</span>
+      {% endif %}
+    </article>
+    {% empty %}
+    <p class="no-times">No tee times for this selection.</p>
+    {% endfor %}
+  </section>
+</section>
+
+<!-- Booking dialog, opened by site.js when a Book Now button is clicked -->
+<dialog class="booking-dialog" id="booking-dialog" aria-labelledby="booking-title">
+  <form class="booking-form" action="/cart" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="course" id="booking-course" />
+    <input type="hidden" name="tee_time" id="booking-time" />
+
+    <header class="booking-header">
+      <h2 class="booking-title" id="booking-title">
+        <strong id="booking-course-name"></strong>
+        at <span id="booking-time-label"></span>
+      </h2>
+      <button class="booking-close" type="button" aria-label="Close booking panel" data-close-booking>
+        &times;
+      </button>
+    </header>
+
+    <div class="booking-body">
+      <fieldset class="booking-fieldset">
+        <legend>Select Rate</legend>
+
+        <label class="rate-option">
+          <input type="radio" name="rate" value="18-riding" checked />
+          <span class="rate-card">
+            <span class="rate-row">
+              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>18 Riding</span>
+              <strong>$110.00</strong>
+            </span>
+            <span class="rate-details">1–4 golfers · 18 holes · Cart included</span>
+          </span>
+        </label>
+
+        <label class="rate-option">
+          <input type="radio" name="rate" value="players-club" />
+          <span class="rate-card">
+            <span class="rate-row">
+              <span class="rate-name"><span class="radio-mark" aria-hidden="true"></span>18 Riding Players Club</span>
+              <strong>$90.00</strong>
+            </span>
+            <span class="rate-details">1–4 golfers · 18 holes · Cart included</span>
+            <span class="member-note"><mark>Players Club membership required.</mark></span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div>
+        <fieldset class="booking-fieldset">
+          <legend>Select Number of Golfers</legend>
+          <div class="golfer-options">
+            {% for count in "1234" %}
+            <label class="golfer-option">
+              <input type="radio" name="golfers" value="{{ count }}" {% if forloop.first %}checked{% endif %} />
+              <span>{{ count }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <section class="booking-details" aria-labelledby="booking-details-title">
+          <h3 id="booking-details-title">Tee Time Details</h3>
+          <ul>
+            <li>18 holes</li>
+            <li>Cart included</li>
+            <li id="booking-details-time"></li>
+          </ul>
+        </section>
+
+        <button class="booking-submit" type="submit">Add to Cart</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  const slotsByDate = JSON.parse(document.getElementById("slots-data").textContent);
+  const dialog  = document.getElementById("picker-dialog");
+  const daysEl  = document.getElementById("cal-days");
+  const labelEl = document.getElementById("cal-label");
+  const timeEl  = document.getElementById("time-select");
+  const confirm = document.getElementById("confirm-picker");
+
+  const MONTHS = ["January","February","March","April","May","June",
+                  "July","August","September","October","November","December"];
+
+  let chosen = "{{ selected_date|default_if_none:'' }}";
+  let view = chosen ? new Date(chosen + "T00:00:00") : new Date();
+  view.setDate(1);
+
+  function key(y, m, d) {
+    return y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+  }
+
+  function render() {
+    labelEl.textContent = MONTHS[view.getMonth()] + " " + view.getFullYear();
+    daysEl.innerHTML = "";
+
+    const firstDay = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
+    const total = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      daysEl.insertAdjacentHTML("beforeend", '<span class="cal-cell pad"></span>');
+    }
+
+    for (let d = 1; d <= total; d++) {
+      const k = key(view.getFullYear(), view.getMonth(), d);
+      const has = slotsByDate[k] && slotsByDate[k].length > 0;
+
+      if (has) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cal-cell available" + (k === chosen ? " chosen" : "");
+        btn.textContent = d;
+        btn.onclick = () => pickDate(k);
+        daysEl.appendChild(btn);
+      } else {
+        daysEl.insertAdjacentHTML("beforeend",
+          '<span class="cal-cell muted">' + d + '</span>');
+      }
+    }
+  }
+
+  function pickDate(k) {
+    chosen = k;
+    render();
+
+    const slots = slotsByDate[k] || [];
+    timeEl.innerHTML = '<option value="">All times that day</option>';
+    timeEl.disabled = false;
+
+    slots.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.time;
+      opt.textContent = s.label + " · $" + s.price + " · " +
+                        (s.open > 0 ? s.open + " open" : "full");
+      if (s.open <= 0) opt.disabled = true;
+      timeEl.appendChild(opt);
+    });
+
+    confirm.disabled = false;
+  }
+
+  document.getElementById("prev-month").onclick = () => {
+    view.setMonth(view.getMonth() - 1);
+    render();
+  };
+  document.getElementById("next-month").onclick = () => {
+    view.setMonth(view.getMonth() + 1);
+    render();
+  };
+
+  confirm.onclick = () => {
+    const params = new URLSearchParams();
+    params.set("date", chosen);
+    if (timeEl.value) params.set("time", timeEl.value);
+    window.location.search = params.toString();
+  };
+
+  document.getElementById("open-picker").onclick = () => dialog.showModal();
+  document.getElementById("close-picker").onclick = () => dialog.close();
+  document.getElementById("cancel-picker").onclick = () => dialog.close();
+
+  if (chosen) pickDate(chosen);
+  render();
+})();
+</script>
+{% endblock %}

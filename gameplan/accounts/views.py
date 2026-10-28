@@ -1,14 +1,14 @@
 import secrets
-
+import time
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
+from django.contrib.auth import logout, update_session_auth_hash
 from facility.models import Facility
 from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code, send_password_reset_code
 from .models import User, VerificationCode, Profile
-from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm
+from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm, UserNameForm,EmailForm,ConfirmPasswordForm, DeleteAccountForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import SetPasswordForm
@@ -103,6 +103,75 @@ def accountProfile(request):
     else:
         form = ProfileForm(instance=profile_obj)
     return render(request, "accounts/profile.html", {"form": form})
+
+PASSWORD_VERIFY_SECONDS=300
+
+@login_required
+def accountSettings(request):
+    user = request.user
+    username_form = UserNameForm(instance=user, initial={"username": ""})
+    email_form = EmailForm(instance=user, initial={"email": ""})
+    confirm_form = ConfirmPasswordForm(user)
+    new_password_form = SetPasswordForm(user)
+    open_dialog = None
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "username":
+            username_form = UserNameForm(request.POST, instance=user)
+            if username_form.is_valid():
+                username_form.save()
+                messages.success(request, "Username updated.")
+                return redirect("settings")
+            open_dialog = "username-dialog"        
+
+        elif action == "email":
+            email_form = EmailForm(request.POST, instance=user)
+            if email_form.is_valid():
+                email_form.save()
+                messages.success(request, "Email updated.")
+                return redirect("settings")
+            open_dialog = "email-dialog"
+
+        elif action == "verify_password":
+            confirm_form = ConfirmPasswordForm(user, request.POST)
+            if confirm_form.is_valid():
+                request.session["pw_verified_at"] = time.time()
+                open_dialog = "new-password-dialog"
+            else:
+                open_dialog = "password-dialog"
+
+        elif action == "set_password":
+            verified_at = request.session.get("pw_verified_at")
+            if verified_at is None or time.time() - verified_at > PASSWORD_VERIFY_SECONDS:
+                request.session.pop("pw_verified_at", None)
+                messages.error(request, "Please confirm your current password again.")
+                return redirect("settings")
+            new_password_form = SetPasswordForm(user, request.POST)
+            if new_password_form.is_valid():
+                user = new_password_form.save()
+                update_session_auth_hash(request, user)
+                request.session.pop("pw_verified_at", None)
+                messages.success(request, "Password Changed.")
+                return redirect("settings")
+            open_dialog = "new-password-dialog"
+    return render(request, "accounts/account_settings.html", {
+        "username_form": username_form,
+        "email_form": email_form,
+        "confirm_form": confirm_form,
+        "new_password_form": new_password_form,
+        "open_dialog": open_dialog,
+    })
+
+@login_required
+def deleteAccount(request):
+    form = ConfirmPasswordForm(request.user, request.POST)
+    if request.method == "POST":
+        user = request.user
+        logout(request)
+        messages.success(request,"Account deleted.")
+        user.delete()
+        return redirect('home')
+    return render(request, "accounts/delete_confirm.html", {"form": form})
 
 def passwordVerifyEmail(request):
     email = request.session.get("reset_email")

@@ -1,0 +1,28 @@
+<dialog class="settings-dialog" id="{{ dialog_id }}" aria-labelledby="{{ dialog_id }}-title"
+        {% if open_dialog == dialog_id %}data-open-on-load{% endif %}>
+  <form method="post" class="auth-form settings-dialog-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="{{ action }}">
+    <header class="settings-dialog-head">
+      <div>
+        {% if step %}<span class="eyebrow">{{ step }}</span>{% endif %}
+        <h2 id="{{ dialog_id }}-title">{{ title }}</h2>
+      </div>
+      <button type="button" class="booking-close" data-dialog-close aria-label="Close">&times;</button>
+    </header>
+    {% if intro %}<p class="settings-dialog-intro">{{ intro }}</p>{% endif %}
+
+    {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<small class="helptext">{{ field.help_text|safe }}</small>{% endif %}
+      {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+    {% endfor %}
+
+    <div class="settings-dialog-actions">
+      <button type="button" class="btn small btn-outline" data-dialog-close>Cancel</button>
+      <button type="submit" class="btn small">{{ submit_label }}</button>
+    </div>
+  </form>
+</dialog>

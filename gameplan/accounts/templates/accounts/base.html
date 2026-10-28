@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <<link rel="stylesheet" href="{% static 'css/site.css' %}?v=3">
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
@@ -52,7 +52,7 @@
             <a href="{% url 'my_gameplan' %}">My GamePlan</a>
             <a href="{% url 'profile' %}">My Profile</a>
             <a href="#" data-template-placeholder="true">My Bookings</a>
-            <a href="#" data-template-placeholder="true">Settings</a>
+            <a href="{% url 'settings' %}" >Settings</a>
             <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit">Log Out</button></form>
           </nav>
         </details>
