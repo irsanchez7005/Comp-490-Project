@@ -36,5 +36,22 @@ def create_facility_timeslots(
         facility,
         selected_date
 ):
-    schedules = FacilitySchedule.objects.filter(facility=facility,day_of_week=selected_date)
+    schedules = FacilitySchedule.objects.filter(facility=facility,day_of_week=selected_date.weekday())
+    created_slots=[]
+    """This function creates timeslots for facilities, so calendar can pull all timeslots from database, facilities can create a schedule by selecting day,time, and duration"""
+    """First we get start time for each schedule, then get details of each, also checks if timeslot already exists"""
+    for schedule in schedules:
+
+        start_times= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration,schedule.slot_interval)
+
+        for slot in start_times:
+            timeslot,created= TimeSlot.objects.get_or_create(facility=facility,date=selected_date,start_time=slot["start"],defaults={
+                "price per player": 45,
+                "max_players": 4,
+            },
+            )
+
+            if created:
+                created_slots.append(timeslot)   
+    return created_slots
     

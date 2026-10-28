@@ -155,3 +155,66 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.user} — {self.slot}"
+
+from django.core.exceptions import ValidationError
+
+"""This is for dynamic pricing, matches price with designated time duration, goes into TimeSlot.price_per_player"""
+class FacilityPricing(models.Model):
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.CASCADE,
+        related_name="pricing_rules",
+    )
+    day_of_week = models.IntegerField(
+        choices=FacilitySchedule.DAY_CHOICES,
+    )
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    price_per_player = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+    )
+
+    class Meta:
+        ordering = ["facility", "day_of_week", "start_time"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(end_time__gt=models.F("start_time")),
+                name="facility_pricing_valid_times",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(price_per_player__gte=0),
+                name="facility_pricing_nonnegative_price",
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+
+        if (
+            self.facility_id is None
+            or self.day_of_week is None
+            or self.start_time is None
+            or self.end_time is None
+        ):
+            return
+
+        overlapping = FacilityPricing.objects.filter(
+            facility_id=self.facility_id,
+            day_of_week=self.day_of_week,
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time,
+        ).exclude(pk=self.pk)
+
+        if overlapping.exists():
+            raise ValidationError(
+                "This pricing period overlaps another rule "
+                "for the same facility and weekday."
+            )
+
+    def __str__(self):
+        return (
+            f"{self.facility} — {self.get_day_of_week_display()} "
+            f"{self.start_time}-{self.end_time}: "
+            f"${self.price_per_player}"
+        )

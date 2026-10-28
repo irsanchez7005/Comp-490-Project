@@ -4,7 +4,7 @@ from datetime import date, time, timedelta
 from django import forms
 from django.contrib import admin
 
-from .models import Facility, Sport, Instructor, Session, TimeSlot, Booking,FacilitySchedule,InstructorSchedule
+from .models import Facility, Sport, Instructor, Session, TimeSlot, Booking,FacilitySchedule,InstructorSchedule,FacilityPricing
 
 @admin.register(FacilitySchedule)
 class FacilityScheduleAdmin(admin.ModelAdmin):
@@ -72,6 +72,16 @@ class TimeSlotAdmin(admin.ModelAdmin):
     list_display = ("facility", "date", "start_time", "holes", "price_per_player", "max_players")
     list_filter = ("facility", "date", "holes")
 
+@admin.register(FacilityPricing)
+class FacilityPricingAdmin(admin.ModelAdmin):
+    list_display = [
+        "facility",
+        "day_of_week",
+        "start_time",
+        "end_time",
+        "price_per_player",
+    ]
+    list_filter = ["facility", "day_of_week"]
 
 admin.site.register(Sport)
 admin.site.register(Instructor)
