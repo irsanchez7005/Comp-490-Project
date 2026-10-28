@@ -15,9 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from accounts import views as user_views
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from facility import views as facility_views
 
@@ -31,6 +34,8 @@ urlpatterns = [
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
+    path('my-gameplan/', login_required(TemplateView.as_view(
+        template_name='accounts/my_gameplan/dashboard.html')), name='my_gameplan'),
     path('password-reset/',user_views.passwordResetRequest,
      name='password_reset'),
 
@@ -51,3 +56,6 @@ urlpatterns = [
     path('settings/delete/', user_views.deleteAccount, name='delete_account'),
     path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),     
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

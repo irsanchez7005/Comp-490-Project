@@ -1,0 +1,74 @@
+{% extends "accounts/base.html" %}
+{% block title %}My GamePlan · GamePlan{% endblock %}
+{% block content %}
+<div class="my-gameplan">
+  <aside class="account-sidebar panel" aria-label="My account">
+    <div class="account-initial" aria-hidden="true">{{ user.username|slice:':1'|upper }}</div>
+    <strong>{{ user.username }}</strong>
+    <small>{{ user.email|default:"No email provided" }}</small>
+    <nav aria-label="Dashboard navigation">
+      <a class="active" href="{% url 'my_gameplan' %}" aria-current="page">My GamePlan</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">My Bookings</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Membership</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Messages</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Notifications</a>
+      <a href="{% url 'profile' %}">My Profile</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Saved</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Community</a>
+      <a href="#" data-template-placeholder="true" aria-disabled="true">Settings</a>
+    </nav>
+  </aside>
+
+  <section class="dashboard-main" aria-labelledby="dashboard-title">
+    <div class="dashboard-welcome">
+      <div>
+        <h1 id="dashboard-title">Welcome back, {{ user.username }}!</h1>
+        <p class="muted">Account · {{ user.email|default:"No email provided" }}</p>
+      </div>
+      <a class="btn" href="{% url 'courses' %}">Book a Tee Time</a>
+    </div>
+
+    <div class="dashboard-cards">
+      <div class="panel metric-card">
+        <h2>Upcoming Course Bookings</h2>
+        <p class="muted">Not available yet</p>
+      </div>
+      <div class="panel metric-card">
+        <h2>Upcoming Lessons</h2>
+        <p class="muted">Not available yet</p>
+      </div>
+      <div class="panel metric-card">
+        <h2>Membership</h2>
+        <p class="muted">Not available yet</p>
+      </div>
+    </div>
+
+    <section class="panel dashboard-section" aria-labelledby="upcoming-title">
+      <h2 id="upcoming-title">Upcoming</h2>
+      <div class="empty-state">
+        <strong>No bookings or lessons to display</strong>
+        <p>Your upcoming activity will appear here when this feature is available.</p>
+      </div>
+    </section>
+
+    <section class="panel dashboard-section" aria-labelledby="saved-title">
+      <h2 id="saved-title">Recently Saved</h2>
+      <div class="empty-state">
+        <strong>No saved posts to display</strong>
+        <p>Saved community posts will appear here when this feature is available.</p>
+      </div>
+    </section>
+  </section>
+
+  <aside class="ad-rail" aria-label="Advertising placeholders">
+    <div class="panel ad-placeholder">
+      <small>Advertisement</small>
+      <span>Ad space placeholder</span>
+    </div>
+    <div class="panel ad-placeholder">
+      <small>Advertisement</small>
+      <span>Ad space placeholder</span>
+    </div>
+  </aside>
+</div>
+{% endblock %}
