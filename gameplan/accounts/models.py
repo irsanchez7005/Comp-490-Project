@@ -5,6 +5,18 @@ from django.utils import timezone
 
 
 class User(AbstractUser):
+    """Custom user account for GamePlan
+    
+    Extends from Django's built-in user: username, password, is_active and others already exist
+    Users log in with email instead of username
+
+    Attributes:
+        email: Email (unique) 
+        phone: Phone with max 20 char limit (Optional)
+        email_verified: Bool (True after user entered the signup code)
+        phone_verified: Bool
+        role: Player, Instructor, Owner (default=Player)
+    """
     class Role(models.TextChoices):
         PLAYER = "player", "Player"
         INSTRUCTOR = "instructor", "Instructor"
@@ -18,11 +30,20 @@ class User(AbstractUser):
     #changed the username to email 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
-    # def __str__(self):
-    #     #add username?
-    #     return f"{self.username}: {self.get_role_display()}"
 
 class Profile(models.Model):
+    """User Profile
+
+    One profile per user.
+
+    Attributes:
+        user: primary key, deleted automatically when the user is deleted
+        bio: TextField with 500 max length
+        avatar: Optional profile picture, saved to 'media/avatars/'
+        city: CharField with 100 max length
+        skill_level: CharField with 20 max length
+        updated_at: Set automatically every time the profile is saved
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
@@ -32,6 +53,14 @@ class Profile(models.Model):
 
 
 class VerificationCode(models.Model):
+    """One 6-digit code sent to User
+
+    Channel: how it was sent (email/phone)
+    Purpose: why it was sent (signup/password reset)
+
+    used: bool (True once it's entered, or when a newer code replaces it)
+    codes are created by create_code in verification.py
+    """
     class Channel(models.TextChoices):
         EMAIL = "email", "Email"
         PHONE = "phone", "Phone"
@@ -48,6 +77,7 @@ class VerificationCode(models.Model):
     purpose = models.CharField(max_length=20, choices=Purpose.choices, default=Purpose.SIGNUP)
 
     def is_expired(self):
+        """Return True if the code's expiry time has passed."""
         return timezone.now() >= self.expires_at
 
     def __str__(self):
