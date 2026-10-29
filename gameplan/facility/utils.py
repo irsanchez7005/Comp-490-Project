@@ -1,6 +1,6 @@
 from datetime import datetime,date,timedelta
 from .models import TimeSlot
-from facility.models import FacilitySchedule
+from facility.models import FacilitySchedule,FacilityPricing,TimeSlot
 #we generate slots based on their input for day of choice, start time, end time, gap time, and slot duration
 def generate_slots(
         start_time,
@@ -37,21 +37,29 @@ def create_facility_timeslots(
         selected_date
 ):
     schedules = FacilitySchedule.objects.filter(facility=facility,day_of_week=selected_date.weekday())
+    pricing_rules= list(FacilityPricing.objects.filter(facility=facility,day_of_week=selected_date.weekday()))
     created_slots=[]
     """This function creates timeslots for facilities, so calendar can pull all timeslots from database, facilities can create a schedule by selecting day,time, and duration"""
     """First we get start time for each schedule, then get details of each, also checks if timeslot already exists"""
     for schedule in schedules:
 
-        start_times= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration,schedule.slot_interval)
+        generated_times= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration,schedule.slot_interval)
 
-        for slot in start_times:
-            timeslot,created= TimeSlot.objects.get_or_create(facility=facility,date=selected_date,start_time=slot["start"],defaults={
-                "price per player": 45,
-                "max_players": 4,
-            },
-            )
+        for generated in generated_times:
+            start = generated["start"]
+
+            matching_rules=[
+                rule for rule in pricing_rules
+                if rule.start_time <= start < rule.end_time
+            ]
+            """Not allowing missing pricing"""
+            if len(matching_rules) !=1:
+                continue
+            slot, created = TimeSlot.objects.get_or_create(facility=facility,date=selected_date,start_time=start,
+                                            defaults={ "price_per_player": matching_rules[0].price_per_player, "max_players": 4,},
+                                                               )
+
 
             if created:
-                created_slots.append(timeslot)   
+                created_slots.append(slot)   
     return created_slots
-    
