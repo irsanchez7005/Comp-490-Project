@@ -177,8 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const dialog = document.getElementById("booking-dialog");
   if (!dialog) return;
-  const courseInput = document.getElementById("booking-course");
-  const timeInput = document.getElementById("booking-time");
   const courseName = document.getElementById("booking-course-name");
   const timeLabel = document.getElementById("booking-time-label");
   const detailsTime = document.getElementById("booking-details-time");
@@ -187,8 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const course = card.querySelector(".course-info h2").textContent.trim();
     const time = card.querySelector("time").textContent.trim();
 
-    courseInput.value = course;
-    timeInput.value = time;
     courseName.textContent = course;
     timeLabel.textContent = time;
     detailsTime.textContent = time;
