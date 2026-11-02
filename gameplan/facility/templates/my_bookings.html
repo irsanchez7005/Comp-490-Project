@@ -1,0 +1,50 @@
+{% extends "accounts/base.html" %}
+{% block title %}My Bookings | GamePlan{% endblock %}
+{% block content %}
+
+<section class="home-wrap">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">YOUR ROUNDS</p>
+      <h2>My Bookings</h2>
+    </div>
+  </div>
+
+  <div class="booking-list">
+    {% for b in bookings %}
+    <article class="booking-row {% if b.status == 'cancelled' %}is-cancelled{% endif %}">
+      <div class="booking-when">
+        <strong>{{ b.slot.date|date:"D M j" }}</strong>
+        <span>{{ b.slot.start_time|time:"g:i A" }}</span>
+      </div>
+
+      <div class="booking-where">
+        <h3>{{ b.slot.facility.facility_name }}</h3>
+        <p>
+          {{ b.num_players }} player{{ b.num_players|pluralize }}
+          {% if b.slot.holes %}· {{ b.slot.holes }} holes{% endif %}
+          · ${{ b.slot.price_per_player }} each
+        </p>
+      </div>
+
+      <div class="booking-status">
+        {% if b.status == 'confirmed' %}
+        <span class="status-pill confirmed">Confirmed</span>
+        <form method="post" action="{% url 'cancel_booking' b.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="link-button">Cancel</button>
+        </form>
+        {% else %}
+        <span class="status-pill cancelled">Cancelled</span>
+        {% endif %}
+      </div>
+    </article>
+    {% empty %}
+    <p class="no-times">
+      No bookings yet. <a href="{% url 'courses' %}">Find a tee time</a>.
+    </p>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

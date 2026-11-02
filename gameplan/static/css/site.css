@@ -556,3 +556,55 @@ mark {background: green; color: white; }
 /* The tee-time grid on the detail page needs its own spacing */
 .home-wrap > .tee-times { margin-top: 22px; }
 .tee-card .slot-date { margin: 0 0 2px; color: var(--muted); font-size: 12px; }
+
+
+/* ---------- Tee card date line ---------- */
+.tee-card .slot-date { margin: 0 0 2px; color: var(--muted); font-size: 12px; }
+
+/* ---------- My Bookings ---------- */
+.bookings-list { display: flex; flex-direction: column; gap: 18px; }
+
+.booking-row { 
+  display: flex;
+  grid-template-columns: 110px 1fr auto;
+   align-items: center; 
+   gap: 12px; 
+   padding: 18px 20px; 
+   border: 1px solid var(--border); 
+   border-radius: 12px; 
+   background: var(--white); 
+   box-shadow: var(--shadow-sm);
+}
+.booking-row.is-cancelled { opacity: .55; }
+.booking-when { display: flex; flex-direction: column; gap: 2px; }
+.booking-when strong { color: var(--dark); font-size: 15px;}
+.booking-when span { color: var(--muted); font-size: 13px; }
+.booking-where h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+.booking-where p { margin: 0; color: var(--muted); font-size: 13px; }
+.booking-status { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; }
+
+.status-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.status-pill.confirmed { background: var(--mint); color: var(--green); }
+.status-pill.cancelled { background: #f1c9c6; color: #a
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #a33131;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.link-button:hover { text-decoration: underline; }
+@media (max-width: 620px) {
+  .booking-row { grid-template-columns: 1fr; gap: 10px; }
+  .booking-status { justify-content: space-between; }
+}

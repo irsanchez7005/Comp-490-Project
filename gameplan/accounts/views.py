@@ -8,7 +8,7 @@ from .forms import AccountRegisterForm
 from django.contrib.auth.decorators import login_required
 from .verification import send_email_code, send_password_reset_code
 from .models import User, VerificationCode, Profile
-from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm, UserNameForm,EmailForm,ConfirmPasswordForm, DeleteAccountForm
+from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequestForm, UserNameForm,EmailForm,ConfirmPasswordForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import SetPasswordForm
@@ -164,13 +164,16 @@ def accountSettings(request):
 
 @login_required
 def deleteAccount(request):
-    form = ConfirmPasswordForm(request.user, request.POST)
     if request.method == "POST":
-        user = request.user
-        logout(request)
-        messages.success(request,"Account deleted.")
-        user.delete()
-        return redirect('home')
+        form = ConfirmPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = request.user
+            logout(request)
+            messages.success(request,"Account deleted.")
+            user.delete()
+            return redirect('home')
+    else:
+        form = ConfirmPasswordForm(request.user)
     return render(request, "accounts/delete_confirm.html", {"form": form})
 
 def passwordVerifyEmail(request):
