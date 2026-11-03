@@ -34,6 +34,7 @@ urlpatterns = [
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
+    path('profile/edit/', user_views.editProfile, name='edit_profile'),
     path('my-gameplan/', login_required(TemplateView.as_view(
         template_name='accounts/my_gameplan/dashboard.html')), name='my_gameplan'),
     path('password-reset/',user_views.passwordResetRequest,
@@ -60,6 +61,7 @@ urlpatterns = [
     path("bookings/", facility_views.my_bookings, name="my_bookings"),
     path("bookings/<int:pk>/confirmation/", facility_views.booking_confirmation, name="booking_confirmation"),
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
+    path("search/", facility_views.facility_search, name="facility_search"),
 ]
 
 if settings.DEBUG:

@@ -205,3 +205,46 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target === dialog) dialog.close();
   });
 });
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-autocomplete]").forEach((input) => {
+    const wrap = input.closest(".search-wrap");
+    if (!wrap) return;
+    const panel = document.createElement("div");
+    panel.className = "search-results";
+    panel.hidden = true;
+    wrap.appendChild(panel);
+
+    let timer;
+    input .addEventListener("input", () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (!q) {
+        panel.hidden = true;
+        return;
+      }
+   timer = setTimeout(() => {
+        fetch("/search/?q=" + encodeURIComponent(q))
+          .then(r => r.json())
+          .then(data => {
+            if (!data.results.length) {
+              panel.innerHTML = '<p class="search-empty">No courses found</p>';
+            } else {
+              // carry the date along if the form has one
+              const dateField = input.form && input.form.querySelector('input[type="date"]');
+              const extra = dateField && dateField.value ? "?date=" + dateField.value : "";
+
+              panel.innerHTML = data.results.map(r =>
+                `<a href="/facilities/${r.id}/${extra}">
+                   <strong>${r.name}</strong><span>${r.city}</span>
+                 </a>`
+              ).join("");
+            }
+            panel.hidden = false;
+          });
+      }, 150);
+    });
+    document.addEventListener("click", (event) => {
+      if (!wrap.contains(event.target)) panel.hidden = true;
+    });
+  });
+});

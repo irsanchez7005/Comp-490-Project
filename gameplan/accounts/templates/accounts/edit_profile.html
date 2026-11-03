@@ -1,0 +1,63 @@
+{% extends "accounts/base.html" %}
+{% block title %}Edit Profile &middot; GamePlan{% endblock %}
+{% block content %}
+<div class="form-page">
+  <section class="panel form-card edit-profile">
+    <h1>Edit Profile</h1>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="profile-form-field">
+          {{ field.label_tag }}
+          {% if field.name == 'avatar' or field.name == 'cover_image' %}
+            <img class="profile-image-preview{% if field.name == 'avatar' %} avatar-preview{% endif %}"
+                 id="{{ field.id_for_label }}_preview" alt="{{ field.label }} preview"
+                 {% if field.value %}src="{{ field.value.url }}"{% else %}hidden{% endif %}>
+          {% endif %}
+          <div class="profile-form-input">{{ field }}</div>
+          {% if field.name == 'skill_level' %}
+            <datalist id="golf-skill-levels">
+              <option value="Beginner">
+              <option value="Intermediate">
+              <option value="Advanced">
+            </datalist>
+          {% endif %}
+          {% if field.help_text %}<small class="muted" id="{{ field.id_for_label }}_helptext">{{ field.help_text }}</small>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+      <div class="profile-form-actions">
+        <button class="btn" type="submit">Save Changes</button>
+        <a class="btn btn-outline" href="{% url 'profile' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll('.edit-profile input[type="file"]').forEach(function (input) {
+    const preview = document.getElementById(input.id + '_preview');
+    const original = preview.getAttribute('src');
+    const clear = document.querySelector('[name="' + input.name + '-clear"]');
+    let previewUrl;
+
+    function updatePreview() {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      const file = input.files[0];
+      previewUrl = null;
+      if (file && file.size <= 5 * 1024 * 1024 && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+        previewUrl = URL.createObjectURL(file);
+      }
+      const source = clear && clear.checked ? null : (previewUrl || original);
+      preview.hidden = !source;
+      if (source) preview.src = source;
+      else preview.removeAttribute('src');
+    }
+
+    input.addEventListener('change', updatePreview);
+    if (clear) clear.addEventListener('change', updatePreview);
+  });
+</script>
+{% endblock %}

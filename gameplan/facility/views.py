@@ -12,6 +12,8 @@ from .forms import PaymentForm
 from .models import Facility, Booking, TimeSlot
 from .pricing import calculate_receipt
 
+from django.http import JsonResponse
+
 CARD_LAST4_LENGTH = 4
 INVALID_SELECTION_MESSAGE = "Please choose a tee time and number of players."
 PAST_SLOT_MESSAGE = "That tee time has already passed."
@@ -69,7 +71,6 @@ def _render_checkout(request, slot, players, form):
         "form": form,
     })
 
-
 def facility_list(request):
     """The /courses/ page - just the list of courses."""
     today = timezone.localdate()
@@ -84,12 +85,12 @@ def facility_list(request):
             filter=Q(slots__date__gte=today)
         ),
     )
-
-    return render(
-        request,
-        "courses-page.html",
-        {"facilities": facilities}
-    )
+    q = request.GET.get("q", "").strip()
+    if q:
+        facilities = facilities.filter(
+            Q(facility_name__icontains=q) | Q(city__icontains=q)
+        )
+    return render(request, "courses-page.html", {"facilities": facilities})
 
 
 def facility_detail(request, pk):
@@ -261,3 +262,14 @@ def cancel_booking(request, pk):
     )
 
     return redirect("my_bookings")
+def facility_search(request):
+    """Search for facilities by name."""
+    q = request.GET.get("q", "").strip()
+    results = []
+
+    if q:
+        matches = Facility.objects.filter(
+            Q(facility_name__icontains=q) | Q(city__icontains=q)
+        )[:8]
+        results = [ {"name": f.facility_name, "city": f.city, "id": f.pk} for f in matches ]
+    return JsonResponse({"results": results})
