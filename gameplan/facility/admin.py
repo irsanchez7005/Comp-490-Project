@@ -1,4 +1,4 @@
-from datetime import date, time, timedelta
+from datetime import date, time, timedelta, datetime
 
 from django import forms
 from django.contrib import admin
@@ -44,7 +44,7 @@ def generate_tee_times(modeladmin, request, queryset):
                 if made:
                     created += 1
                 dt = timedelta(hours=current.hour, minutes=current.minute + INTERVAL)
-                current = (date.min + dt).time()
+                current = datetime.combine(date.min, current) + timedelta(minutes=INTERVAL)
 
     modeladmin.message_user(request, f"Created {created} tee times.")
 

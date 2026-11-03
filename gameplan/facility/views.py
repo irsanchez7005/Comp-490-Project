@@ -91,7 +91,7 @@ def book_slot(request):
 
     label = (
         f"{locked.facility.facility_name} on "
-        f"{locked.date:%b %-d} at {locked.start_time:%-I:%M %p}"
+        f"{locked.date:%b %d} at {locked.start_time:%I:%M %p}".lstrip("0")
     )
     messages.success(request, f"Booked {label} for {players} player{'' if players == 1 else 's'}.")
     return redirect("my_bookings")
@@ -111,7 +111,7 @@ def my_bookings(request):
 def cancel_booking(request, pk):
     """Cancel a booking."""
     booking = get_object_or_404(Booking, pk=pk, user=request.user)
-    booking.status == Booking.Status.CANCELLED
+    booking.status = Booking.Status.CANCELLED
     booking.save(update_fields=["status"])
     messages.success(request, "Booking cancelled.")
     return redirect("my_bookings")
