@@ -248,3 +248,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+/* Verification code lock: count down, then let the user try again */
+document.addEventListener("DOMContentLoaded", () => {
+  const lock = document.getElementById("code-lock");
+  if (!lock) return;
+  const timer = document.getElementById("code-lock-timer");
+  const button = document.getElementById("verify-button");
+  let seconds = Number(lock.dataset.seconds);
+
+  const show = () => {
+    const m = Math.floor(seconds / 60);
+    const s = String(seconds % 60).padStart(2, "0");
+    timer.textContent = m + ":" + s;
+  };
+
+  show();
+  const tick = setInterval(() => {
+    seconds -= 1;
+    if (seconds <= 0) {
+      clearInterval(tick);
+      lock.remove();
+      button.disabled = false;
+      return;
+    }
+    show();
+  }, 1000);
+});

@@ -1,5 +1,8 @@
+import math
 import secrets
 import time
+from datetime import timedelta
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
@@ -39,10 +42,13 @@ def verifyEmail(request):
     if user_id is None:
         return redirect("createAccount")
     user =get_object_or_404(User, pk=user_id)
+    lock_seconds = codeLockSeconds(user, VerificationCode.Purpose.SIGNUP)
 
     if request.method == "POST":
         form = VerifyCodeForm(request.POST)
-        if form.is_valid():
+        if lock_seconds:
+            pass  # still locked: ignore the guess, the template shows the countdown
+        elif form.is_valid():
             verification = (
                 VerificationCode.objects
                 .filter(user=user, channel=VerificationCode.Channel.EMAIL, purpose=VerificationCode.Purpose.SIGNUP, used=False)
@@ -51,9 +57,18 @@ def verifyEmail(request):
             )
             entered = form.cleaned_data['code']
 
-            if (verification is None or verification.is_expired()
-                    or not secrets.compare_digest(entered, verification.code)):
+            if verification is None or verification.is_expired():
                 form.add_error("code", "That code is invalid or has expired.")
+            elif not secrets.compare_digest(entered, verification.code):
+                verification.attempts+=1
+                if verification.attempts >= MAX_CODE_ATTEMPTS:
+                    #lock for a minute, then allow 
+                    verification.attempts =0
+                    verification.locked_until = timezone.now() + timedelta(seconds=CODE_LOCK_SECONDS)
+                    lock_seconds= CODE_LOCK_SECONDS
+                else:
+                    form.add_error("code", "That code is invalid or has expired.")
+                verification.save(update_fields=["attempts", "locked_until"])
             else:
                 verification.used = True
                 verification.save(update_fields=['used'])
@@ -66,7 +81,7 @@ def verifyEmail(request):
     else:
         form = VerifyCodeForm()
 
-    return render(request, "accounts/verify_email.html", {"form": form, "email": user.email})
+    return render(request, "accounts/verify_email.html", {"form": form, "email": user.email, "lock_seconds": lock_seconds})
 
 class EmailLoginView(LoginView):
     template_name='accounts/login.html'
@@ -110,6 +125,27 @@ def editProfile(request):
     return render(request, "accounts/edit_profile.html", {"form": form})
 
 PASSWORD_VERIFY_SECONDS=300
+MAX_CODE_ATTEMPTS= 3
+CODE_LOCK_SECONDS = 60
+
+def codeLockSeconds(user, purpose):
+    """Return how many seconds are left before ``user`` can try a code again (0 = not locked).
+
+    Checks every code for this purpose, not just the newest one, so
+    requesting a new code with "Resend" doesn't skip the wait.
+    """
+    if user is None:
+        return 0
+    now = timezone.now()
+    locked = (
+        VerificationCode.objects
+        .filter(user=user, purpose=purpose, locked_until__gt=now)
+        .order_by("-locked_until")
+        .first()
+    )
+    if locked is None:
+        return 0
+    return math.ceil((locked.locked_until - now).total_seconds())
 
 @login_required
 def accountSettings(request):
@@ -182,26 +218,38 @@ def deleteAccount(request):
     return render(request, "accounts/delete_confirm.html", {"form": form})
 
 def passwordVerifyEmail(request):
-    email = request.session.get("reset_email")
+    email = request.session.get("reset_email") 
     if email is None:
         messages.error(request, "Please enter your email.")
         return redirect("password_reset")
     user =User.objects.filter(email=email).first()
+    lock_seconds = codeLockSeconds(user, VerificationCode.Purpose.PASSWORD_RESET)
 
     if request.method == "POST":
         form = VerifyCodeForm(request.POST)
-        if form.is_valid():
+        if lock_seconds:
+            pass  # still locked: ignore the guess, the template shows the countdown
+        elif form.is_valid():
             verification = (
                 VerificationCode.objects
                 .filter(user=user, channel=VerificationCode.Channel.EMAIL, purpose=VerificationCode.Purpose.PASSWORD_RESET, used=False)
                 .order_by("-id")
                 .first()
-            )
+            ) if user else None
             entered = form.cleaned_data['code']
 
-            if (verification is None or verification.is_expired()
-                    or not secrets.compare_digest(entered, verification.code)):
+            if verification is None or verification.is_expired():
                 form.add_error("code", "That code is invalid or has expired.")
+            elif not secrets.compare_digest(entered, verification.code):
+                verification.attempts += 1
+                if verification.attempts >= MAX_CODE_ATTEMPTS:
+                    # lock for a minute, then allow another round of guesses
+                    verification.attempts = 0
+                    verification.locked_until = timezone.now() + timedelta(seconds=CODE_LOCK_SECONDS)
+                    lock_seconds = CODE_LOCK_SECONDS
+                else:
+                    form.add_error("code", "That code is invalid or has expired.")
+                verification.save(update_fields=["attempts", "locked_until"])
             else:
                 verification.used = True
                 verification.save(update_fields=['used'])
@@ -212,7 +260,11 @@ def passwordVerifyEmail(request):
     else:
         form = VerifyCodeForm()
 
-    return render(request, "accounts/password_reset_sent.html", {"form": form, "email": email})
+    return render(request, "accounts/password_reset_sent.html", {
+        "form": form,
+        "email": email,
+        "lock_seconds": lock_seconds,
+    })
 
 def passwordResetRequest(request):
     if request.method == "POST":

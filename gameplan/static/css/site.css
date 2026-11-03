@@ -179,6 +179,7 @@ img { display: block; max-width: 100%; }
 .auth-form input { width: 100%; min-height: 48px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: white; color: var(--text); outline: none; }
 .auth-form input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(7, 93, 57, .12); }
 .auth-form .btn { margin-top: 16px; }
+.auth-form .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 .helptext { color: var(--muted); font-size: 11px; line-height: 1.45; }
 .helptext ul, .field-errors ul, .form-errors ul { margin: 4px 0; padding-left: 19px; }
 .field-errors, .form-errors { color: #a33131; font-size: 12px; }
