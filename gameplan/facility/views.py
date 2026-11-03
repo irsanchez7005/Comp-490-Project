@@ -7,18 +7,15 @@ from django.utils import timezone
 from .models import Facility, Booking,InstructorSchedule,TimeSlot
 from .utils import generate_slots
 
-<<<<<<< HEAD
 #schedule = InstructorSchedule.objects.get(id=1)
 
 #slots= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration)
-=======
 from .models import Facility, Booking, TimeSlot
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect          # added to the existing line
 from django.views.decorators.http import require_POST
->>>>>>> 403e6b61c2da2a5d9aacfb481f4028ee993ec2f9
 
 
 def facility_list(request):
