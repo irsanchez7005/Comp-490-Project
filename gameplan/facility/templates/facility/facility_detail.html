@@ -93,11 +93,8 @@
 
 <!-- Booking dialog -->
 <dialog class="booking-dialog" id="booking-dialog" aria-labelledby="booking-title">
-  <form class="booking-form" action="{% url 'book_slot' %}" method="post">
-    {% csrf_token %}
+  <form class="booking-form" action="{% url 'checkout' %}" method="get">
     <input type="hidden" name="slot_id" id="booking-slot-id" />
-    <input type="hidden" name="course" id="booking-course" />
-    <input type="hidden" name="tee_time" id="booking-time" />
 
     <header class="booking-header">
       <h2 class="booking-title" id="booking-title">
@@ -278,8 +275,6 @@
       const spots = btn.dataset.openSpots;
 
       document.getElementById("booking-slot-id").value = btn.dataset.slotId;
-      document.getElementById("booking-course").value = "{{ facility.facility_name|escapejs }}";
-      document.getElementById("booking-time").value = time;
       document.getElementById("booking-course-name").textContent = "{{ facility.facility_name|escapejs }}";
       document.getElementById("booking-time-label").textContent = time;
       document.getElementById("booking-price").textContent = price;

@@ -1,0 +1,123 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Checkout | GamePlan{% endblock %}
+
+{% block extra_head %}
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+  <script src="https://kit.fontawesome.com/bb515311f9.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+  <div class="checkout-container">
+    <div class="left-side">
+      <div class="text-box">
+        <h1 class="home-heading">{{ slot.facility.facility_name }}</h1>
+        <p class="home-price"><em>{{ slot.price_per_player }} USD </em>/ player</p>
+        <hr class="left-hr" />
+        <p class="home-desc">
+          {% if slot.holes %}<em>{{ slot.holes }} holes </em>for {% endif %}<em>{{ players }} player{{ players|pluralize }}</em>
+        </p>
+        <p class="home-desc">
+          <em>{{ slot.date|date:"D, F j, Y" }} </em>at <em>{{ slot.start_time|time:"g:i A" }}</em>
+        </p>
+      </div>
+    </div>
+
+    <div class="right-side">
+      <div class="receipt">
+        <h2 class="receipt-heading">Receipt Summary</h2>
+        <table class="table">
+          <tr>
+            <td>{{ slot.price_per_player }} x {{ players }} player{{ players|pluralize }}</td>
+            <td class="price">{{ receipt.subtotal }} USD</td>
+          </tr>
+          <tr>
+            <td>Discount</td>
+            <td class="price">{{ receipt.discount }} USD</td>
+          </tr>
+          <tr>
+            <td>Subtotal</td>
+            <td class="price">{{ receipt.subtotal }} USD</td>
+          </tr>
+          <tr>
+            <td>Tax</td>
+            <td class="price">{{ receipt.tax }} USD</td>
+          </tr>
+          <tr class="total">
+            <td>Total</td>
+            <td class="price">{{ receipt.total }} USD</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="payment-info">
+        <h3 class="payment-heading">Payment Information</h3>
+        <form class="form-box" action="{% url 'book_slot' %}" method="post" data-checkout-form>
+          {% csrf_token %}
+          <input type="hidden" name="slot_id" value="{{ slot.pk }}" />
+          <input type="hidden" name="golfers" value="{{ players }}" />
+
+          <div>
+            <label for="full-name">Full Name</label>
+            <input id="full-name" name="full_name" placeholder="Liam Smith" required type="text"
+                   autocomplete="cc-name" value="{{ form.full_name.value|default_if_none:'' }}" />
+            {% if form.full_name.errors %}<p class="field-error" role="alert">{{ form.full_name.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="credit-card-num">Card Number
+              <span class="card-logos">
+                <i class="card-logo fa-brands fa-cc-visa"></i>
+                <i class="card-logo fa-brands fa-cc-amex"></i>
+                <i class="card-logo fa-brands fa-cc-mastercard"></i>
+                <i class="card-logo fa-brands fa-cc-discover"></i>
+              </span>
+            </label>
+            <input id="credit-card-num" name="credit_card_num" placeholder="1111-2222-3333-4444" required
+                   type="text" inputmode="numeric" autocomplete="cc-number" />
+            {% if form.credit_card_num.errors %}<p class="field-error" role="alert">{{ form.credit_card_num.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="expiry">Expires on:</label>
+            <input id="expiry" name="expiry" placeholder="MM/YY" required type="text" maxlength="5"
+                   autocomplete="cc-exp" value="{{ form.expiry.value|default_if_none:'' }}" />
+            {% if form.expiry.errors %}<p class="field-error" role="alert">{{ form.expiry.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="cvv">CVV</label>
+            <input id="cvv" name="cvv" placeholder="415" required type="text" inputmode="numeric"
+                   maxlength="4" autocomplete="cc-csc" />
+            {% if form.cvv.errors %}<p class="field-error" role="alert">{{ form.cvv.errors.0 }}</p>{% endif %}
+            <details class="cvv-info">
+              <summary>What is CVV?</summary>
+              <p>The 3 or 4 digit security code printed on your card.</p>
+            </details>
+          </div>
+
+          <button class="btn" type="submit">
+            <i class="fa-solid fa-lock"></i> Book Securely
+          </button>
+        </form>
+
+        <p class="footer-text">
+          <i class="fa-solid fa-lock"></i>
+          Demo checkout: no real charge is made and card details are not stored.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
+    event.target.querySelector('button[type="submit"]').disabled = true;
+  });
+</script>
+{% endblock %}

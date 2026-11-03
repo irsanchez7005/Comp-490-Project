@@ -1,0 +1,57 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Booking #{{ booking.pk }} | GamePlan{% endblock %}
+
+{% block extra_head %}
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+  <div class="checkout-container">
+    <div class="left-side">
+      <div class="text-box">
+        <h1 class="home-heading">{{ booking.slot.facility.facility_name }}</h1>
+        <p class="home-price"><em>Booking #{{ booking.pk }}</em></p>
+        <hr class="left-hr" />
+        <p class="home-desc">
+          {% if booking.slot.holes %}<em>{{ booking.slot.holes }} holes </em>for {% endif %}<em>{{ booking.num_players }} player{{ booking.num_players|pluralize }}</em>
+        </p>
+        <p class="home-desc">
+          <em>{{ booking.slot.date|date:"D, F j, Y" }} </em>at <em>{{ booking.slot.start_time|time:"g:i A" }}</em>
+        </p>
+      </div>
+    </div>
+
+    <div class="right-side">
+      <div class="receipt">
+        <h2 class="receipt-heading">
+          {% if booking.status == 'cancelled' %}Booking Cancelled{% else %}Booking Confirmed{% endif %}
+        </h2>
+        {% if booking.total is not None %}
+        <table class="table">
+          <tr>
+            <td>Subtotal</td>
+            <td class="price">{{ booking.subtotal }} USD</td>
+          </tr>
+          <tr>
+            <td>Tax</td>
+            <td class="price">{{ booking.tax }} USD</td>
+          </tr>
+          <tr class="total">
+            <td>Total</td>
+            <td class="price">{{ booking.total }} USD</td>
+          </tr>
+        </table>
+        <p class="confirmation-card">Paid with card ending in {{ booking.card_last4 }}</p>
+        {% endif %}
+      </div>
+
+      <p class="confirmation-note">Demo checkout: no real charge was made.</p>
+      <a class="btn confirmation-link" href="{% url 'my_bookings' %}">View My Bookings</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
