@@ -18,8 +18,8 @@
       <p>Discover great courses. Book tee times. Play more.</p>
     </div>
 
-    <form class="hero-search" action="#" method="get" data-template-placeholder="true">
-      <label><span>Location / ZIP / Course</span><input name="location" aria-label="Location, ZIP, or course" placeholder="Enter city, ZIP, or course"></label>
+    <form class="hero-search" action="{% url 'courses' %}" method="get">
+      <label class="search-wrap"><span>Location / ZIP / Course</span><input name="q" autocomplete="off" data-autocomplete aria-label="Location, ZIP, or course" placeholder="Enter city, ZIP, or course"></label>
       <label><span>Date</span><input type="date" name="date" aria-label="Date"></label>
       <label><span>Players</span><select name="golfers" aria-label="Players"><option>1 Player</option><option>2 Players</option><option>3 Players</option><option>4 Players</option></select></label>
       <button class="btn hero-search-button" type="submit">Search</button>

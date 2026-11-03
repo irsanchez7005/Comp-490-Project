@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect          # added to the existing line
 from django.views.decorators.http import require_POST
-
+from django.http import JsonResponse
 
 def facility_list(request):
     """The /courses/ page — just the list of courses."""
@@ -21,7 +21,11 @@ def facility_list(request):
         from_price=Min("slots__price_per_player", filter=Q(slots__date__gte=today)),
         slot_count=Count("slots", filter=Q(slots__date__gte=today)),
     )
-
+    q = request.GET.get("q", "").strip()
+    if q:
+        facilities = facilities.filter(
+            Q(facility_name__icontains=q) | Q(city__icontains=q)
+        )
     return render(request, "courses-page.html", {"facilities": facilities})
 
 
@@ -116,3 +120,14 @@ def cancel_booking(request, pk):
     messages.success(request, "Booking cancelled.")
     return redirect("my_bookings")
 
+def facility_search(request):
+    """Search for facilities by name."""
+    q = request.GET.get("q", "").strip()
+    results = []
+
+    if q:
+        matches = Facility.objects.filter(
+            Q(facility_name__icontains=q) | Q(city__icontains=q)
+        )[:8]
+        results = [ {"name": f.facility_name, "city": f.city, "id": f.pk} for f in matches ]
+    return JsonResponse({"results": results})

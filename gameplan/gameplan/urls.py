@@ -58,6 +58,7 @@ urlpatterns = [
     path("book/", facility_views.book_slot, name="book_slot"),
     path("bookings/", facility_views.my_bookings, name="my_bookings"),
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
+    path("search/", facility_views.facility_search, name="facility_search"),
 ]
 
 if settings.DEBUG:

@@ -592,7 +592,7 @@ mark {background: green; color: white; }
   text-transform: uppercase;
 }
 .status-pill.confirmed { background: var(--mint); color: var(--green); }
-.status-pill.cancelled { background: #f1c9c6; color: #a
+.status-pill.cancelled { background: #f1c9c6; color: #a33131; }
 
 .link-button {
   padding: 0;
@@ -608,3 +608,41 @@ mark {background: green; color: white; }
   .booking-row { grid-template-columns: 1fr; gap: 10px; }
   .booking-status { justify-content: space-between; }
 }
+.search-wrap {position: relative;  }
+.search-results { 
+  position: absolute; 
+  top: calc(100% + 6px);
+   left: 0; 
+   right: 0; 
+   z-index: 60;
+  min-width: 240px; 
+  padding: 6px 0;
+  background: var(--white); 
+  border: 1px solid var(--border); 
+  border-radius: 12px; 
+  box-shadow: var(--shadow-lg);
+}
+.search-results a { display: flex; flex-direction: column; padding: 9px 12px; border-radius: 8px; }
+.search-results a:hover { background: var(--mint); color: var(--green); }
+.search-results strong{ color: var(--dark); font-size: 13px; font-weight: 700; }
+.search-results span { color: var(--muted); font-size: 12px; }
+.search-empty { margin: 0; padding: 12px; color: var(--muted); font-size: 13px; text-align: center; }
+
+.search-results {
+  position: absolute !important;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: block !important;
+  flex: none !important;
+  min-width: 240px;
+  padding: 6px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+}
+.search-results a { display: flex !important; flex-direction: column; padding: 9px 12px; border-radius: 8px; }
+.hero-search .search-wrap { position: relative; }
