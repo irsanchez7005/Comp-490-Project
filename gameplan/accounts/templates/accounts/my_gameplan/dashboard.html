@@ -8,7 +8,7 @@
     <small>{{ user.email|default:"No email provided" }}</small>
     <nav aria-label="Dashboard navigation">
       <a class="active" href="{% url 'my_gameplan' %}" aria-current="page">My GamePlan</a>
-      <a href="#" data-template-placeholder="true" aria-disabled="true">My Bookings</a>
+      <a href="{% url 'my_bookings' %}">My Bookings</a>
       <a href="#" data-template-placeholder="true" aria-disabled="true">Membership</a>
       <a href="#" data-template-placeholder="true" aria-disabled="true">Messages</a>
       <a href="#" data-template-placeholder="true" aria-disabled="true">Notifications</a>
