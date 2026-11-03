@@ -94,6 +94,11 @@ def resendCode(request):
 @login_required
 def accountProfile(request):
     profile_obj, _ = Profile.objects.get_or_create(user=request.user)
+    return render(request, "accounts/profile.html", {"profile": profile_obj})
+
+@login_required
+def editProfile(request):
+    profile_obj, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile_obj)
         if form.is_valid():
@@ -102,7 +107,7 @@ def accountProfile(request):
             return redirect("profile")
     else:
         form = ProfileForm(instance=profile_obj)
-    return render(request, "accounts/profile.html", {"form": form})
+    return render(request, "accounts/edit_profile.html", {"form": form})
 
 PASSWORD_VERIFY_SECONDS=300
 

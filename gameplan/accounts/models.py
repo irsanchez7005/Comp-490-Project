@@ -47,8 +47,11 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
+    cover_image = models.ImageField(upload_to="covers/", null=True, blank=True)
     city = models.CharField(max_length=100, blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)
     skill_level = models.CharField(max_length=20, blank=True)
+    handicap = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
