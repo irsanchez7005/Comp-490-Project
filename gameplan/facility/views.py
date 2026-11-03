@@ -96,7 +96,7 @@ def book_slot(request):
 
     label = (
         f"{locked.facility.facility_name} on "
-        f"{locked.date:%b %-d} at {locked.start_time:%-I:%M %p}"
+        f"{locked.date:%b %d} at {locked.start_time:%I:%M %p}".lstrip("0")
     )
     messages.success(request, f"Booked {label} for {players} player{'' if players == 1 else 's'}.")
     return redirect("my_bookings")
