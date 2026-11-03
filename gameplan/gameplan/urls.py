@@ -34,6 +34,7 @@ urlpatterns = [
     path('verify/', user_views.verifyEmail, name='verifyEmail'),
     path('verify/resend', user_views.resendCode, name='resendCode'),
     path('profile/', user_views.accountProfile, name='profile'),
+    path('profile/edit/', user_views.editProfile, name='edit_profile'),
     path('my-gameplan/', login_required(TemplateView.as_view(
         template_name='accounts/my_gameplan/dashboard.html')), name='my_gameplan'),
     path('password-reset/',user_views.passwordResetRequest,

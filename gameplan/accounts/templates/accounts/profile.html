@@ -3,10 +3,14 @@
 {% block content %}
 <div class="profile-page">
   <section class="profile-hero">
-    <div class="profile-cover-photo"></div>
+    <div class="profile-cover-photo">
+      {% if profile.cover_image %}
+        <img src="{{ profile.cover_image.url }}" alt="Your cover photo">
+      {% endif %}
+    </div>
     <div class="profile-identity">
-      {% if user.profile.avatar %}
-        <img class="profile-avatar-xl" src="{{ user.profile.avatar.url }}" alt="Your profile photo">
+      {% if profile.avatar %}
+        <img class="profile-avatar-xl" src="{{ profile.avatar.url }}" alt="Your profile photo">
       {% else %}
         <div class="profile-avatar-xl">{{ user.username|slice:':1'|upper }}</div>
       {% endif %}
@@ -14,7 +18,7 @@
         <h1>{{ user.username }}</h1>
       </div>
       <div class="profile-actions">
-        <button class="btn" type="button" disabled>Edit Profile</button>
+        <a class="btn" href="{% url 'edit_profile' %}">Edit Profile</a>
       </div>
     </div>
   </section>
@@ -23,6 +27,13 @@
     <aside>
       <section class="panel" id="about">
         <h2>Intro</h2>
+        <p class="profile-bio">{{ profile.bio|default:'No bio added yet.'|linebreaksbr }}</p>
+        <dl class="profile-details">
+          <dt>City</dt><dd>{{ profile.city|default:'Not shared' }}</dd>
+          <dt>ZIP code</dt><dd>{{ profile.zip_code|default:'Not shared' }}</dd>
+          <dt>Skill level</dt><dd>{{ profile.skill_level|default:'Not shared' }}</dd>
+          <dt>Handicap</dt><dd>{{ profile.handicap|default_if_none:'Not shared' }}</dd>
+        </dl>
       </section>
 
       <section class="panel" id="friends">
