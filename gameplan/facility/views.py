@@ -116,7 +116,7 @@ def my_bookings(request):
 def cancel_booking(request, pk):
     """Cancel a booking."""
     booking = get_object_or_404(Booking, pk=pk, user=request.user)
-    booking.status == Booking.Status.CANCELLED
+    booking.status = Booking.Status.CANCELLED
     booking.save(update_fields=["status"])
     messages.success(request, "Booking cancelled.")
     return redirect("my_bookings")
