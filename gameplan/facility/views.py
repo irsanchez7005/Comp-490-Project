@@ -6,6 +6,9 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from .models import Facility, Booking,InstructorSchedule,TimeSlot
 from .utils import generate_slots
+from datetime import date,timedelta
+from django.http import HttpResponseBadRequest
+from .utils import create_facility_timeslots
 
 #schedule = InstructorSchedule.objects.get(id=1)
 
@@ -36,10 +39,25 @@ def facility_detail(request, pk):
     today = timezone.localdate()
     selected_date = request.GET.get("date")
     selected_time = request.GET.get("time")
-
+    """Load the current month or requested month, will generate once given a valid selected date"""
+    """Requirements are schedule and price exist for that particular facility"""
+    month_value = (request.GET.get("month") or (selected_date[:7] if selected_date else today.strftime("%Y-%m")))
+    """Try and except in the case there is an issue with selected date"""
+    try:
+        month_start = date.fromisoformat(f"{month_value}-01")
+    except ValueError:
+        return HttpResponseBadRequest("Invalid month. Use the format YYYY-MM.")
+    """To generate from current date to end of month, stop at first day of the next month"""
+    month_end =(month_start + timedelta(days=32)).replace(day=1)
+    day = max(today,month_start)
+    """Use while loop to create timeslots for each day in the month for the facility"""
+    while day < month_end:
+        create_facility_timeslots(facility,day)
+        day = day + timedelta(days=1)
     base = (
         facility.slots
-        .filter(date__gte=today)
+        .filter(date__gte=max(today,month_start),date__lt=month_end,
+        )
         .annotate(
             taken=Coalesce(
                 Sum("bookings__num_players",
@@ -47,6 +65,7 @@ def facility_detail(request, pk):
                 Value(0),
             )
         )
+        .order_by("date","start_time")
     )
 
     # Data the calendar needs, grouped by date.
@@ -76,6 +95,7 @@ def facility_detail(request, pk):
         "slots_by_date": slots_by_date,
         "selected_date": selected_date,
         "selected_time": selected_time,
+        "calendar_month": month_start.isoformat(),
     })
 @login_required
 @require_POST

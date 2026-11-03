@@ -185,8 +185,8 @@
                   "July","August","September","October","November","December"];
 
   let chosen = "{{ selected_date|default_if_none:'' }}";
-  let view = chosen ? new Date(chosen + "T00:00:00") : new Date();
-  view.setDate(1);
+  let view = new Date("{{ calendar_month }}"+"T00:00:00");
+  
 
   function key(y, m, d) {
     return y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
@@ -240,15 +240,32 @@
 
     confirm.disabled = false;
   }
+  
+  function changeMonth(offset) {
+  const next = new Date(
+    view.getFullYear(),
+    view.getMonth() + offset,
+    1
+  );
 
-  document.getElementById("prev-month").onclick = () => {
-    view.setMonth(view.getMonth() - 1);
-    render();
-  };
-  document.getElementById("next-month").onclick = () => {
-    view.setMonth(view.getMonth() + 1);
-    render();
-  };
+  const month =
+    next.getFullYear() + "-" +
+    String(next.getMonth() + 1).padStart(2, "0");
+
+  const params = new URLSearchParams();
+  params.set("month", month);
+  params.set("picker", "1");
+
+  window.location.search = params.toString();
+}
+
+document.getElementById("prev-month").onclick = () => {
+  changeMonth(-1);
+};
+
+document.getElementById("next-month").onclick = () => {
+  changeMonth(1);
+};
 
   confirm.onclick = () => {
     const params = new URLSearchParams();
@@ -263,9 +280,13 @@
 
   if (chosen) pickDate(chosen);
   render();
+  //This reopens calendar screen after the month is changed or reloaded 
+  if(new URLSearchParams(window.location.search).get("picker")==="1"){
+    dialog.showModal();
+  }
 })();
 
-/* ---- Booking dialog ---- */
+/* ---- Booking di---- */
 (function () {
   const dialog = document.getElementById("booking-dialog");
 
