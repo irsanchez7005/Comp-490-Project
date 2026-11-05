@@ -62,6 +62,8 @@ class VerificationCode(models.Model):
     Purpose: why it was sent (signup/password reset)
 
     used: bool (True once it's entered, or when a newer code replaces it)
+    attempts: wrong guesses on this code since the last lock
+    locked_until: no guesses are accepted before this time (set after too many wrong guesses)
     codes are created by create_code in verification.py
     """
     class Channel(models.TextChoices):
@@ -78,6 +80,8 @@ class VerificationCode(models.Model):
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
     purpose = models.CharField(max_length=20, choices=Purpose.choices, default=Purpose.SIGNUP)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    locked_until = models.DateTimeField(null=True, blank=True)
 
     def is_expired(self):
         """Return True if the code's expiry time has passed."""

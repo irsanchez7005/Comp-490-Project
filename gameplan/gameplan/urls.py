@@ -56,8 +56,10 @@ urlpatterns = [
     path('settings/', user_views.accountSettings, name='settings'),
     path('settings/delete/', user_views.deleteAccount, name='delete_account'),
     path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),
+    path("checkout/", facility_views.checkout, name="checkout"),
     path("book/", facility_views.book_slot, name="book_slot"),
     path("bookings/", facility_views.my_bookings, name="my_bookings"),
+    path("bookings/<int:pk>/confirmation/", facility_views.booking_confirmation, name="booking_confirmation"),
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
     path("search/", facility_views.facility_search, name="facility_search"),
 ]
