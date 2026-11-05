@@ -2,19 +2,9 @@ from django.db.models import Count, Min, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
-<<<<<<< HEAD
-from .models import Facility, Booking,InstructorSchedule,TimeSlot
-from .utils import generate_slots
-from datetime import date,timedelta
+from datetime import date, timedelta
 from django.http import HttpResponseBadRequest
 from .utils import create_facility_timeslots
-
-#schedule = InstructorSchedule.objects.get(id=1)
-
-#slots= generate_slots(schedule.start_time,schedule.end_time,schedule.slot_duration,schedule.gap_duration)
-from .models import Facility, Booking, TimeSlot
-=======
->>>>>>> b6388bc099f29d5c7be322b9549b9fddf83a05ed
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -172,7 +162,6 @@ def facility_detail(request, pk):
     for s in slots:
         s.open_spots = s.max_players - s.taken
 
-<<<<<<< HEAD
     return render(request, "facility/facility_detail.html", {
         "facility": facility,
         "slots": slots,
@@ -181,18 +170,6 @@ def facility_detail(request, pk):
         "selected_time": selected_time,
         "calendar_month": month_start.isoformat(),
     })
-=======
-    return render(
-        request,
-        "facility/facility_detail.html",
-        {
-            "facility": facility,
-            "slots": slots,
-            "slots_by_date": slots_by_date,
-            "selected_date": selected_date,
-            "selected_time": selected_time,
-        }
-    )
 
 
 @login_required
@@ -226,7 +203,6 @@ def _create_paid_booking(slot, user, players, card_number):
 
 
 @sensitive_post_parameters("credit_card_num", "cvv")
->>>>>>> b6388bc099f29d5c7be322b9549b9fddf83a05ed
 @login_required
 @require_POST
 def book_slot(request):
