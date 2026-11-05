@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/site.css' %}?v=9">
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -33,6 +34,7 @@
       {% endwith %}
     </nav>
 
+    <div class="top-actions">
       <div class="search-wrap">
         <form class="nav-search" action="{% url 'courses' %}" method="get" role="search">
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
@@ -44,8 +46,9 @@
       </div>
       {% if user.is_authenticated %}
         <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
-        <a class="notification-link" href="#" data-template-placeholder="true" aria-label="Notifications">
+        <a class="notification-link" href="{% url 'notifications:list' %}" aria-label="Notifications, {{ unread_notification_count }} unread">
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+          {% if unread_notification_count %}<span class="notification-badge" aria-hidden="true">{{ unread_notification_count }}</span>{% endif %}
         </a>
         <details class="account-menu" data-account-menu>
           <summary class="profile-chip">
@@ -57,13 +60,14 @@
             <a href="{% url 'my_gameplan' %}">My GamePlan</a>
             <a href="{% url 'profile' %}">My Profile</a>
             <a href="{% url 'my_bookings' %}">My Bookings</a>
+            <a href="{% url 'notifications:list' %}">Notifications</a>
             <a href="{% url 'settings' %}" >Settings</a>
             <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit">Log Out</button></form>
           </nav>
         </details>
       {% else %}
         <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
-        <a class="header-link" href="#" data-template-placeholder="true">Notifications</a>
+        <a class="header-link" href="{% url 'notifications:list' %}">Notifications</a>
         <a class="login-link" href="{% url 'login' %}">Log In</a>
         <a class="btn small" href="{% url 'createAccount' %}">Sign Up</a>
       {% endif %}

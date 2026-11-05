@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
+from notifications.services import notify_booking_confirmed, notify_booking_cancelled
 
 from .forms import PaymentForm
 from .models import Facility, Booking, TimeSlot
@@ -175,7 +176,7 @@ def _create_paid_booking(slot, user, players, card_number):
         locked = TimeSlot.objects.select_for_update().get(pk=slot.pk)
         if players > _open_spots(locked):
             return None
-        return Booking.objects.create(
+        booking = Booking.objects.create(
             slot=locked,
             user=user,
             num_players=players,
@@ -184,6 +185,8 @@ def _create_paid_booking(slot, user, players, card_number):
             total=receipt.total,
             card_last4=card_number[-CARD_LAST4_LENGTH:],
         )
+        notify_booking_confirmed(booking)
+        return booking
 
 
 @sensitive_post_parameters("credit_card_num", "cvv")
@@ -246,15 +249,16 @@ def my_bookings(request):
 def cancel_booking(request, pk):
     """Cancel a booking."""
 
-    booking = get_object_or_404(
-        Booking,
-        pk=pk,
-        user=request.user
-    )
-
-    booking.status = Booking.Status.CANCELLED
-
-    booking.save(update_fields=["status"])
+    with transaction.atomic():
+        booking = get_object_or_404(
+            Booking.objects.select_for_update(),
+            pk=pk,
+            user=request.user,
+        )
+        if booking.status == Booking.Status.CONFIRMED:
+            booking.status = Booking.Status.CANCELLED
+            booking.save(update_fields=["status"])
+            notify_booking_cancelled(booking)
 
     messages.success(
         request,

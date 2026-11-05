@@ -244,7 +244,10 @@ class EditProfileTests(TestCase):
             facility=facility, date=timezone.localdate() + timedelta(days=1),
             start_time='09:00', price_per_player=Decimal('25.00'), max_players=4,
         )
-        response = self.client.post(reverse('book_slot'), {'slot_id': slot.pk, 'golfers': 2})
+        response = self.client.post(reverse('book_slot'), {
+            'slot_id': slot.pk, 'golfers': 2, 'full_name': 'Test Golfer',
+            'credit_card_num': '1111-2222-3333-4444', 'expiry': '12/99', 'cvv': '987',
+        })
         self.assertRedirects(response, reverse('my_bookings'))
         booking = Booking.objects.get(user=self.user, slot=slot)
         self.assertEqual(booking.num_players, 2)

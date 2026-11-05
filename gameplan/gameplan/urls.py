@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import include, path
 from accounts import views as user_views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -25,6 +25,7 @@ from django.views.generic import TemplateView
 from facility import views as facility_views
 
 urlpatterns = [
+    path('notifications/', include('notifications.urls')),
     path('', facility_views.home, name='home'),
     path('courses/', facility_views.facility_list, name='courses'),
     path('admin/', admin.site.urls),

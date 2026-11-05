@@ -1,0 +1,79 @@
+.notification-link {
+  position: relative;
+  min-width: 36px;
+  min-height: 40px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -9px;
+  min-width: 20px;
+  padding: 3px 5px;
+  border: 2px solid white;
+  border-radius: 20px;
+  color: white;
+  background: var(--green);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.notifications-page {
+  max-width: 1240px;
+  min-height: 65vh;
+  margin: 0 auto;
+  padding: 46px 28px 72px;
+}
+
+.notifications-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.notifications-back { color: var(--green); font-size: 13px; font-weight: 600; }
+.notifications-heading h1 { margin: 16px 0 10px; font-size: clamp(28px, 4vw, 38px); letter-spacing: -1px; }
+.notifications-heading p { margin: 0; color: #506357; line-height: 1.6; }
+.notifications-heading .btn { font-size: 13px; }
+.notifications-heading .btn:disabled { background: #e2ebe3; color: #506357 !important; cursor: default; transform: none; box-shadow: none; }
+.notification-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 26px; }
+.notification-panel { overflow: hidden; background: white; border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-sm); }
+.notification-panel-heading { padding: 26px 26px 22px; border-bottom: 1px solid var(--border); }
+.notification-panel-heading h2 { margin: 0 0 7px; font-size: 20px; }
+.notification-panel-heading p { margin: 0; color: var(--muted); font-size: 13px; }
+.notification-items { margin: 0; padding: 0; list-style: none; }
+.notification-item { display: flex; align-items: flex-start; gap: 14px; padding: 24px; border-left: 3px solid transparent; }
+.notification-item + .notification-item { border-top: 1px solid var(--border); }
+.notification-item.is-unread { background: #f2faf3; border-left-color: #328652; }
+.notification-icon { display: inline-grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #e1f1e5; color: #18713f; font-size: 21px; font-weight: 700; }
+.notification-icon.is-cancelled { background: #fce8e7; color: #b03232; }
+.notification-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.notification-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.notification-title-row h3 { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 600; }
+.is-unread h3 { font-weight: 800; }
+.notification-unread { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-size: 10px; font-weight: 700; }
+.notification-unread::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.notification-body p { margin: 8px 0 12px; color: #506357; font-size: 13px; line-height: 1.75; }
+.notification-body time { color: #647267; font-size: 11px; }
+.notification-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 12px; }
+.notification-actions a, .notification-actions button { padding: 4px 0; border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.notification-actions form { margin: 0; }
+.notifications-page :focus-visible, .notification-link:focus-visible { outline: 3px solid #328652; outline-offset: 4px; }
+.notifications-empty { padding: 48px 28px; text-align: center; }
+.notifications-empty h3 { margin: 16px 0 8px; font-size: 16px; }
+.notifications-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+@media (max-width: 900px) {
+  .top-actions .notification-link { display: grid; }
+}
+
+@media (max-width: 760px) {
+  .notifications-page { padding: 28px 16px 48px; }
+  .notifications-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .notification-columns { grid-template-columns: 1fr; gap: 20px; }
+  .notification-panel-heading { padding: 22px 20px; }
+  .notification-item { padding: 20px 16px; gap: 10px; }
+}
