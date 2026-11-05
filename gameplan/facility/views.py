@@ -289,3 +289,22 @@ def facility_search(request):
         )[:8]
         results = [ {"name": f.facility_name, "city": f.city, "id": f.pk} for f in matches ]
     return JsonResponse({"results": results})
+
+
+def home(request):
+    today = timezone.localdate()
+
+    facilities = Facility.objects.annotate(
+        from_price=Min(
+            "slots__price_per_player",
+            filter=Q(slots__date__gte=today),
+        ),
+        slot_count=Count(
+            "slots",
+            filter=Q(slots__date__gte=today),
+        ),
+    ).order_by("?")[:4]
+
+    return render(request, "accounts/home.html", {
+        "facilities": facilities,
+    })

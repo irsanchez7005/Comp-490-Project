@@ -25,7 +25,7 @@ from django.views.generic import TemplateView
 from facility import views as facility_views
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='accounts/home.html'), name='home'),
+    path('', facility_views.home, name='home'),
     path('courses/', facility_views.facility_list, name='courses'),
     path('admin/', admin.site.urls),
     path('register/', user_views.createAccount, name='createAccount'),
