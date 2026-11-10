@@ -1,4 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const courseFilters = document.getElementById("course-filter-sidebar");
+  const filterToggle = document.querySelector("[data-course-filter-toggle]");
+  if (courseFilters && filterToggle) {
+    const mobile = window.matchMedia("(max-width: 720px)");
+    const setExpanded = (expanded) => {
+      courseFilters.classList.toggle("is-collapsed", !expanded);
+      filterToggle.setAttribute("aria-expanded", String(expanded));
+    };
+    filterToggle.hidden = false;
+    setExpanded(!mobile.matches || Boolean(courseFilters.querySelector(".errorlist")));
+    filterToggle.addEventListener("click", () => {
+      setExpanded(filterToggle.getAttribute("aria-expanded") !== "true");
+    });
+    mobile.addEventListener("change", () => setExpanded(!mobile.matches));
+  }
+
+  const priceRange = document.querySelector("[data-price-max]");
+  const priceOutput = document.querySelector("[data-price-output]");
+  if (priceRange && priceOutput) {
+    const showPrice = () => {
+      const unlimited = Number(priceRange.value) === Number(priceRange.max);
+      priceOutput.textContent = `$${priceRange.value}${unlimited ? "+" : ""}`;
+      priceRange.setAttribute("aria-valuetext", unlimited ? "No upper limit" : `$${priceRange.value} per player`);
+    };
+    priceRange.addEventListener("input", showPrice);
+    showPrice();
+  }
+
   const menuButton = document.querySelector("[data-menu-toggle]");
   const primaryNav = document.querySelector("[data-primary-nav]");
 
@@ -215,17 +243,21 @@ document.addEventListener("DOMContentLoaded", () => {
     wrap.appendChild(panel);
 
     let timer;
-    input .addEventListener("input", () => {
+    let requestId = 0;
+    input.addEventListener("input", () => {
       clearTimeout(timer);
+      const currentRequest = ++requestId;
       const q = input.value.trim();
+      panel.hidden = true;
       if (!q) {
-        panel.hidden = true;
+        panel.innerHTML = "";
         return;
       }
-   timer = setTimeout(() => {
+      timer = setTimeout(() => {
         fetch("/search/?q=" + encodeURIComponent(q))
           .then(r => r.json())
           .then(data => {
+            if (currentRequest !== requestId || input.value.trim() !== q) return;
             if (!data.results.length) {
               panel.innerHTML = '<p class="search-empty">No courses found</p>';
             } else {
@@ -240,11 +272,18 @@ document.addEventListener("DOMContentLoaded", () => {
               ).join("");
             }
             panel.hidden = false;
+          })
+          .catch(() => {
+            if (currentRequest === requestId) panel.hidden = true;
           });
       }, 150);
     });
     document.addEventListener("click", (event) => {
-      if (!wrap.contains(event.target)) panel.hidden = true;
+      if (!wrap.contains(event.target)) {
+        clearTimeout(timer);
+        requestId += 1;
+        panel.hidden = true;
+      }
     });
   });
 });

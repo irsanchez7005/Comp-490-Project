@@ -2,40 +2,126 @@
 {% block title %}GamePlan | Courses{% endblock %}
 {% block content %}
 
-<section class="home-wrap">
-  <div class="section-head">
-    <div>
-      <p class="eyebrow">BOOK A ROUND</p>
-      <h2>Golf Courses</h2>
-      <span>{{ facilities|length }} course{{ facilities|length|pluralize }} near you</span>
-    </div>
-  </div>
+<section class="home-wrap courses-page">
+  <button class="btn btn-light courses-filter-toggle" type="button" data-course-filter-toggle aria-expanded="true" aria-controls="course-filter-sidebar" hidden>Filters</button>
 
-  <div class="course-grid">
+  <div class="courses-layout">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">BOOK A ROUND</p>
+        <h2>Golf Courses</h2>
+      </div>
+    </div>
+    <aside class="courses-filter" id="course-filter-sidebar" aria-labelledby="filter-heading">
+      <div class="filter-heading">
+        <div><p class="eyebrow">SEARCH FILTERS</p><h3 id="filter-heading">Find Your Round</h3></div>
+        <a href="{% url 'courses' %}">Clear All</a>
+      </div>
+      <form id="course-filters" action="{% url 'courses' %}" method="get">
+        {% if filter_form.errors %}
+        <p class="form-errors" role="alert">Please correct the filters below.</p>
+        {% endif %}
+        {% if filter_form.q.value %}
+        <div class="filter-section">
+          {{ filter_form.q.label_tag }}
+          {{ filter_form.q }}
+          <small>Course, city, or ZIP from your quick search. Clear this field to remove it.</small>
+          {{ filter_form.q.errors }}
+        </div>
+        {% endif %}
+        <div class="filter-section">
+          {{ filter_form.course_name.label_tag }}
+          {{ filter_form.course_name }}
+          {{ filter_form.course_name.errors }}
+          {{ filter_form.location.label_tag }}
+          {{ filter_form.location }}
+          {{ filter_form.location.errors }}
+        </div>
+        <div class="filter-section">
+          {{ filter_form.date.label_tag }}
+          {{ filter_form.date }}
+          {{ filter_form.date.errors }}
+          {{ filter_form.tee_time.label_tag }}
+          {{ filter_form.tee_time }}
+          {{ filter_form.tee_time.errors }}
+        </div>
+        <fieldset class="filter-section">
+          <legend>Price Range</legend>
+          {{ filter_form.min_price.label_tag }}
+          {{ filter_form.min_price }}
+          {{ filter_form.min_price.errors }}
+          <div class="filter-price-heading">
+            {{ filter_form.max_price.label_tag }}
+            <output for="id_max_price" data-price-output>{% if filter_form.cleaned_data.max_price == 200 %}$200+{% else %}${{ filter_form.max_price.value }}{% endif %}</output>
+          </div>
+          {{ filter_form.max_price }}
+          <div class="filter-range-labels"><span>$0</span><span>$200+</span></div>
+          <small id="price-help">Per player. $200+ means no upper limit.</small>
+          {{ filter_form.max_price.errors }}
+        </fieldset>
+        <fieldset class="filter-section">
+          <legend>Number of Golfers</legend>
+          <div class="filter-list">
+            {% for choice in filter_form.golfers %}<label>{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}
+          </div>
+          {{ filter_form.golfers.errors }}
+        </fieldset>
+        <fieldset class="filter-section">
+          <legend>Holes</legend>
+          <div class="filter-list">
+            {% for choice in filter_form.holes %}<label>{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}
+          </div>
+          {{ filter_form.holes.errors }}
+        </fieldset>
+        <div class="filter-section">
+          {{ filter_form.rating.label_tag }}
+          {{ filter_form.rating }}
+          {{ filter_form.rating.errors }}
+        </div>
+        <div class="filter-section">
+          <label class="filter-available">{{ filter_form.available }}<span>{{ filter_form.available.label }}</span></label>
+          {{ filter_form.available.errors }}
+        </div>
+        <button class="btn wide" type="submit">Search Courses</button>
+      </form>
+    </aside>
+
+    <div class="courses-content">
+      <div class="courses-toolbar">
+        <p>{{ facilities|length }} matching course{{ facilities|length|pluralize }}</p>
+        <div class="courses-sort">
+          {{ filter_form.sort.label_tag }}
+          {{ filter_form.sort }}
+          <button class="btn small" type="submit" form="course-filters">Apply Sort</button>
+          {{ filter_form.sort.errors }}
+        </div>
+      </div>
+      <div class="course-grid">
     {% for f in facilities %}
     <a class="course-card" href="{% url 'facility_detail' f.pk %}">
       <div class="course-photo photo-placeholder">
         {% if f.slot_count %}
         <span class="badge">{{ f.slot_count }} tee time{{ f.slot_count|pluralize }}</span>
         {% else %}
-        <span class="badge badge-light">No times yet</span>
+        <span class="badge badge-light">No upcoming tee times</span>
         {% endif %}
       </div>
 
       <div class="course-body">
         <h3>{{ f.facility_name }}</h3>
 
-        {% if f.rating %}
+        {% if f.rating is not None %}
         <p class="stars">★ {{ f.rating }}</p>
         {% endif %}
 
         <p>{{ f.street_address }}, {{ f.city }}</p>
 
-        {% if f.from_price %}
-        <strong>${{ f.from_price }} <small>per player</small></strong>
+        {% if f.from_price is not None %}
+        <strong><small>From</small> ${{ f.from_price|floatformat:2 }} <small>per player</small></strong>
         {% else %}
-        <strong><small>Pricing coming soon</small></strong>
+        <strong><small>No upcoming prices</small></strong>
         {% endif %}
+        <p>{{ f.available_count }} tee time{{ f.available_count|pluralize }} with space{% if filter_form.cleaned_data.golfers %} for {{ filter_form.cleaned_data.golfers }}{% endif %}</p>
 
         <div class="card-link">
           <span>View tee times</span>
@@ -44,8 +130,14 @@
       </div>
     </a>
     {% empty %}
-    <p class="no-times">No courses listed yet.</p>
+    <div class="no-times">
+      <h3>No courses match your filters.</h3>
+      <p>Try changing your search or clearing some filters.</p>
+      <a class="btn btn-light" href="{% url 'courses' %}">Clear All</a>
+    </div>
     {% endfor %}
+      </div>
+    </div>
   </div>
 </section>
 

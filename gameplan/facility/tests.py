@@ -1,8 +1,10 @@
-from datetime import time, timedelta
+from datetime import datetime, time, timedelta, timezone as datetime_timezone
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
+from django.test.html import parse_html
 from django.urls import reverse
 from django.utils import timezone
 
@@ -321,3 +323,383 @@ class CancelBookingTests(TestCase):
         booking.refresh_from_db()
         self.assertEqual(booking.status, Booking.Status.CANCELLED)
         self.assertRedirects(response, reverse("my_bookings"))
+
+
+@override_settings(TIME_ZONE="UTC")
+class CourseFilterTests(TestCase):
+    now = datetime(2030, 6, 10, 10, 0, tzinfo=datetime_timezone.utc)
+    tomorrow = now.date() + timedelta(days=1)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = create_user()
+        cls.park = Facility.objects.create(
+            facility_name="Griffith Park", street_address="1 Park Drive",
+            city="Los Angeles", zip_code="90027-1234", sport_type="golf", rating=4.5,
+        )
+        cls.valley = Facility.objects.create(
+            facility_name="Valley Golf", street_address="2 Valley Road",
+            city="Northridge", zip_code="91306", sport_type="golf", rating=3.5,
+        )
+        cls.premium = Facility.objects.create(
+            facility_name="Canyon Golf", street_address="3 Canyon Road",
+            city="Los Angeles", zip_code="90027", sport_type="golf", rating=4.8,
+        )
+        cls.empty = Facility.objects.create(
+            facility_name="Unrated Club", street_address="4 Club Road",
+            city="Pasadena", zip_code="91101", sport_type="golf", rating=None,
+        )
+        cls.morning = cls.add_slot(cls.park, time(9), "80.00", 18)
+        cls.afternoon = cls.add_slot(cls.park, time(12), "40.00", 9)
+        cls.evening = cls.add_slot(cls.valley, time(17), "60.00", 9)
+        cls.expensive = cls.add_slot(cls.premium, time(7), "250.00", 18)
+
+    @classmethod
+    def add_slot(cls, facility, start_time, price="50.00", holes=18, date=None, max_players=4):
+        return TimeSlot.objects.create(
+            facility=facility, date=date or cls.tomorrow, start_time=start_time,
+            price_per_player=Decimal(price), holes=holes, max_players=max_players,
+        )
+
+    def setUp(self):
+        self.enterContext(patch("django.utils.timezone.now", return_value=self.now))
+
+    def search(self, **params):
+        response = self.client.get(reverse("courses"), params)
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def assert_courses(self, response, *facilities):
+        self.assertCountEqual(
+            [f.pk for f in response.context["facilities"]], [f.pk for f in facilities],
+        )
+
+    def test_default_directory_includes_courses_without_slots(self):
+        response = self.search()
+        self.assert_courses(response, self.park, self.valley, self.premium, self.empty)
+        self.assertFalse(response.context["filter_form"].cleaned_data["available"])
+        self.assertContains(response, "4 matching courses")
+        self.assertContains(response, "No upcoming prices")
+        self.assertNotContains(response, "coming soon")
+
+    def test_courses_markup_is_valid_with_filters_and_errors(self):
+        for params in ({}, {"q": "Park", "available": "1"}, {"min_price": "100", "max_price": "50"}):
+            with self.subTest(params=params):
+                response = self.search(**params)
+                content = response.content.decode().split("<main>", 1)[1].split("</main>", 1)[0]
+                parse_html(content)
+                self.assertContains(response, 'aria-controls="course-filter-sidebar"')
+                self.assertContains(response, 'id="course-filter-sidebar"')
+
+    def test_course_name_is_partial_case_insensitive_and_trimmed(self):
+        response = self.search(course_name="  gRiFfItH  ")
+        self.assert_courses(response, self.park)
+        self.assertEqual(response.context["filter_form"].cleaned_data["course_name"], "gRiFfItH")
+        self.assertContains(response, 'value="  gRiFfItH  "')
+
+    def test_city_search(self):
+        self.assert_courses(self.search(location="  aNgEl  "), self.park, self.premium)
+
+    def test_zip_search(self):
+        self.assert_courses(self.search(location="91306"), self.valley)
+
+    def test_zip_plus_four(self):
+        self.assert_courses(self.search(location="90027"), self.park, self.premium)
+        self.assert_courses(self.search(location="90027-1234"), self.park)
+
+    def test_name_and_location_are_independent(self):
+        self.assert_courses(self.search(course_name="golf", location="los angeles"), self.premium)
+        self.assert_courses(self.search(course_name="Griffith", location="Northridge"))
+
+    def test_date_filters_matching_slots_and_preserves_value(self):
+        later = self.tomorrow + timedelta(days=2)
+        self.add_slot(self.empty, time(8), date=later)
+        response = self.search(date=later.isoformat())
+        self.assert_courses(response, self.empty)
+        self.assertContains(response, f'value="{later.isoformat()}"')
+
+    def test_no_date_does_not_limit_to_today(self):
+        self.assert_courses(self.search(available="1"), self.park, self.valley, self.premium)
+
+    def test_past_date_and_elapsed_times_do_not_qualify(self):
+        yesterday = self.now.date() - timedelta(days=1)
+        self.add_slot(self.empty, time(8), "1.00", date=yesterday)
+        self.add_slot(self.empty, time(9, 59), "2.00", date=self.now.date())
+        self.add_slot(self.empty, time(10), "3.00", date=self.now.date())
+        self.assert_courses(self.search(date=yesterday.isoformat()))
+        self.assert_courses(self.search(date=self.now.date().isoformat()))
+        self.assert_courses(self.search(available="1"), self.park, self.valley, self.premium)
+        self.add_slot(self.empty, time(10, 1), "25.00", date=self.now.date())
+        response = self.search(date=self.now.date().isoformat(), available="1")
+        self.assert_courses(response, self.empty)
+        self.assertEqual(response.context["facilities"][0].from_price, Decimal("25.00"))
+
+    @override_settings(TIME_ZONE="America/Los_Angeles")
+    def test_availability_uses_the_configured_local_time(self):
+        self.add_slot(self.empty, time(2, 59), date=self.now.date())
+        self.add_slot(self.empty, time(3, 1), date=self.now.date())
+        response = self.search(date=self.now.date().isoformat(), available="1")
+        self.assert_courses(response, self.empty)
+        self.assertEqual(response.context["facilities"][0].slot_count, 1)
+
+    def test_time_periods(self):
+        for period, expected in (
+            ("morning", (self.park, self.premium)),
+            ("afternoon", (self.park,)),
+            ("evening", (self.valley,)),
+        ):
+            with self.subTest(period=period):
+                response = self.search(tee_time=period, date=self.tomorrow.isoformat())
+                self.assert_courses(response, *expected)
+                self.assertEqual(response.context["filter_form"].cleaned_data["tee_time"], period)
+
+    def test_time_period_boundaries_do_not_overlap(self):
+        cases = [
+            (time(4, 59), None), (time(5), "morning"), (time(11, 59), "morning"),
+            (time(12), "afternoon"), (time(16, 59), "afternoon"),
+            (time(17), "evening"), (time(23, 59), "evening"),
+        ]
+        slot = self.add_slot(self.empty, time(1))
+        for start, expected in cases:
+            slot.start_time = start
+            slot.save(update_fields=["start_time"])
+            for period in ("morning", "afternoon", "evening"):
+                with self.subTest(start=start, period=period):
+                    response = self.search(course_name="Unrated", tee_time=period)
+                    self.assert_courses(response, *((self.empty,) if period == expected else ()))
+
+    def test_price_range_uses_per_player_prices(self):
+        response = self.search(min_price="50", max_price="80", golfers="4")
+        self.assert_courses(response, self.park, self.valley)
+        prices = {f.pk: f.from_price for f in response.context["facilities"]}
+        self.assertEqual(prices[self.park.pk], Decimal("80.00"))
+        self.assertEqual(prices[self.valley.pk], Decimal("60.00"))
+        self.assertContains(response, 'value="50"')
+        self.assertContains(response, 'value="80"')
+
+    def test_top_price_value_is_unlimited(self):
+        self.assert_courses(self.search(max_price="200"), self.park, self.valley, self.premium, self.empty)
+        self.assert_courses(self.search(min_price="220", max_price="200"), self.premium)
+        self.assert_courses(self.search(max_price="199"), self.park, self.valley)
+
+    def test_zero_price_is_displayed_and_filterable(self):
+        self.add_slot(self.empty, time(8), "0.00")
+        response = self.search(max_price="0")
+        self.assert_courses(response, self.empty)
+        self.assertContains(response, "$0.00")
+
+    def test_golfers_use_remaining_capacity(self):
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=2)
+        params = {"course_name": "Griffith", "tee_time": "morning"}
+        self.assert_courses(self.search(**params, golfers="2"), self.park)
+        self.assert_courses(self.search(**params, golfers="3"))
+
+    def test_multiple_confirmed_bookings_are_added(self):
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=1)
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=2)
+        self.assert_courses(self.search(course_name="Griffith", holes="18", golfers="2"))
+        self.assert_courses(self.search(course_name="Griffith", holes="18", golfers="1"), self.park)
+
+    def test_cancelling_a_booking_restores_availability(self):
+        booking = Booking.objects.create(slot=self.expensive, user=self.user, num_players=4)
+        self.assert_courses(self.search(course_name="Canyon", available="1"))
+        self.client.force_login(self.user)
+        self.client.post(reverse("cancel_booking", args=[booking.pk]))
+        self.assert_courses(self.search(course_name="Canyon", golfers="4"), self.premium)
+
+    def test_cancelled_bookings_do_not_count(self):
+        Booking.objects.create(
+            slot=self.morning, user=self.user, num_players=4, status=Booking.Status.CANCELLED,
+        )
+        self.assert_courses(self.search(course_name="Griffith", holes="18", golfers="4"), self.park)
+
+    def test_holes_and_missing_holes(self):
+        self.add_slot(self.empty, time(8), holes=None)
+        self.assert_courses(self.search(holes="9"), self.park, self.valley)
+        self.assert_courses(self.search(holes="18"), self.park, self.premium)
+        self.assert_courses(self.search(available="1"), self.park, self.valley, self.premium, self.empty)
+
+    def test_minimum_rating_excludes_unrated_courses(self):
+        for rating, expected in (("3", (self.park, self.valley, self.premium)),
+                                 ("4", (self.park, self.premium)),
+                                 ("4.5", (self.park, self.premium))):
+            with self.subTest(rating=rating):
+                self.assert_courses(self.search(rating=rating), *expected)
+
+    def test_available_only_hides_full_and_empty_courses(self):
+        Booking.objects.create(slot=self.expensive, user=self.user, num_players=4)
+        self.assert_courses(self.search(available="1"), self.park, self.valley)
+        self.assert_courses(self.search(), self.park, self.valley, self.premium, self.empty)
+        self.assert_courses(self.search(course_name="Canyon", holes="18"), self.premium)
+
+    def test_available_count_excludes_fully_booked_slots(self):
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=4)
+        response = self.search(course_name="Griffith")
+        course = response.context["facilities"][0]
+        self.assertEqual(course.slot_count, 2)
+        self.assertEqual(course.available_count, 1)
+        self.assertContains(response, "1 tee time with space")
+
+    def test_price_sort_and_missing_prices_last(self):
+        response = self.search(sort="price")
+        self.assertEqual(list(response.context["facilities"]), [self.park, self.valley, self.premium, self.empty])
+
+    def test_rating_sort_and_unrated_last(self):
+        response = self.search(sort="rating")
+        self.assertEqual(list(response.context["facilities"]), [self.premium, self.park, self.valley, self.empty])
+
+    def test_earliest_sort_uses_date_then_time_from_same_slot(self):
+        self.add_slot(self.park, time(5), date=self.tomorrow + timedelta(days=1))
+        response = self.search(sort="earliest")
+        self.assertEqual(list(response.context["facilities"]), [self.premium, self.park, self.valley, self.empty])
+        park = response.context["facilities"][1]
+        self.assertEqual(park.earliest_date, self.tomorrow)
+        self.assertEqual(park.earliest_time, time(9))
+
+    def test_name_sort_is_case_insensitive(self):
+        self.valley.facility_name = "apple golf"
+        self.valley.save(update_fields=["facility_name"])
+        response = self.search(sort="name")
+        self.assertEqual(list(response.context["facilities"]), [self.valley, self.premium, self.park, self.empty])
+
+    def test_sort_ties_are_stable(self):
+        Facility.objects.update(rating=4)
+        self.assertEqual(list(self.search(sort="rating").context["facilities"]),
+                         [self.park, self.valley, self.premium, self.empty])
+
+    def test_sort_and_display_use_matching_prices(self):
+        self.add_slot(self.valley, time(8), "70.00", 18)
+        response = self.search(holes="18", sort="price")
+        self.assertEqual(list(response.context["facilities"]), [self.valley, self.park, self.premium])
+        self.assertEqual(response.context["facilities"][1].from_price, Decimal("80.00"))
+        self.assertNotContains(response, "$40.00")
+
+    def test_available_sort_does_not_use_full_or_past_slots(self):
+        Booking.objects.create(slot=self.afternoon, user=self.user, num_players=4)
+        self.add_slot(self.park, time(8), "1.00", date=self.now.date() - timedelta(days=1))
+        response = self.search(available="1", sort="price")
+        self.assertEqual(list(response.context["facilities"]), [self.valley, self.park, self.premium])
+        self.assertEqual(response.context["facilities"][1].from_price, Decimal("80.00"))
+
+    def test_earliest_sort_uses_filtered_times(self):
+        self.add_slot(self.premium, time(18), "20.00", 9)
+        response = self.search(tee_time="evening", sort="earliest")
+        self.assertEqual(list(response.context["facilities"]), [self.valley, self.premium])
+
+    def test_all_filters_together(self):
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=1)
+        response = self.search(
+            course_name="park", location="Los Angeles", date=self.tomorrow.isoformat(),
+            tee_time="morning", min_price="50", max_price="100", golfers="3",
+            holes="18", rating="4", available="1", sort="price",
+        )
+        self.assert_courses(response, self.park)
+        course = response.context["facilities"][0]
+        self.assertEqual(course.from_price, Decimal("80.00"))
+        self.assertEqual(course.slot_count, 1)
+
+    def test_filters_cannot_match_unrelated_slots_on_same_course(self):
+        self.assert_courses(self.search(course_name="Griffith", tee_time="morning", max_price="50"))
+        self.assert_courses(self.search(course_name="Griffith", holes="18", max_price="50"))
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=3)
+        self.assert_courses(self.search(course_name="Griffith", holes="18", golfers="2"))
+
+    def test_multiple_slots_and_bookings_do_not_duplicate_courses(self):
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=1)
+        Booking.objects.create(slot=self.morning, user=self.user, num_players=1)
+        response = self.search(golfers="2")
+        self.assert_courses(response, self.park, self.valley, self.premium)
+        self.assertEqual(response.context["facilities"][0].slot_count, 2)
+
+    def test_sort_control_submits_the_filter_form(self):
+        response = self.search(course_name="Park", location="Angeles", golfers="3", sort="rating")
+        self.assertContains(response, 'id="course-filters"')
+        self.assertContains(response, 'name="sort" form="course-filters"')
+        self.assertContains(response, 'value="rating" selected')
+        self.assertContains(response, 'value="Park"')
+        self.assertContains(response, 'value="Angeles"')
+        self.assertContains(response, 'value="3"')
+
+    def test_clear_all_link_has_no_query_parameters(self):
+        response = self.search(q="Park", date=self.tomorrow.isoformat(), golfers="3 Players", sort="price")
+        self.assertContains(response, '<a href="/courses/">Clear All</a>')
+        self.assert_courses(self.client.get(reverse("courses")), self.park, self.valley, self.premium, self.empty)
+
+    def test_invalid_get_parameters_show_errors_without_crashing(self):
+        invalid = {
+            "date": ["not-a-date", "2030-02-30", "99999-01-01"],
+            "tee_time": ["night", "25:00"], "min_price": ["-1", "NaN", "Infinity", "1e9999", "abc"],
+            "max_price": ["-1", "NaN", "201", "100.001"],
+            "golfers": ["0", "5", "-3", "three", "3 Players extra"],
+            "holes": ["0", "27", "abc"], "rating": ["NaN", "5", "-1"],
+            "available": ["garbage"], "sort": ["distance", "-rating"],
+            "q": ["x" * 201], "course_name": ["x" * 201], "location": ["x" * 201],
+        }
+        for field, values in invalid.items():
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    response = self.search(**{field: value})
+                    self.assertIn(field, response.context["filter_form"].errors)
+                    self.assert_courses(response)
+                    self.assertContains(response, "Please correct the filters below.")
+
+    def test_reversed_price_range_shows_error(self):
+        response = self.search(min_price="100", max_price="50")
+        self.assertContains(response, "Minimum price must not exceed maximum price.")
+        self.assert_courses(response)
+
+    def test_empty_results(self):
+        response = self.search(course_name="No such course")
+        self.assertContains(response, "No courses match your filters.")
+        self.assertContains(response, "Try changing your search or clearing some filters.")
+        self.assertContains(response, "0 matching courses")
+
+    def test_homepage_quick_search_accepts_name_city_and_zip(self):
+        for query, expected in (("Griffith", (self.park,)), ("angeles", (self.park, self.premium)),
+                                ("90027", (self.park, self.premium)), ("91306", (self.valley,))):
+            with self.subTest(query=query):
+                response = self.search(q=query, date=self.tomorrow.isoformat(), golfers="3 Players")
+                self.assert_courses(response, *expected)
+                self.assertContains(response, 'name="q"')
+                self.assertContains(response, f'value="{query}"')
+                self.assertEqual(response.context["filter_form"].cleaned_data["golfers"], "3")
+
+    def test_all_homepage_player_labels(self):
+        for players, label in ((1, "1 Player"), (2, "2 Players"), (3, "3 Players"), (4, "4 Players")):
+            with self.subTest(label=label):
+                response = self.search(golfers=label)
+                self.assert_courses(response, self.park, self.valley, self.premium)
+                self.assertEqual(response.context["filter_form"].cleaned_data["golfers"], str(players))
+
+    def test_clearing_quick_search_removes_its_restriction(self):
+        self.assert_courses(self.search(q="Park"), self.park)
+        self.assert_courses(self.search(q="", location="Los Angeles"), self.park, self.premium)
+
+    def test_homepage_and_autocomplete_still_work(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'action="/courses/" method="get"')
+        self.assertContains(response, "3 Players")
+        self.assertContains(response, "data-autocomplete")
+        response = self.client.get(reverse("facility_search"), {"q": "Griffith"})
+        self.assertEqual(response.json()["results"][0]["id"], self.park.pk)
+
+    def test_course_link_and_booking_flow_still_work(self):
+        response = self.search(course_name="Griffith", golfers="3", holes="18")
+        detail_url = reverse("facility_detail", args=[self.park.pk])
+        self.assertContains(response, f'href="{detail_url}"')
+        self.client.force_login(self.user)
+        response = self.client.get(detail_url, {"date": self.tomorrow.isoformat()})
+        self.assertContains(response, 'action="/checkout/"')
+        response = self.client.get(reverse("checkout"), {"slot_id": self.morning.pk, "golfers": 3})
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse("book_slot"), {
+            "slot_id": self.morning.pk, "golfers": 3, **VALID_PAYMENT,
+        })
+        self.assertRedirects(response, reverse("my_bookings"))
+        self.assertEqual(Booking.objects.get().num_players, 3)
+        self.assert_courses(self.search(course_name="Griffith", holes="18", golfers="2"))
+
+    def test_query_count_does_not_grow_with_results(self):
+        with self.assertNumQueries(1):
+            response = self.search(available="1", golfers="2", sort="earliest")
+            self.assert_courses(response, self.park, self.valley, self.premium)

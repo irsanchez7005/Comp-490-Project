@@ -15,6 +15,10 @@ from .forms import VerifyCodeForm, EmailLoginForm, ProfileForm,PasswordResetRequ
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import SetPasswordForm
+from django.db import transaction
+from notifications.services import (
+    notify_email_verified, notify_password_updated, notify_account_updated,
+)
 
 def home(request):
     return render(request, 'accounts/home.html')
@@ -70,11 +74,13 @@ def verifyEmail(request):
                     form.add_error("code", "That code is invalid or has expired.")
                 verification.save(update_fields=["attempts", "locked_until"])
             else:
-                verification.used = True
-                verification.save(update_fields=['used'])
-                user.is_active = True
-                user.email_verified = True
-                user.save(update_fields=['is_active', 'email_verified'])
+                with transaction.atomic():
+                    verification.used = True
+                    verification.save(update_fields=['used'])
+                    user.is_active = True
+                    user.email_verified = True
+                    user.save(update_fields=['is_active', 'email_verified'])
+                    notify_email_verified(user)
                 del request.session['pending_user_id']
                 messages.success(request, "Email verified! You can now log in.")
                 return redirect("login")
@@ -158,17 +164,25 @@ def accountSettings(request):
     if request.method == "POST":
         action = request.POST.get("action")
         if action == "username":
+            previous_username = user.username
             username_form = UserNameForm(request.POST, instance=user)
             if username_form.is_valid():
-                username_form.save()
+                with transaction.atomic():
+                    username_form.save()
+                    if user.username != previous_username:
+                        notify_account_updated(user)
                 messages.success(request, "Username updated.")
                 return redirect("settings")
             open_dialog = "username-dialog"        
 
         elif action == "email":
+            previous_email = user.email
             email_form = EmailForm(request.POST, instance=user)
             if email_form.is_valid():
-                email_form.save()
+                with transaction.atomic():
+                    email_form.save()
+                    if user.email != previous_email:
+                        notify_account_updated(user)
                 messages.success(request, "Email updated.")
                 return redirect("settings")
             open_dialog = "email-dialog"
@@ -189,7 +203,9 @@ def accountSettings(request):
                 return redirect("settings")
             new_password_form = SetPasswordForm(user, request.POST)
             if new_password_form.is_valid():
-                user = new_password_form.save()
+                with transaction.atomic():
+                    user = new_password_form.save()
+                    notify_password_updated(user)
                 update_session_auth_hash(request, user)
                 request.session.pop("pw_verified_at", None)
                 messages.success(request, "Password Changed.")
@@ -300,7 +316,9 @@ def passwordResetConfirm(request):
     if request.method == "POST":
         form = SetPasswordForm(user, request.POST)
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                form.save()
+                notify_password_updated(user)
             request.session.pop("reset_email", None)
             request.session.pop("reset_user_id", None)
             request.session.pop("reset_verified", None)
