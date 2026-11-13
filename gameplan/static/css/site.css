@@ -1,3 +1,4 @@
+/* CSS Variables */
 :root {
   --bg: #d7ead6;
   --green: #075d39;
@@ -12,7 +13,7 @@
   --shadow-lg: 0 20px 55px rgba(3, 45, 27, .18);
 }
 
-
+/* Base styles */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -24,6 +25,7 @@ body {
   font-family: Inter, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+/* Prevent scrolling when the mobile menu is open */
 body.menu-open { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
@@ -31,7 +33,7 @@ button, summary { -webkit-tap-highlight-color: transparent; }
 img { display: block; max-width: 100%; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
-
+/* Top bar and navigation */
 .topbar {
   position: sticky;
   top: 0;
@@ -45,6 +47,7 @@ img { display: block; max-width: 100%; }
   border-bottom: 1px solid rgba(0, 0, 0, .04);
   backdrop-filter: blur(14px);
 }
+/* The .brand class styles the logo and brand name in the top bar. It uses inline-flex to align the logo and text horizontally, with a gap between them. The text color is set to a dark shade, and line height is set to 1 for tight spacing. The white-space property prevents the brand name from wrapping onto multiple lines. */
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--dark); line-height: 1; white-space: nowrap; }
 .brand-copy { display: flex; flex-direction: column; }
 .brand-copy strong { font-size: 27px; font-weight: 800; letter-spacing: -.8px; }
@@ -75,7 +78,7 @@ img { display: block; max-width: 100%; }
 .mobile-menu-toggle { display: none; width: 42px; height: 42px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: white; cursor: pointer; }
 .mobile-menu-toggle > span:not(.sr-only) { display: block; height: 2px; margin: 4px 0; border-radius: 3px; background: var(--dark); transition: transform .2s ease, opacity .2s ease; }
 
-
+/* Account menu and profile chip */
 .account-menu { position: relative; }
 .account-menu > summary { list-style: none; cursor: pointer; }
 .account-menu > summary::-webkit-details-marker { display: none; }
@@ -89,7 +92,7 @@ img { display: block; max-width: 100%; }
 .messages { width: min(1200px, 94%); margin: 10px auto; }
 .notice { padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; background: white; }
 
-
+/* Home page and courses layout */
 .home-wrap { width: min(1540px, 100%); margin: auto; padding: 28px 3% 58px; }
 .courses-layout {display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;}
 .courses-filter {position: sticky; top: 90px;}
@@ -99,7 +102,7 @@ img { display: block; max-width: 100%; }
 .homepage-hero-slides, .homepage-hero-slide, .homepage-hero-overlay { position: absolute; inset: 0; }
 .homepage-hero-slide { opacity: 0; background-size: cover; background-position: center; transform: scale(1.035); transition: opacity .7s ease, transform 6s ease; will-change: opacity, transform; }
 .homepage-hero-slide.active { opacity: 1; transform: scale(1); }
-.hero-image-1 { background-image: url("../images/homepage/search-home2.jpg"); }
+.hero-image-1 { background-image: url("../images/homepage/search-home2.jpg"); } /* This CSS rule sets the background image for the first hero slide on the homepage. The image is located in the "images/homepage" directory and is named "search-home2.jpg". The background image will cover the entire hero section and be centered. */
 .hero-image-2 { background-image: url("../images/homepage/search-home.jpg"); }
 .homepage-hero-overlay { z-index: 1; background: linear-gradient(90deg, rgba(0, 40, 25, .84), rgba(0, 40, 25, .08)); pointer-events: none; }
 .hero-copy { position: relative; z-index: 2; max-width: 600px; }
@@ -120,7 +123,7 @@ img { display: block; max-width: 100%; }
 .homepage-hero-dots button { width: 9px; height: 9px; padding: 0; border: 1px solid rgba(255, 255, 255, .65); border-radius: 50%; background: rgba(255, 255, 255, .35); cursor: pointer; transition: width .2s ease, background .2s ease; }
 .homepage-hero-dots button.active { width: 26px; border-radius: 99px; background: white; }
 
-
+/* Section headings and course cards */
 .section-head { margin: 40px 8px 21px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
 .section-head h2 { margin: 3px 0 6px; font-size: clamp(25px, 2.2vw, 34px); letter-spacing: -1px; }
 .section-head span { color: var(--muted); }
@@ -147,7 +150,7 @@ img { display: block; max-width: 100%; }
 .course-body strong small { color: var(--muted); font-size: 11px; font-weight: 500; }
 .card-link { margin-top: 15px; padding-top: 13px; display: flex; justify-content: space-between; border-top: 1px solid #edf1ed; color: var(--green); font-size: 13px; font-weight: 800; }
 
-
+/* Homepage promo and feature strip */
 .homepage-promo { min-height: 250px; margin: 34px 0; padding: 42px; display: flex; align-items: center; border-radius: 20px; color: white; background-size: cover; background-position: center; box-shadow: var(--shadow-sm); }
 .homepage-promo {background-image: linear-gradient(90deg, rgba(0,55,35,.95), rgba(0,55,35,.32)), url("../images/courses/golfclass.jpg"); }
 .homepage-promo > div { max-width: 620px; }
@@ -161,7 +164,7 @@ img { display: block; max-width: 100%; }
 .feature-strip small { color: var(--muted); font-size: 11px; }
 .feature-intro strong { display: block; margin-top: 8px; font-size: 24px; line-height: 1.2; }
 
-
+/* Authentication pages and forms */
 .auth-page {
   min-height: calc(100vh - 84px);
   padding: 60px 20px;
@@ -171,6 +174,7 @@ img { display: block; max-width: 100%; }
     radial-gradient(circle at 15% 20%, rgba(255, 255, 255, .75), transparent 32%),
     linear-gradient(135deg, #eff8ee, var(--bg));
 }
+/* The .auth-card class styles the authentication card that contains the login or signup form. It sets a maximum width of 500px or 100% of the viewport width, whichever is smaller, and adds padding of 36px around the content. */
 .auth-card { width: min(500px, 100%); padding: 36px; }
 .auth-card h1 { margin: 8px 0 10px; color: var(--dark); font-size: clamp(30px, 4vw, 42px); letter-spacing: -1.4px; }
 .auth-intro { margin: 0 0 26px; color: var(--muted); line-height: 1.55; }
@@ -190,7 +194,7 @@ img { display: block; max-width: 100%; }
 .auth-check { width: 64px; height: 64px; margin: 0 auto 20px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: white; font-size: 34px; }
 .auth-home-link { margin-top: 18px; display: inline-block; }
 
-
+/* Footer styles */
 .site-footer { padding: 48px 5% 25px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 55px; color: #dceade; background: var(--dark); }
 .site-footer > div:not(.footer-brand) { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
 .site-footer > div > strong { margin-bottom: 4px; color: white; }
@@ -202,7 +206,7 @@ img { display: block; max-width: 100%; }
 .footer-brand p { max-width: 350px; color: #a9c5b5; font-size: 13px; line-height: 1.6; }
 .footer-meta { grid-column: 1 / -1; margin: 10px 0 0; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .12); color: #91ae9e; font-size: 12px; text-align: center; }
 
-
+/* Tee times and course details */
 .courses-main { min-width: 0; display: flex; flex-direction: column; gap: 24px; }
 .tee-times, .tee-card, .tee-card * { box-sizing: border-box; }
 .tee-times { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 1100px; }
@@ -222,6 +226,7 @@ img { display: block; max-width: 100%; }
 .tee-card button:focus-visible { outline: 2px solid var(--green-bright); outline-offset: 2px; }
 mark {background: green; color: white; }
 
+/* Responsive styles */
 @media (max-width: 1180px) {
   .topbar { gap: 24px; }
   .nav-search { display: none; }
@@ -232,7 +237,7 @@ mark {background: green; color: white; }
   .feature-intro { grid-column: 1 / -1; text-align: center; }
 }
 
-
+/* Responsive styles for smaller screens */
 @media (max-width: 900px) {
   .topbar { min-height: 74px; padding: 10px 18px; flex-wrap: wrap; }
   .brand { margin-right: auto; }
@@ -250,7 +255,7 @@ mark {background: green; color: white; }
   .hero-search { grid-template-columns: 2fr 1fr 1fr 130px; }
 }
 
-
+/* Responsive styles for even smaller screens */
 @media (max-width: 720px) {
   .topbar { gap: 11px; }
   .brand-copy strong { font-size: 23px; }
@@ -287,7 +292,7 @@ mark {background: green; color: white; }
   .footer-brand { grid-column: 1 / -1; }
 }
 
-
+/* Responsive styles for very small screens */
 @media (max-width: 420px) {
   .topbar { padding-inline: 12px; }
   .brand-copy small { letter-spacing: 1.8px; }
@@ -307,7 +312,7 @@ mark {background: green; color: white; }
   .auth-card { padding: 26px 20px; }
 }
 
-
+/* Accessibility: Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
@@ -358,6 +363,8 @@ mark {background: green; color: white; }
 .booking-submit { width: 100%; margin-top: 20px; padding: 13px 20px; border: 0; border-radius: 11px; background: var(--green); color: var(--white); font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; cursor: pointer; transition: background .2s ease, box-shadow .2s ease; }
 .booking-submit:hover { background: #064b2f; box-shadow: 0 8px 22px rgba(7, 93, 57, .18); }
 .booking-submit:focus-visible { outline: 3px solid var(--green-bright); outline-offset: 3px; }
+
+/* Responsive styles for booking dialog */
 @media (max-width: 640px) {
   .booking-form { padding: 18px; }
   .booking-body { grid-template-columns: 1fr; gap: 24px; }
@@ -374,6 +381,7 @@ mark {background: green; color: white; }
 .settings-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
 .settings-actions .btn { margin-top: 8px; }
 
+/* Danger zone this part is for the danger zone in the settings */
 .danger-zone { border-color: #f1c9c6; background: #fffafa; }
 .danger-zone .settings-card-head { border-bottom-color: #f1c9c6; }
 .danger-zone h2, .danger-text { color: #a33131; }
@@ -402,14 +410,14 @@ mark {background: green; color: white; }
 .settings-dialog-actions .btn { margin-top: 0; }
 @keyframes settings-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 
-
+/* Responsive styles for settings page */
 @media (max-width: 560px) {
   .settings-card { padding: 20px; }
   .settings-actions .btn { width: 100%; }
   .settings-row .btn { width: auto; }
   .settings-dialog-actions .btn { flex: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .settings-dialog[open] { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .settings-dialog[open] { animation: none; } } /* ---------- Account menu ---------- */ 
 
 
 /* ---------- Sidebar course filter ---------- */
@@ -428,6 +436,7 @@ mark {background: green; color: white; }
 /* ---------- Date & time picker ---------- */
 .picker-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 
+/* -- Picker trigger button -- */
 .picker-trigger {
   display: inline-flex;
   align-items: center;
@@ -444,10 +453,12 @@ mark {background: green; color: white; }
   box-shadow: var(--shadow-sm);
   transition: border-color .2s ease, transform .2s ease;
 }
+/* -- Picker trigger button hover state -- */
 .picker-trigger:hover { border-color: var(--green); transform: translateY(-1px); }
 .picker-trigger svg { width: 18px; fill: none; stroke: var(--green); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .picker-clear { color: var(--green); font-size: 13px; font-weight: 800; }
 
+/* -- Picker dialog -- */
 .picker-dialog {
   width: min(420px, calc(100% - 28px));
   padding: 0;
@@ -457,8 +468,8 @@ mark {background: green; color: white; }
   color: var(--text);
   box-shadow: var(--shadow-lg);
 }
+/* -- Picker dialog backdrop -- */
 .picker-dialog::backdrop { background: rgba(7, 60, 42, .55); backdrop-filter: blur(3px); }
-
 .picker-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid var(--border); }
 .picker-head h2 { margin: 0; color: var(--dark); font-size: 17px; letter-spacing: -.3px; }
 .picker-close { width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; }
@@ -466,6 +477,7 @@ mark {background: green; color: white; }
 
 .picker-body { padding: 18px 22px 6px; }
 
+/* -- Calendar -- */
 .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .cal-head strong { color: var(--dark); font-size: 15px; font-weight: 800; }
 .cal-nav { width: 34px; height: 34px; padding: 0; border: 1px solid var(--border); border-radius: 9px; background: var(--white); color: var(--dark); font-size: 20px; line-height: 1; cursor: pointer; transition: border-color .2s ease, background .2s ease; }
@@ -476,6 +488,7 @@ mark {background: green; color: white; }
 
 .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 
+/* -- Calendar day cells -- */
 .cal-cell {
   aspect-ratio: 1;
   display: grid;
@@ -506,6 +519,7 @@ mark {background: green; color: white; }
 .cal-cell.chosen::after { background: var(--white); }
 .cal-cell:focus-visible { outline: 2px solid var(--green-bright); outline-offset: 1px; }
 
+/* -- Time picker -- */
 .picker-field { display: block; margin-top: 20px; }
 .picker-field > span { display: block; margin-bottom: 7px; color: var(--dark); font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .picker-field select { width: 100%; min-height: 46px; padding: 0 14px; border: 1px solid var(--border); border-radius: 11px; background: var(--white); color: var(--text); font-weight: 600; cursor: pointer; }
@@ -516,6 +530,7 @@ mark {background: green; color: white; }
 .picker-foot .btn { flex: 1; }
 .picker-foot .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 
+/* Responsive styles for picker dialog */
 @media (max-width: 420px) {
   .picker-body, .picker-foot { padding-inline: 16px; }
 }
@@ -583,7 +598,7 @@ mark {background: green; color: white; }
 .booking-where h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
 .booking-where p { margin: 0; color: var(--muted); font-size: 13px; }
 .booking-status { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; }
-
+/* Status pill styles */
 .status-pill {
   padding: 5px 12px;
   border-radius: 20px;
@@ -595,6 +610,7 @@ mark {background: green; color: white; }
 .status-pill.confirmed { background: var(--mint); color: var(--green); }
 .status-pill.cancelled { background: #f1c9c6; color: #a33131; }
 
+/* Link button styles */
 .link-button {
   padding: 0;
   border: 0;
@@ -604,11 +620,14 @@ mark {background: green; color: white; }
   font-weight: 700;
   cursor: pointer;
 }
+/* Link button hover state */
 .link-button:hover { text-decoration: underline; }
+/* Responsive styles for bookings list */
 @media (max-width: 620px) {
   .booking-row { grid-template-columns: 1fr; gap: 10px; }
   .booking-status { justify-content: space-between; }
 }
+/* ---------- Search results dropdown ---------- */
 .search-wrap {position: relative;  }
 .search-results { 
   position: absolute; 
@@ -623,12 +642,14 @@ mark {background: green; color: white; }
   border-radius: 12px; 
   box-shadow: var(--shadow-lg);
 }
+/* Search result item styles */
 .search-results a { display: flex; flex-direction: column; padding: 9px 12px; border-radius: 8px; }
 .search-results a:hover { background: var(--mint); color: var(--green); }
 .search-results strong{ color: var(--dark); font-size: 13px; font-weight: 700; }
 .search-results span { color: var(--muted); font-size: 12px; }
 .search-empty { margin: 0; padding: 12px; color: var(--muted); font-size: 13px; text-align: center; }
 
+/* Search results dropdown for hero search */
 .search-results {
   position: absolute !important;
   top: calc(100% + 6px);

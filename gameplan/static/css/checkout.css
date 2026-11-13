@@ -17,13 +17,13 @@
   background: #5f7986 url('https://upload.wikimedia.org/wikipedia/commons/6/6e/Golfer_swing.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original') center / cover;
   filter: blur(8px);
 }
-
+/* Reset box-sizing, margin, and padding for all elements within the checkout page. */
 .checkout-page * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-
+/* Container for the checkout page content, using a grid layout. */
 .checkout-page .checkout-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -31,12 +31,12 @@
   max-width: 1200px;
   margin: 0 auto;
 }
-
+/* Styles for headings and emphasized text within the checkout page. */ 
 .checkout-page em {
   font-style: normal;
   font-weight: 700;
 }
-
+/* Styles for horizontal rules within the checkout page. */
 .checkout-page hr {
   color: #fff;
   margin-bottom: 12px;
@@ -48,7 +48,7 @@
   min-height: 280px;
   background: #5f7986 url('https://upload.wikimedia.org/wikipedia/commons/6/6e/Golfer_swing.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original') center / cover;
 }
-
+/* Text box overlay on the left side of the container. */
 .checkout-page .text-box {
   position: absolute;
   bottom: 0;
@@ -56,7 +56,7 @@
   padding: 10px 20px;
   background: rgba(95, 121, 134, 0.8);
 }
-
+/* Styles for headings, prices, and descriptions within the text box. */
 .checkout-page .home-heading {
   margin-bottom: 10px;
   color: #e8e8e1;
@@ -64,13 +64,13 @@
   font-weight: 700;
   line-height: 1;
 }
-
+/* Styles for the home price and description within the text box. */
 .checkout-page .home-price {
   margin-bottom: 12px;
   color: #e8e8e1;
   font-size: 20px;
 }
-
+/* Styles for the home description within the text box. */
 .checkout-page .home-desc {
   color: #e8e8e1;
   font-size: 16px;
@@ -83,7 +83,7 @@
   padding: 18px 32px;
   background-color: #fff;
 }
-
+/* Styles for the receipt section within the right side of the container. */
 .checkout-page .receipt {
   display: flex;
   flex-direction: column;
@@ -91,12 +91,12 @@
   margin-bottom: 10px;
   border-bottom: solid 1px;
 }
-
+/* Styles for the receipt heading within the receipt section. */
 .checkout-page .receipt-heading {
   font-size: 18px;
   text-align: left;
 }
-
+/* Styles for the receipt table within the receipt section. */
 .checkout-page .table {
   width: 100%;
   margin-bottom: 5px;
@@ -105,12 +105,12 @@
   color: #64645f;
   font-size: 14px;
 }
-
+/* Styles for the table header within the receipt table. */ 
 .checkout-page .total td {
   font-size: 16px;
   font-weight: 700;
 }
-
+/* Styles for the price column within the receipt table. */
 .checkout-page .price {
   text-align: end;
 }
@@ -120,56 +120,56 @@
   margin-bottom: 10px;
   font-size: 16px;
 }
-
+/* Styles for the form box within the payment section. */
 .checkout-page .form-box {
   display: grid;
   gap: 15px;
 }
-
+/* Styles for the card logo within the payment section. */
 .checkout-page .card-logo {
   font-size: 20px;
 }
-
+/* Styles for labels within the form box. */
 .checkout-page .form-box label {
   display: block;
   margin-bottom: 4px;
   font-size: 14px;
   font-weight: 700;
 }
-
+/* Styles for input fields within the form box. */
 .checkout-page .form-box input {
   width: 100%;
   padding: 8px;
   font-family: inherit;
   font-size: 16px;
 }
-
+/* Styles for the CVV input field within the form box. */
 .checkout-page .form-box #cvv {
   width: 25%;
   min-width: 80px;
 }
-
+/* Styles for error messages within the form box. */
 .checkout-page .field-error {
   margin-top: 4px;
   color: #b42318;
   font-size: 14px;
 }
-
+/* Styles for the CVV information section within the payment section. */
 .checkout-page .cvv-info {
   margin-top: 6px;
   font-size: 14px;
 }
-
+/* Styles for the summary element within the CVV information section. */
 .checkout-page .cvv-info summary {
   cursor: pointer;
   text-decoration: underline;
 }
-
+/* Styles for the summary element on hover within the CVV information section. */
 .checkout-page .cvv-info summary:hover {
   color: #5f7986;
   text-decoration: none;
 }
-
+/* Styles for the details element within the CVV information section. */ 
 .checkout-page .btn {
   gap: 8px;
   margin-bottom: 10px;
@@ -184,22 +184,22 @@
   letter-spacing: 0.5px;
   cursor: pointer;
 }
-
+/* Styles for the button on hover within the checkout page. */
 .checkout-page .btn:hover {
   background-color: #5f7986;
   transition: ease-out 0.1s;
 }
-
+/* Styles for the disabled button within the checkout page. */
 .checkout-page .btn:disabled {
   opacity: 0.7;
   cursor: wait;
 }
-
+/* Styles for the footer text within the checkout page. */
 .checkout-page .footer-text {
   font-size: 14px;
   text-align: center;
 }
-
+/* Styles for focused elements within the form box of the checkout page. */
 .checkout-page .form-box *:focus {
   outline: none;
   border-radius: 8px;
@@ -212,11 +212,11 @@
   margin-bottom: 10px;
   font-size: 14px;
 }
-
+/* Styles for the confirmation link within the checkout page. */
 .checkout-page .confirmation-link {
   width: 100%;
 }
-
+/* Styles for the confirmation button within the checkout page. */ 
 @media (min-width: 768px) {
   .checkout-page .checkout-container {
     grid-template-columns: 1fr 1fr;
