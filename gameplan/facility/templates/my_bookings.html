@@ -1,7 +1,7 @@
 {% extends "accounts/base.html" %}
 {% block title %}My Bookings | GamePlan{% endblock %}
 {% block content %}
-
+<!-- Display the user's bookings -->
 <section class="home-wrap">
   <div class="section-head">
     <div>
@@ -9,39 +9,39 @@
       <h2>My Bookings</h2>
     </div>
   </div>
-
+<!-- Display the list of user's bookings -->
   <div class="booking-list">
     {% for b in bookings %}
     <article class="booking-row {% if b.status == 'cancelled' %}is-cancelled{% endif %}">
       <div class="booking-when">
-        <strong>{{ b.slot.date|date:"D M j" }}</strong>
-        <span>{{ b.slot.start_time|time:"g:i A" }}</span>
+        <strong>{{ b.slot.date|date:"D M j" }}</strong> <!-- Display the date of the booking --> 
+        <span>{{ b.slot.start_time|time:"g:i A" }}</span> <!-- Display the start time of the booking -->
       </div>
-
+<!-- Display the location of the booking -->
       <div class="booking-where">
         <h3>{{ b.slot.facility.facility_name }}</h3>
         <p>
-          {{ b.num_players }} player{{ b.num_players|pluralize }}
-          {% if b.slot.holes %}· {{ b.slot.holes }} holes{% endif %}
+          {{ b.num_players }} player{{ b.num_players|pluralize }} <!-- Display the number of players for the booking -->
+          {% if b.slot.holes %}· {{ b.slot.holes }} holes{% endif %} <!-- Display the number of holes for the booking if available -->
           · ${{ b.slot.price_per_player }} each
         </p>
       </div>
-
+<!-- Display the status of the booking and provide a cancel option if confirmed -->
       <div class="booking-status">
-        {% if b.status == 'confirmed' %}
+        {% if b.status == 'confirmed' %} <!-- If the booking is confirmed, display a "Confirmed" status and provide a cancel button -->
         <span class="status-pill confirmed">Confirmed</span>
         <form method="post" action="{% url 'cancel_booking' b.pk %}">
           {% csrf_token %}
-          <button type="submit" class="link-button">Cancel</button>
+          <button type="submit" class="link-button">Cancel</button> <!--This button allows the user to cancel the booking by submitting a POST request to the cancel_booking view with the booking's primary key. -->
         </form>
         {% else %}
-        <span class="status-pill cancelled">Cancelled</span>
+        <span class="status-pill cancelled">Cancelled</span> <!-- If the booking is cancelled, display a "Cancelled" status -->
         {% endif %}
       </div>
     </article>
     {% empty %}
     <p class="no-times">
-      No bookings yet. <a href="{% url 'courses' %}">Find a tee time</a>.
+      No bookings yet. <a href="{% url 'courses' %}">Find a tee time</a>. <!-- Display a message when there are no bookings -->
     </p>
     {% endfor %}
   </div>

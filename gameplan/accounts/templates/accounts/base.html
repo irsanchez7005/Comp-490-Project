@@ -2,58 +2,60 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- This is the head of the HTML document -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- This meta tag ensures that the page is responsive and scales correctly on different devices. initial scale is 1.0 means the page is not zoomed in or out. -->
   <meta name="description" content="GamePlan makes it easy to discover golf courses, book tee times, and play together.">
   <title>{% block title %}GamePlan{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com"> <!-- Preconnect to the Google Fonts server -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=9">
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"> <!-- Load the Inter font -->
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=9"> <!-- Load the site styles -->
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"> <!-- Load the dashboard styles -->
   {% block extra_head %}{% endblock %}
 </head>
-<body>
-  <header class="topbar" data-site-header>
+<body> <!-- This is the body of the HTML document -->
+  <header class="topbar" data-site-header> <!-- This is the top navigation bar -->
     <a class="brand" href="{% url 'home' %}" aria-label="GamePlan home">
-      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span class="brand-mark" aria-hidden="true"><i></i></span> <!-- This is the brand mark. What it does is display the GamePlan logo. -->
       <span class="brand-copy"><strong>GamePlan</strong><small>PLAY MORE. TOGETHER.</small></span>
     </a>
-
+    <!-- This is the primary navigation menu. It has links to the main sections of the site. -->
     <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-menu-toggle>
       <span></span><span></span><span></span><span class="sr-only">Open navigation</span>
     </button>
-
+    <!-- This is the search form. It allows users to search for courses or locations. -->
     <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation" data-primary-nav>
       {% with current=request.resolver_match.url_name %}
       <a{% if current == 'home' %} class="active" aria-current="page"{% endif %} href="{% url 'home' %}">Golf</a>
       <a{% if current == 'courses' %} class="active" aria-current="page"{% endif %} href="{% url 'courses' %}">Courses</a>
       <a href="#" data-template-placeholder="true">Lessons</a>
-      <a href="#" data-template-placeholder="true">Community</a>
+      <a href="#" data-template-placeholder="true">Community</a> <!-- This is a placeholder for the Community link. A placeholder is a temporary element that is used to indicate where the actual content will be placed. -->
       {% endwith %}
     </nav>
-
+       <!-- This is the search form. It allows users to search for courses or locations. -->
       <div class="search-wrap">
         <form class="nav-search" action="{% url 'courses' %}" method="get" role="search">
-          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg> <!-- This is the search icon. so users can easily find what they're looking for. -->
           <input name="q" autocomplete="off" data-autocomplete
                  value="{{ request.GET.q|default:'' }}"
                  placeholder="Search courses or locations"
-                 aria-label="Search courses or locations">
+                 aria-label="Search courses or locations">  <!-- This is the search input field. It allows users to enter their search query. -->
         </form>
       </div>
       {% if user.is_authenticated %}
+      <!-- This is the user account menu. It provides links to the user's account information and settings. -->
         <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
         <a class="notification-link" href="#" data-template-placeholder="true" aria-label="Notifications">
-          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg> <!-- This is the notification icon. It indicates that there are notifications available. M18 8a6 6 0 0 0... means that the path of the icon is a circle with a center at (18, 8) and a radius of 6. -->
         </a>
-        <details class="account-menu" data-account-menu>
-          <summary class="profile-chip">
+        <details class="account-menu" data-account-menu> <!-- details is a HTML element that allows you to create a collapsible section of content. In this case, it's used to create the user account menu. -->
+          <summary class="profile-chip"> <!-- summary is an HTML element that provides a brief description of the content of the details element. -->
             <span class="profile-avatar">{{ user.first_name|default:user.username|slice:':1'|upper }}</span>
             <span>{{ user.first_name|default:user.username }}</span>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg> <!-- This is the dropdown icon. It indicates that the user can click on the profile chip to expand the account menu. -->
           </summary>
-          <nav aria-label="Account navigation">
+          <nav aria-label="Account navigation"> <!-- This is the account navigation menu. It provides links to the user's account information and settings. -->
             <a href="{% url 'my_gameplan' %}">My GamePlan</a>
             <a href="{% url 'profile' %}">My Profile</a>
             <a href="{% url 'my_bookings' %}">My Bookings</a>
@@ -62,36 +64,39 @@
           </nav>
         </details>
       {% else %}
-        <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
-        <a class="header-link" href="#" data-template-placeholder="true">Notifications</a>
+      <!-- If the user is not logged in, show the login and signup links. -->
+        <a class="header-link" href="#" data-template-placeholder="true">Messages</a> <!-- href is the URL to which the link points. data-template-placeholder is a custom attribute used to indicate that this is a placeholder for a template variable. -->
+        <a class="header-link" href="#" data-template-placeholder="true">Notifications</a> 
         <a class="login-link" href="{% url 'login' %}">Log In</a>
         <a class="btn small" href="{% url 'createAccount' %}">Sign Up</a>
       {% endif %}
     </div>
   </header>
-
+<!-- This is a comment. It will not be rendered in the browser. -->
   {% if messages %}
-    <div class="messages" aria-live="polite">
+    <div class="messages" aria-live="polite"> 
       {% for message in messages %}<div class="notice">{{ message }}</div>{% endfor %}
     </div>
   {% endif %}
 
   <main>{% block content %}{% endblock %}</main>
-
+  <!-- footer class = site footer is the container for the site's footer content. what it does is provide a consistent layout for the footer across all pages. -->
   <footer class="site-footer">
+    <!-- This is the site footer. It contains links to important pages and information about the site. -->
     <div class="footer-brand">
       <a class="brand brand-light" href="{% url 'home' %}">
+        <!-- The brand link points to the home page. -->
         <span class="brand-mark" aria-hidden="true"><i></i></span>
         <span class="brand-copy"><strong>GamePlan</strong><small>PLAY MORE. TOGETHER.</small></span>
       </a>
       <p>More rounds, more memories, more ways to play together.</p>
     </div>
-    <div><strong>Explore</strong><a href="#" data-template-placeholder="true">Golf Courses</a><a href="#" data-template-placeholder="true">Lessons</a><a href="#" data-template-placeholder="true">Community</a></div>
+    <!-- In this part of the code, we are defining the footer navigation links. -->
+    <div><strong>Explore</strong><a href="#" data-template-placeholder="true">Golf Courses</a><a href="#" data-template-placeholder="true">Lessons</a><a href="#" data-template-placeholder="true">Community</a></div> <!-- This part contains the footer navigation links. so this basically defines the links that will be displayed in the footer. -->
     <div><strong>GamePlan</strong><a href="#" data-template-placeholder="true">About Us</a><a href="#" data-template-placeholder="true">Support</a><a href="#" data-template-placeholder="true">Privacy</a></div>
     <p class="footer-meta">&copy; 2026 GamePlan &middot; COMP 490 Project</p>
   </footer>
-
-  <script src="{% static 'js/site.js' %}?v=6"></script>
+  <script src="{% static 'js/site.js' %}?v=6"></script> <!--in this part of the code, we are including the site.js file with a version number of 6. do every time we make a change to the file, we should update the version number. -->
   {% block scripts %}{% endblock %}
 </body>
 </html>

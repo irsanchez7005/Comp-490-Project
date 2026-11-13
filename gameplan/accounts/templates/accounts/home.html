@@ -1,30 +1,31 @@
-{% extends "accounts/base.html" %}
-{% load static %}
+{% extends "accounts/base.html" %} <!-- Extend the base template so that this template inherits the structure and layout of the base template -->
+{% load static %} <!-- Load static files so they can be used in the template -->
 
-{% block title %}GamePlan | Find Your Next Round{% endblock %}
+{% block title %}GamePlan | Find Your Next Round{% endblock %} <!-- Title for the homepage -->
 
-{% block content %}
-<section class="home-wrap">
+{% block content %}  <!-- Main content for the homepage -->
+<!--The homepage features a hero carousel with images, a search form for finding golf courses, a section for featured golf courses, a promotional section for lessons, and a feature strip highlighting the benefits of using GamePlan.--> 
+<section class="home-wrap"> 
   <div class="hero homepage-hero-carousel" data-hero-carousel tabindex="0" role="region" aria-roledescription="carousel" aria-label="Featured golf images">
     <div class="homepage-hero-slides" aria-live="off">
       <div class="homepage-hero-slide hero-image-1 active" data-hero-slide aria-hidden="false" role="img" aria-label="Scenic golf course at sunset"></div>
       <div class="homepage-hero-slide hero-image-2" data-hero-slide aria-hidden="true" role="img" aria-label="Golf green surrounded by trees" ></div>
     </div>
     <div class="homepage-hero-overlay" aria-hidden="true"></div>
-
+    <!-- Hero copy and search form for finding golf courses -->
     <div class="hero-copy">
       <small>GOLF BOOKING MADE EASY</small>
       <h1>Find Your<br><em>Next Round</em></h1>
       <p>Discover great courses. Book tee times. Play more.</p>
     </div>
-
+    <!-- Search form for finding golf courses by location, date, and number of players -->
     <form class="hero-search" action="{% url 'courses' %}" method="get">
       <label class="search-wrap"><span>Location / ZIP / Course</span><input name="q" autocomplete="off" data-autocomplete aria-label="Location, ZIP, or course" placeholder="Enter city, ZIP, or course"></label>
       <label><span>Date</span><input type="date" name="date" aria-label="Date"></label>
       <label><span>Players</span><select name="golfers" aria-label="Players"><option>1 Player</option><option>2 Players</option><option>3 Players</option><option>4 Players</option></select></label>
       <button class="btn hero-search-button" type="submit">Search</button>
     </form>
-
+     <!-- Navigation buttons for the hero carousel -->
     <button class="homepage-hero-arrow previous" type="button" data-hero-previous aria-label="Previous hero image">&#8249;</button>
     <button class="homepage-hero-arrow next" type="button" data-hero-next aria-label="Next hero image">&#8250;</button>
     <div class="homepage-hero-dots" aria-label="Choose hero image">
@@ -32,11 +33,12 @@
       <button type="button" data-hero-dot="1" aria-label="Go to slide 2" aria-current="false"></button>
     </div>
   </div>
-
+  <!-- Section for featured golf courses with a link to view all courses -->
   <div class="section-head">
     <div><p class="eyebrow">PLAY NEARBY</p><h2>Featured Golf Courses</h2><span>Course listings will connect here when the feature is ready.</span></div>
-    <a href="{% url 'courses' %}" >View all courses <span aria-hidden="true">&rarr;</span></a>
+    <a href="{% url 'courses' %}" >View all courses <span aria-hidden="true">&rarr;</span></a> <!-- Link to view all courses -->
   </div>
+  <!-- Section for displaying featured golf courses -->
 <div class="course-grid">
   {% for f in facilities %}
     <a class="course-card" href="{% url 'facility_detail' f.pk %}">
@@ -49,25 +51,28 @@
           <span class="badge badge-light">No times yet</span>
         {% endif %}
       </div>
-
+      <!-- Display the course information -->
       <div class="course-info">
-        <h3>{{ f.facility_name }}</h3>
+        <h3>{{ f.facility_name }}</h3> <!-- Display the name of the golf course but from the facility object -->
         <p>{{ f.city }}</p>
 
-        {% if f.from_price is not None %}
+        {% if f.from_price is not None %} <!-- this part checks if the from_price is not None. For example, if the from_price is 0, it will be considered None. -->
           <p>From ${{ f.from_price|floatformat:2 }} per player</p>
         {% endif %}
-      </div>
+      </div>-->
     </a>
+    <!--% empty % is used to display a message when the loop is empty -->
   {% empty %}
     <p>No courses available yet.</p>
   {% endfor %}
 </div>
+   <!-- End of the featured golf courses section -->
 
+   <!-- Homepage promo section -->
   <section class="homepage-promo">  <!-- Background image for the homepage promo section -->
     <div><p class="eyebrow">BETTER GOLF STARTS HERE</p><h2>Take Your Game to the Next Level</h2><p>Connect with local instructors and find a lesson that fits your game, your schedule, and your goals.</p><a class="btn btn-light" href="#" data-template-placeholder="true">Explore lessons</a></div>
   </section>
-
+   <!-- Feature strip highlighting the benefits of using GamePlan. -->
   <section class="feature-strip" aria-label="GamePlan benefits">
     <div class="feature-intro"><p class="eyebrow">WHY GAMEPLAN</p><strong>Everything you need to play more.</strong></div>
     <div><span aria-hidden="true">&#9906;</span><b>Great Courses</b><small>Find the right round nearby</small></div>
@@ -75,5 +80,6 @@
     <div><span aria-hidden="true">&#9733;</span><b>Trusted Reviews</b><small>Choose with confidence</small></div>
     <div><span aria-hidden="true">&#9825;</span><b>Play Together</b><small>Connect with your golf community</small></div>
   </section>
+  <!-- End of the feature strip -->
 </section>
 {% endblock %}

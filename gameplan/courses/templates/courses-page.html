@@ -1,7 +1,7 @@
 {% extends "accounts/base.html" %} {% load static %}
 {% block title %}GamePlan | Courses{% endblock %}
 {% block content %}
-
+<!-- Courses page content -->
 <section class="home-wrap">
   <div class="section-head">
     <div>
@@ -10,41 +10,41 @@
       <span>{{ facilities|length }} course{{ facilities|length|pluralize }} near you</span>
     </div>
   </div>
-
+<!-- Courses grid -->
   <div class="course-grid">
     {% for f in facilities %}
     <a class="course-card" href="{% url 'facility_detail' f.pk %}">
       <div class="course-photo photo-placeholder">
         {% if f.slot_count %}
-        <span class="badge">{{ f.slot_count }} tee time{{ f.slot_count|pluralize }}</span>
+        <span class="badge">{{ f.slot_count }} tee time{{ f.slot_count|pluralize }}</span> <!-- Display the number of available tee times for the course -->
         {% else %}
         <span class="badge badge-light">No times yet</span>
         {% endif %}
       </div>
-
+<!-- Course body -->
       <div class="course-body">
         <h3>{{ f.facility_name }}</h3>
-
+<!-- Display the name of the golf course but from the facility object --> 
         {% if f.rating %}
         <p class="stars">★ {{ f.rating }}</p>
         {% endif %}
-
+<!-- Course location -->
         <p>{{ f.street_address }}, {{ f.city }}</p>
-
+<!-- Course pricing -->
         {% if f.from_price %}
         <strong>${{ f.from_price }} <small>per player</small></strong>
         {% else %}
         <strong><small>Pricing coming soon</small></strong>
         {% endif %}
-
-        <div class="card-link">
+<!-- Course link -->
+        <div class="card-link"> <!-- Link to view tee times for the course -->
           <span>View tee times</span>
           <span>&rsaquo;</span>
         </div>
       </div>
     </a>
     {% empty %}
-    <p class="no-times">No courses listed yet.</p>
+    <p class="no-times">No courses listed yet.</p> <!-- Display a message if there are no courses listed -->
     {% endfor %}
   </div>
 </section>
