@@ -1,3 +1,12 @@
+"""
+Module: accounts/views.py
+Programmer: Kelvin Jinn
+Contributors: Matthew Messiha, Sumchhay Cheap
+Last Updated: 11-02-2026
+Description: Handles account pages: signup, email verification, email login,
+        profile and edit profile, account settings, delete account, and password reset.
+        Limits wrong verification code guesses to 3, then locks for 1 minute.
+"""
 import math
 import secrets
 import time

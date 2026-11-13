@@ -1,3 +1,12 @@
+"""
+Module: accounts/models.py
+Programmer: Kelvin Jinn
+Contributors: Isaac Sanchez
+Last Updated: 11-02-2026
+Description: Database models for user accounts. Defines the custom User (email login,
+            role, verification flags), Profile (one per user: bio, avatar, city, skill level),
+            and Verification (6-digit codes with expiry, attempt count, and lock time).
+"""
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings

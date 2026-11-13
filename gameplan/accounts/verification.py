@@ -1,3 +1,9 @@
+"""
+Module: accounts/verification.py
+Programmer: Kelvin Jinn
+Last Updated: 10-29-2026 
+Description: Creates verification codes and emails to users for signup and password reset.
+"""
 import secrets
 from datetime import timedelta
 
