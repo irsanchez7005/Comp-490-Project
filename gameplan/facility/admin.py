@@ -25,6 +25,7 @@ class TimeSlotForm(forms.ModelForm):
 
 @admin.action(description="Generate 15-min tee times for next 7 days")
 def generate_tee_times(modeladmin, request, queryset):
+    """Create 15-minute tee times from 6 AM to 6 PM for the next 7 days."""
     OPEN = time(6, 0)
     CLOSE = time(18, 0)
     INTERVAL = 15
@@ -43,8 +44,8 @@ def generate_tee_times(modeladmin, request, queryset):
                 )
                 if made:
                     created += 1
-                dt = timedelta(hours=current.hour, minutes=current.minute + INTERVAL)
-                current = datetime.combine(date.min, current) + timedelta(minutes=INTERVAL)
+                    current = (datetime.combine(date.min, current) + timedelta(minutes=INTERVAL)).time()
+
 
     modeladmin.message_user(request, f"Created {created} tee times.")
 

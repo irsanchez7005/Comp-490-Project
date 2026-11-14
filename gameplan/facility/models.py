@@ -13,6 +13,7 @@ class Facility(models.Model):
     rating=models.FloatField(null=True,blank=True)
 
     def __str__(self):
+        """Return the facility name."""
         return self.facility_name
 
 
@@ -25,6 +26,7 @@ class Sport(models.Model):
     facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="sports")
 
     def __str__(self):
+        """Return the sport's name."""
         return self.name
 
 
@@ -42,6 +44,7 @@ class Instructor(models.Model):
     contact_phone=models.CharField(max_length=20)
 
     def __str__(self):
+        """Return the instructor's full name."""
         return f"{self.first_name} {self.last_name}"
 
 
@@ -56,6 +59,7 @@ class Session(models.Model):
     end_time=models.DateTimeField()
 
     def __str__(self):
+        """Return the session id and facility name."""
         return f"Session {self.id} at {self.facility.facility_name}"
 
 
@@ -78,6 +82,7 @@ class TimeSlot(models.Model):
         ]
 
     def __str__(self):
+        """Return the facility name with the date and start time."""
         return f"{self.facility.facility_name} — {self.date} {self.start_time}"
 
 
@@ -101,4 +106,7 @@ class Booking(models.Model):
     card_last4 = models.CharField(max_length=4, null=True, blank=True)
 
     def __str__(self):
+        """Return the user and the slot they booked."""
         return f"{self.user} — {self.slot}"
+
+

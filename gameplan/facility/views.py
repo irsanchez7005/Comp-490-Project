@@ -21,7 +21,9 @@ SLOT_FULL_MESSAGE = "Sorry, that time is already full."
 
 
 def _find_slot(slot_id):
-    """Return the TimeSlot for a raw id, or None if it is missing or malformed."""
+
+
+    """Return the TimeSlot for an id, or None if it is missing or invalid."""
     try:
         return TimeSlot.objects.select_related("facility").filter(pk=slot_id).first()
     except (TypeError, ValueError):
@@ -29,7 +31,9 @@ def _find_slot(slot_id):
 
 
 def _parse_players(raw):
-    """Return a raw player count as a positive int, or None if it is not one."""
+
+
+    """Return the player count as a positive int, or None if invalid."""
     try:
         players = int(raw)
     except (TypeError, ValueError):
@@ -38,6 +42,9 @@ def _parse_players(raw):
 
 
 def _open_spots(slot):
+
+
+    """Return the open seats in a slot, counting only confirmed bookings."""
     taken = (
         slot.bookings.filter(status=Booking.Status.CONFIRMED)
         .aggregate(n=Sum("num_players"))["n"] or 0
@@ -46,7 +53,9 @@ def _open_spots(slot):
 
 
 def _selection_error(slot, players):
-    """Return why this selection can't be booked, or None if it can."""
+
+
+    """Return an error message if the slot can't be booked, else None."""
     if slot is None or players is None:
         return INVALID_SELECTION_MESSAGE
     if slot.date < timezone.localdate():
@@ -57,6 +66,9 @@ def _selection_error(slot, players):
 
 
 def _redirect_invalid_selection(request, slot, message):
+
+
+    """Flash an error and redirect to the course page, or the course list."""
     messages.error(request, message)
     if slot is None:
         return redirect("courses")
@@ -64,6 +76,9 @@ def _redirect_invalid_selection(request, slot, message):
 
 
 def _render_checkout(request, slot, players, form):
+
+
+    """Render the checkout page with the receipt and payment form."""
     return render(request, "facility/checkout.html", {
         "slot": slot,
         "players": players,
@@ -72,7 +87,8 @@ def _render_checkout(request, slot, players, form):
     })
 
 def facility_list(request):
-    """The /courses/ page - just the list of courses."""
+
+    """Show all courses with their lowest price, filtered by the q search."""
     today = timezone.localdate()
 
     facilities = Facility.objects.annotate(
@@ -94,7 +110,9 @@ def facility_list(request):
 
 
 def facility_detail(request, pk):
-    """One course - its calendar and tee times."""
+
+
+    """Show one course with its calendar data and upcoming tee times."""
     facility = get_object_or_404(Facility, pk=pk)
     today = timezone.localdate()
 
@@ -158,7 +176,7 @@ def facility_detail(request, pk):
 
 @login_required
 def checkout(request):
-    """Show the receipt and payment form for the chosen tee time."""
+    """Show the receipt and payment form, or redirect if the slot is unavailable."""
     slot = _find_slot(request.GET.get("slot_id"))
     players = _parse_players(request.GET.get("golfers"))
     error = _selection_error(slot, players)
@@ -168,7 +186,9 @@ def checkout(request):
 
 
 def _create_paid_booking(slot, user, players, card_number):
-    """Save a booking and its receipt, or return None if the slot has filled up."""
+
+
+    """Lock the slot and save the booking, or return None if it filled up."""
     receipt = calculate_receipt(slot.price_per_player, players)
     # Lock the slot so two people can't take the last spot at once.
     with transaction.atomic():
@@ -190,7 +210,7 @@ def _create_paid_booking(slot, user, players, card_number):
 @login_required
 @require_POST
 def book_slot(request):
-    """Validate the simulated payment and create the booking."""
+    """Validate the payment form and create the booking."""
     slot = _find_slot(request.POST.get("slot_id"))
     players = _parse_players(request.POST.get("golfers"))
     error = _selection_error(slot, players)
@@ -215,7 +235,7 @@ def book_slot(request):
 
 @login_required
 def booking_confirmation(request, pk):
-    """Show one of the user's bookings and its saved receipt."""
+    """Show the receipt for one of the user's own bookings."""
     booking = get_object_or_404(
         Booking.objects.select_related("slot", "slot__facility"),
         pk=pk,
@@ -226,7 +246,7 @@ def booking_confirmation(request, pk):
 
 @login_required
 def my_bookings(request):
-    """The user's bookings."""
+    """List the user's bookings, newest first."""
 
     bookings = (
         Booking.objects.filter(user=request.user)
@@ -244,7 +264,7 @@ def my_bookings(request):
 @login_required
 @require_POST
 def cancel_booking(request, pk):
-    """Cancel a booking."""
+    """Mark one of the user's bookings as cancelled."""
 
     booking = get_object_or_404(
         Booking,
@@ -263,7 +283,7 @@ def cancel_booking(request, pk):
 
     return redirect("my_bookings")
 def facility_search(request):
-    """Search for facilities by name."""
+    """Return up to 8 courses matching q by name or city, as JSON."""
     q = request.GET.get("q", "").strip()
     results = []
 
@@ -276,6 +296,9 @@ def facility_search(request):
 
 
 def home(request):
+
+
+    """Show the home page with 4 random courses."""
     today = timezone.localdate()
 
     facilities = Facility.objects.annotate(
