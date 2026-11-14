@@ -1,3 +1,11 @@
+"""
+Module: accounts/forms.py
+Programmer: Kelvin Jinn
+Last Updated: 11-02-2026
+Description: Forms for the accounts app: registration, email login, profile editing,
+        verification code entry, password reset request, and account settings
+        (change username, change email, change password).
+"""
 from django import forms
 from .models import Profile, User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm

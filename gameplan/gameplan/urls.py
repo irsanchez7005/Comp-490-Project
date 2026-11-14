@@ -24,6 +24,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from facility import views as facility_views
 
+""" This module defines the URL patterns for the gameplan project. It includes routes for various views such as home, courses, admin, user account management (registration, login, logout, profile), password reset, and facility-related views (facility list, facility detail, checkout, booking management). The urlpatterns list maps URL paths to their corresponding view functions or classes. Additionally, if the project is in DEBUG mode, it serves media files during development. """
 urlpatterns = [
     path('', facility_views.home, name='home'),
     path('courses/', facility_views.facility_list, name='courses'),
@@ -52,7 +53,7 @@ urlpatterns = [
     path('password-reset/complete/',auth_views.PasswordResetCompleteView.as_view(
          template_name='accounts/password_reset_complete.html'),
         name='password_reset_complete'),
-
+    # This section defines the URL patterns for user account settings, including account settings page, account deletion, facility detail view, checkout process, booking management (viewing bookings, booking confirmation, and canceling bookings), and facility search functionality.
     path('settings/', user_views.accountSettings, name='settings'),
     path('settings/delete/', user_views.deleteAccount, name='delete_account'),
     path("facilities/<int:pk>/", facility_views.facility_detail, name="facility_detail"),
@@ -63,6 +64,6 @@ urlpatterns = [
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
     path("search/", facility_views.facility_search, name="facility_search"),
 ]
-
+# This section checks if the project is in DEBUG mode. If it is, it appends additional URL patterns to serve media files during development. The static() function is used to generate the appropriate URL patterns for serving media files based on the MEDIA_URL and MEDIA_ROOT settings defined in the project's settings.py file.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
