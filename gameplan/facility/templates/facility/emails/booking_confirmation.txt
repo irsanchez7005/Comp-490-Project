@@ -1,0 +1,17 @@
+Hi {{ user.username }},
+
+Your booking is confirmed!
+
+Booking #{{ booking.pk }}
+Course:  {{ booking.slot.facility.facility_name }}
+Address: {{ booking.slot.facility.street_address }}, {{ booking.slot.facility.city }}
+Date:    {{ booking.slot.date|date:"D, F j, Y" }} at {{ booking.slot.start_time|time:"g:i A" }}
+Players: {{ booking.num_players }}{% if booking.slot.holes %} . {{ booking.slot.holes }} holes{% endif %}
+
+
+Subtotal: {{ booking.subtotal }} USD
+Tax:      {{ booking.tax }} USD
+Total:    {{ booking.total }} USD
+Paid with card ending in {{ booking.card_last4 }}
+
+View your booking: {{ booking_url }}

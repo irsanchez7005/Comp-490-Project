@@ -11,6 +11,8 @@ from .models import Booking, Facility, TimeSlot
 from .pricing import calculate_receipt
 from .views import _create_paid_booking
 
+from django.core import mail
+
 VALID_PAYMENT = {
     "full_name": "Liam Smith",
     "credit_card_num": "1111-2222-3333-4444",
@@ -266,6 +268,30 @@ class BookSlotTests(TestCase):
     def test_rejects_get(self):
         self.assertEqual(self.client.get(reverse("book_slot")).status_code, 405)
 
+    def test_valid_payment_sends_confirmation_email(self):
+        self.post_payment()
+
+        booking=Booking.objects.get()
+        self.assertEqual(len(mail.outbox),1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to,[self.user.email])
+        self.assertIn("Griffith Park", email.subject)
+        self.assertIn(f"Booking #{booking.pk}", email.body)
+        self.assertIn("147.83", email.body)
+        self.assertIn("ending in 4444", email.body)
+        self.assertIn(reverse("booking_confirmation", args=[booking.pk]),email.body)
+
+    def test_invalid_payment_sends_no_email(self):
+        self.post_payment(cvv="1")
+
+        self.assertEqual(len(mail.outbox),0)
+
+    def test_full_slot_sends_no_email(self):
+        Booking.objects.create(slot=self.slot,user=self.user, num_players=4)
+
+        self.post_payment(golfers=1)
+
+        self.assertEqual(len(mail.outbox),0)
 
 class BookingConfirmationTests(TestCase):
     def setUp(self):

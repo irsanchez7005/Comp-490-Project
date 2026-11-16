@@ -14,6 +14,11 @@ from .pricing import calculate_receipt
 
 from django.http import JsonResponse
 
+from django.urls import reverse
+from .emails import send_booking_confirmation
+import logging
+logger = logging.getLogger(__name__)
+
 """This module contains the views for the facility app, which handles golf course listings, tee time bookings, and related functionality."""
 CARD_LAST4_LENGTH = 4 # The number of digits to store from the credit card number for display purposes. Only the last 4 digits are stored for security reasons.
 INVALID_SELECTION_MESSAGE = "Please choose a tee time and number of players." # Error message displayed when the user has not selected a valid tee time or number of players.
@@ -214,6 +219,12 @@ def book_slot(request):
     if booking is None:
         return _redirect_invalid_selection(request, slot, SLOT_FULL_MESSAGE)
 # If the booking is successful, we display a success message to the user confirming their booking at the specific facility and redirect them to their bookings page where they can view their confirmed bookings.
+    booking_url = request.build_absolute_uri(reverse("booking_confirmation", args=[booking.pk]))
+    try:
+        send_booking_confirmation(booking, booking_url)
+    except Exception:
+        #The booking is already saved, so a mail problem shouldn't undo it for the user.
+        logger.exception("Could not send confirmation email for booking %s", booking.pk)
     messages.success(
         request, f"Your booking at {slot.facility.facility_name} is confirmed."
     )
