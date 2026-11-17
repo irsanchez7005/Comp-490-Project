@@ -49,7 +49,44 @@ def generate_tee_times(modeladmin, request, queryset):
 
     modeladmin.message_user(request, f"Created {created} tee times.")
 
+@admin.action(description="Generate hourly lesson times for next 7 days")
+def generate_lesson_times(modeladmin, request, queryset):
+    """Create hourly lesson times from 9 AM to 5 PM for the next 7 days."""
+    OPEN = time(9, 0)
+    CLOSE = time(17, 0)
+    INTERVAL = 60
 
+    created = 0
+    for instructor in queryset:
+        for day_offset in range(7):
+            day = date.today() + timedelta(days=day_offset)
+            current = OPEN
+            while current < CLOSE:
+                _, made = TimeSlot.objects.get_or_create(
+                    instructor=instructor,
+                    date=day,
+                    start_time=current,
+                    defaults={
+                        "facility": instructor.facility,
+                        "price_per_player": instructor.hourly_price,
+                        "max_players": 1,
+                    },
+                )
+                if made:
+                    created += 1
+                current = (datetime.combine(date.min, current) + timedelta(minutes=INTERVAL)).time()
+
+    modeladmin.message_user(request, f"Created {created} lesson times.")
+
+
+@admin.register(Instructor)
+class InstructorAdmin(admin.ModelAdmin):
+    """Admin list for instructors, with the lesson time generator."""
+
+    list_display = ("first_name", "last_name", "lesson_type", "hourly_price", "facility")
+    list_filter = ("lesson_type", "facility")
+    search_fields = ("first_name", "last_name")
+    actions = [generate_lesson_times]
 @admin.register(Facility)
 class FacilityAdmin(admin.ModelAdmin):
     list_display = ("facility_name", "city", "sport_type", "rating")
@@ -64,6 +101,5 @@ class TimeSlotAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Sport)
-admin.site.register(Instructor)
 admin.site.register(Session)
 admin.site.register(Booking)

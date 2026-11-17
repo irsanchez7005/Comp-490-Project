@@ -713,3 +713,11 @@ mark {background: green; color: white; }
 .search-results a { display: flex !important; flex-direction: column; padding: 9px 12px; border-radius: 8px; }
 .search-results[hidden] { display: none; }
 .hero-search .search-wrap { position: relative; }
+/* lesson times */
+/* lesson times */
+.lesson-times { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 14px; }
+.lesson-times .tee-card { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; min-height: 0; height: auto; padding: 12px 14px; }
+.lesson-times .slot-info { flex: 1 1 auto; }
+.lesson-times .slot-info time { display: block; font-weight: 700; font-size: 14px; }
+.lesson-times .slot-info p { margin: 2px 0 0; font-size: 13px; }
+.lesson-times .tee-card .btn { width: auto; flex: 0 0 auto; margin: 0; padding: 8px 16px; }

@@ -1,0 +1,41 @@
+{% extends "accounts/base.html" %} {% load static %}
+{% block title %}GamePlan | {{ instructor.first_name }} {{ instructor.last_name }}{% endblock %}
+{% block content %}
+
+<section class="home-wrap">
+  <a class="back-link" href="{% url 'lessons' %}">&lsaquo; Back to lessons</a>
+
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{{ instructor.lesson_type|upper }} LESSONS</p>
+      <h2>{{ instructor.first_name }} {{ instructor.last_name }}</h2>
+      <p>{{ instructor.facility.facility_name }}{% if instructor.location %} · {{ instructor.location }}{% endif %}</p>
+      <p><strong>${{ instructor.hourly_price|floatformat:2 }}</strong> per hour{% if instructor.rating %} · ★ {{ instructor.rating }}{% endif %}</p>
+    </div>
+  </div>
+
+  <h3>Available times</h3>
+
+  <div class="lesson-times">
+    {% for s in slots %}
+    <div class="tee-card">
+      <div class="slot-info">
+        <time>{{ s.date|date:"D, M j" }} at {{ s.start_time|time:"g:i A" }}</time>
+        <p>${{ s.price_per_player|floatformat:2 }} · {{ s.open_spots }} spot{{ s.open_spots|pluralize }} left</p>
+      </div>
+      {% if s.open_spots > 0 %}
+        <a class="btn small" href="{% url 'checkout' %}?slot={{ s.pk }}&players=1">Book</a>
+      {% else %}
+        <span class="full">Full</span>
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="no-times">
+      <h3>No lesson times posted yet.</h3>
+      <p>Check back soon.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
