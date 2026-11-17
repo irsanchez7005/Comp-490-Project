@@ -10,3 +10,13 @@ def send_booking_confirmation(booking, booking_url):
         f"Booking Confirmed - {booking.slot.facility.facility_name}",
         body, None, [booking.user.email],
     )
+
+def send_booking_cancellation(booking):
+    body=render_to_string(
+        "facility/emails/booking_cancellation.txt",
+        {"user": booking.user, "booking": booking},
+    )
+    send_mail(
+        f"Cancelled Booking - {booking.slot.facility.facility_name}",
+        body, None, [booking.user.email],
+    )
