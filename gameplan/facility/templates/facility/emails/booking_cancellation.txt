@@ -1,0 +1,7 @@
+Hi {{ user.username }},
+
+Your booking has been cancelled!
+
+You will get the refund of ${{ booking.total }} USD in 3-4 business days. 
+
+From GamePlan.
