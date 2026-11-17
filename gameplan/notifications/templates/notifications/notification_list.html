@@ -1,0 +1,33 @@
+{% extends "accounts/base.html" %}
+{% block title %}Notifications · GamePlan{% endblock %}
+{% block content %}
+<section class="notifications-page" aria-labelledby="notifications-title">
+  <div class="notifications-heading">
+    <div>
+      <a class="notifications-back" href="{% url 'my_gameplan' %}">&larr; My GamePlan</a>
+      <h1 id="notifications-title">Notifications</h1>
+      <p>Your latest GamePlan activity in one place.</p>
+    </div>
+    <form method="post" action="{% url 'notifications:mark_all_read' %}">
+      {% csrf_token %}
+      <button class="btn" type="submit"{% if not unread_notification_count %} disabled{% endif %}>Mark All as Read</button>
+    </form>
+  </div>
+  <div class="notification-columns">
+    <section class="notification-panel" aria-labelledby="gameplan-updates-title">
+      <div class="notification-panel-heading">
+        <h2 id="gameplan-updates-title">GamePlan Updates</h2>
+        <p>Account news and activity</p>
+      </div>
+      {% include "notifications/_notification_items.html" with updates=gameplan_updates empty_message="Your account updates will appear here." %}
+    </section>
+    <section class="notification-panel" aria-labelledby="booking-updates-title">
+      <div class="notification-panel-heading">
+        <h2 id="booking-updates-title">Booking Updates</h2>
+        <p>Your tee times, all in one place</p>
+      </div>
+      {% include "notifications/_notification_items.html" with updates=booking_updates empty_message="Your booking confirmations and cancellations will appear here." %}
+    </section>
+  </div>
+</section>
+{% endblock %}

@@ -9,9 +9,10 @@
   <title>{% block title %}GamePlan{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"> <!-- Preconnect to the Google Fonts server -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"> <!-- Load the Inter font -->
-  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=9"> <!-- Load the site styles -->
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"> <!-- Load the dashboard styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=9">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body> <!-- This is the body of the HTML document -->
@@ -33,7 +34,8 @@
       <a href="#" data-template-placeholder="true">Community</a> <!-- This is a placeholder for the Community link. A placeholder is a temporary element that is used to indicate where the actual content will be placed. -->
       {% endwith %}
     </nav>
-       <!-- This is the search form. It allows users to search for courses or locations. -->
+
+    <div class="top-actions">
       <div class="search-wrap">
         <form class="nav-search" action="{% url 'courses' %}" method="get" role="search">
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg> <!-- This is the search icon. so users can easily find what they're looking for. -->
@@ -46,8 +48,9 @@
       {% if user.is_authenticated %}
       <!-- This is the user account menu. It provides links to the user's account information and settings. -->
         <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
-        <a class="notification-link" href="#" data-template-placeholder="true" aria-label="Notifications">
-          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg> <!-- This is the notification icon. It indicates that there are notifications available. M18 8a6 6 0 0 0... means that the path of the icon is a circle with a center at (18, 8) and a radius of 6. -->
+        <a class="notification-link" href="{% url 'notifications:list' %}" aria-label="Notifications, {{ unread_notification_count }} unread">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+          {% if unread_notification_count %}<span class="notification-badge" aria-hidden="true">{{ unread_notification_count }}</span>{% endif %}
         </a>
         <details class="account-menu" data-account-menu> <!-- details is a HTML element that allows you to create a collapsible section of content. In this case, it's used to create the user account menu. -->
           <summary class="profile-chip"> <!-- summary is an HTML element that provides a brief description of the content of the details element. -->
@@ -59,14 +62,14 @@
             <a href="{% url 'my_gameplan' %}">My GamePlan</a>
             <a href="{% url 'profile' %}">My Profile</a>
             <a href="{% url 'my_bookings' %}">My Bookings</a>
+            <a href="{% url 'notifications:list' %}">Notifications</a>
             <a href="{% url 'settings' %}" >Settings</a>
             <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit">Log Out</button></form>
           </nav>
         </details>
       {% else %}
-      <!-- If the user is not logged in, show the login and signup links. -->
-        <a class="header-link" href="#" data-template-placeholder="true">Messages</a> <!-- href is the URL to which the link points. data-template-placeholder is a custom attribute used to indicate that this is a placeholder for a template variable. -->
-        <a class="header-link" href="#" data-template-placeholder="true">Notifications</a> 
+        <a class="header-link" href="#" data-template-placeholder="true">Messages</a>
+        <a class="header-link" href="{% url 'notifications:list' %}">Notifications</a>
         <a class="login-link" href="{% url 'login' %}">Log In</a>
         <a class="btn small" href="{% url 'createAccount' %}">Sign Up</a>
       {% endif %}
