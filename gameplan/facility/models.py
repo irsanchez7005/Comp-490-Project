@@ -11,6 +11,7 @@ class Facility(models.Model):
     zip_code=models.CharField(max_length=10)
     sport_type=models.CharField(max_length=20)
     rating=models.FloatField(null=True,blank=True)
+    photo=models.CharField(max_length=100,blank=True,help_text='File name in static/images/courses/, e.g. "Van_Nuys.webp"')
 
     def __str__(self):
         """Return the facility name."""

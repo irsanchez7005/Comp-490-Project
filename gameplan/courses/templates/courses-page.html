@@ -97,9 +97,16 @@
         </div>
       </div>
       <div class="course-grid">
-    {% for f in facilities %}
-    <a class="course-card" href="{% url 'facility_detail' f.pk %}">
-      <div class="course-photo photo-placeholder">
+        <!-- Course cards will be generated here -->
+        {% for f in facilities %}
+    <a class="course-card" href="/facilities/{{ f.pk }}/"> 
+        {% if f.photo %}
+          {% static 'images/courses/'|add:f.photo as photo_url %}
+        {% else %}
+          {% static 'images/courses/ranchogolf.jpg' as photo_url %}
+        {% endif %}
+        <div class="course-photo" style="background-image: url('{{ photo_url }}');">
+          
         {% if f.slot_count %}
         <span class="badge">{{ f.slot_count }} tee time{{ f.slot_count|pluralize }}</span> <!-- Display the number of available tee times for the course -->
         {% else %}
