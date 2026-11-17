@@ -79,18 +79,6 @@ def _render_checkout(request, slot, players, form):
         "form": form,
     })
 
-def facility_list(request):
-    """Show all courses with their lowest price, filtered by the q search."""
-    today = timezone.localdate()
-    facilities = Facility.objects.annotate(
-        from_price=Min(
-            "slots__price_per_player",
-            filter=Q(slots__date__gte=today)
-        ),
-        slot_count=Count(
-            "slots",
-            filter=Q(slots__date__gte=today)
-        ),
 class CourseFilterForm(forms.Form):
     q = forms.CharField(
         required=False, max_length=200, label="Quick Search",
@@ -351,9 +339,7 @@ def _create_paid_booking(slot, user, players, card_number):
         locked = TimeSlot.objects.select_for_update().get(pk=slot.pk)
         if players > _open_spots(locked):
             return None
-        return Booking.objects.create(
-            slot=locked, 
-        booking = Booking.objects.create(
+        booking =Booking.objects.create(
             slot=locked, # Associate the booking with the locked TimeSlot to prevent overbooking.
             user=user,
             num_players=players,
