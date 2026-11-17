@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from notifications.services import notify_booking_confirmed, notify_booking_cancelled
 
 from .forms import PaymentForm
-from .models import Facility, Booking, TimeSlot
+from .models import Facility, Booking, Instructor, TimeSlot
 from .pricing import calculate_receipt
 
 from django.http import JsonResponse
@@ -231,6 +231,41 @@ def facility_list(request):
     if not valid:
         facilities = facilities.none()
     return render(request, "courses-page.html", {"facilities": facilities, "filter_form": form})
+def instructor_list(request):
+    """Show all instructors, with an optional search."""
+    instructors = Instructor.objects.select_related("facility").annotate(
+        slot_count=Count("slots", filter=Q(slots__date__gte=timezone.localdate()))
+    )
+
+    q = request.GET.get("q", "").strip()
+    if q:
+        instructors = instructors.filter(
+            Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+            | Q(lesson_type__icontains=q)
+        )
+
+    return render(request, "lessons-page.html", {
+        "instructors": instructors,
+        "q": q,
+    })
+def instructor_detail(request, pk):
+    """Show one instructor with their details."""
+    instructor = get_object_or_404(Instructor, pk=pk)
+    today = timezone.localdate()
+    slots = instructor.slots.filter(date__gte=today).annotate(
+        taken=Coalesce(
+            Sum(
+                "bookings__num_players",
+                filter=Q(bookings__status=Booking.Status.CONFIRMED)
+            ),
+            Value(0),
+        )
+    )
+    for s in slots:
+        s.open_spots = s.max_players - s.taken
+    return render(request, "instructor-detail.html", {"instructor": instructor, "slots": slots})
+
 
 # View for displaying the details of a specific facility, including its calendar of available tee times and the number of open spots for each time slot. It also handles filtering by selected date and time, allowing users to see only the relevant slots they are interested in.
 def facility_detail(request, pk):

@@ -30,7 +30,7 @@
       {% with current=request.resolver_match.url_name %}
       <a{% if current == 'home' %} class="active" aria-current="page"{% endif %} href="{% url 'home' %}">Golf</a>
       <a{% if current == 'courses' %} class="active" aria-current="page"{% endif %} href="{% url 'courses' %}">Courses</a>
-      <a href="#" data-template-placeholder="true">Lessons</a>
+      <a{% if current == 'lessons' or current == 'lesson_detail' %} class="active" aria-current="page"{% endif %} href="{% url 'lessons' %}">Lessons</a>
       <a href="#" data-template-placeholder="true">Community</a> <!-- This is a placeholder for the Community link. A placeholder is a temporary element that is used to indicate where the actual content will be placed. -->
       {% endwith %}
     </nav>
@@ -95,6 +95,7 @@
       <p>More rounds, more memories, more ways to play together.</p>
     </div>
     <!-- In this part of the code, we are defining the footer navigation links. -->
+     <a href="{% url 'lessons' %}">Lessons</a>
     <div><strong>Explore</strong><a href="#" data-template-placeholder="true">Golf Courses</a><a href="#" data-template-placeholder="true">Lessons</a><a href="#" data-template-placeholder="true">Community</a></div> <!-- This part contains the footer navigation links. so this basically defines the links that will be displayed in the footer. -->
     <div><strong>GamePlan</strong><a href="#" data-template-placeholder="true">About Us</a><a href="#" data-template-placeholder="true">Support</a><a href="#" data-template-placeholder="true">Privacy</a></div>
     <p class="footer-meta">&copy; 2026 GamePlan &middot; COMP 490 Project</p>

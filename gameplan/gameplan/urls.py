@@ -64,6 +64,8 @@ urlpatterns = [
     path("bookings/<int:pk>/confirmation/", facility_views.booking_confirmation, name="booking_confirmation"),
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
     path("search/", facility_views.facility_search, name="facility_search"),
+    path("lessons/", facility_views.instructor_list, name="lessons"),
+path("lessons/<int:pk>/", facility_views.instructor_detail, name="lesson_detail"),
 ]
 # This section checks if the project is in DEBUG mode. If it is, it appends additional URL patterns to serve media files during development. The static() function is used to generate the appropriate URL patterns for serving media files based on the MEDIA_URL and MEDIA_ROOT settings defined in the project's settings.py file.
 if settings.DEBUG:

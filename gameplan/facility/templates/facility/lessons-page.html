@@ -1,0 +1,59 @@
+{% extends "accounts/base.html" %} {% load static %}
+{% block title %}GamePlan | Lessons{% endblock %}
+{% block content %}
+
+<section class="home-wrap courses-page">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">BOOK A LESSON</p>
+      <h2>Golf Lessons</h2>
+    </div>
+  </div>
+
+  <div class="courses-toolbar">
+    <p>{{ instructors|length }} instructor{{ instructors|length|pluralize }}</p>
+    <form class="courses-sort" action="{% url 'lessons' %}" method="get">
+      <input type="text" name="q" value="{{ q }}" placeholder="Name or lesson type">
+      <button class="btn small" type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="course-grid">
+    {% for i in instructors %}
+    <a class="course-card" href="{% url 'lesson_detail' i.pk %}">
+      <div class="course-photo photo-placeholder">
+        {% if i.slot_count %}
+        <span class="badge">{{ i.slot_count }} open time{{ i.slot_count|pluralize }}</span>
+        {% else %}
+        <span class="badge badge-light">No upcoming times</span>
+        {% endif %}
+      </div>
+
+      <div class="course-body">
+        <h3>{{ i.first_name }} {{ i.last_name }}</h3>
+
+        {% if i.rating %}
+        <p class="stars">★ {{ i.rating }}</p>
+        {% endif %}
+
+        <p>{{ i.lesson_type }} · {{ i.facility.facility_name }}</p>
+
+        <strong>${{ i.hourly_price|floatformat:2 }} <small>per hour</small></strong>
+
+        <div class="card-link">
+          <span>View times</span>
+          <span>&rsaquo;</span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="no-times">
+      <h3>No instructors found.</h3>
+      <p>Try a different name or lesson type.</p>
+      <a class="btn btn-light" href="{% url 'lessons' %}">Clear Search</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
