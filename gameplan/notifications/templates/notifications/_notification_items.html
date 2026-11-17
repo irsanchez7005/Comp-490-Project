@@ -1,0 +1,34 @@
+<ul class="notification-items">
+  {% for notification in updates %}
+  <li class="notification-item{% if not notification.is_read %} is-unread{% endif %}">
+    <span class="notification-icon{% if notification.event_type == 'booking_cancelled' %} is-cancelled{% endif %}" aria-hidden="true">
+      {% if notification.event_type == 'booking_cancelled' %}&times;{% else %}&#10003;{% endif %}
+    </span>
+    <div class="notification-body">
+      <div class="notification-title-row">
+        <h3>{{ notification.title }}</h3>
+        {% if not notification.is_read %}<span class="notification-unread">Unread</span>{% endif %}
+      </div>
+      <p>{{ notification.message }}</p>
+      <time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|date:"M j, Y" }} at {{ notification.created_at|time:"g:i A" }} {{ notification.created_at|date:"T" }}</time>
+      <div class="notification-actions">
+        {% if notification.booking and notification.booking.user_id == user.pk %}
+        <a href="{% url 'booking_confirmation' notification.booking_id %}">View booking #{{ notification.booking_id }}</a>
+        {% endif %}
+        {% if not notification.is_read %}
+        <form method="post" action="{% url 'notifications:mark_read' notification.pk %}">
+          {% csrf_token %}
+          <button type="submit" aria-label="Mark {{ notification.title }} as read">Mark as read</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </li>
+  {% empty %}
+  <li class="notifications-empty">
+    <span class="notification-icon" aria-hidden="true">&#10003;</span>
+    <h3>You're all caught up</h3>
+    <p>{{ empty_message }}</p>
+  </li>
+  {% endfor %}
+</ul>

@@ -3,6 +3,34 @@
  * This file contains the main JavaScript code for the site, including functionality for the mobile menu, image carousels, and other interactive elements.
  */
 document.addEventListener("DOMContentLoaded", () => {
+  const courseFilters = document.getElementById("course-filter-sidebar");
+  const filterToggle = document.querySelector("[data-course-filter-toggle]");
+  if (courseFilters && filterToggle) {
+    const mobile = window.matchMedia("(max-width: 720px)");
+    const setExpanded = (expanded) => {
+      courseFilters.classList.toggle("is-collapsed", !expanded);
+      filterToggle.setAttribute("aria-expanded", String(expanded));
+    };
+    filterToggle.hidden = false;
+    setExpanded(!mobile.matches || Boolean(courseFilters.querySelector(".errorlist")));
+    filterToggle.addEventListener("click", () => {
+      setExpanded(filterToggle.getAttribute("aria-expanded") !== "true");
+    });
+    mobile.addEventListener("change", () => setExpanded(!mobile.matches));
+  }
+
+  const priceRange = document.querySelector("[data-price-max]");
+  const priceOutput = document.querySelector("[data-price-output]");
+  if (priceRange && priceOutput) {
+    const showPrice = () => {
+      const unlimited = Number(priceRange.value) === Number(priceRange.max);
+      priceOutput.textContent = `$${priceRange.value}${unlimited ? "+" : ""}`;
+      priceRange.setAttribute("aria-valuetext", unlimited ? "No upper limit" : `$${priceRange.value} per player`);
+    };
+    priceRange.addEventListener("input", showPrice);
+    showPrice();
+  }
+
   const menuButton = document.querySelector("[data-menu-toggle]");
   const primaryNav = document.querySelector("[data-primary-nav]");
 /* Close the mobile menu when clicking outside of it */
@@ -272,24 +300,22 @@ document.addEventListener("DOMContentLoaded", () => {
     panel.hidden = true;
     wrap.appendChild(panel);
 
-    let timer;  // Tracks a brief pause in typing before runnning a search.
-
-    // Listen for every letter typed in the search input field. When the user types, we clear any existing timer and set a new one to delay the search request. This prevents sending too many requests while the user is still typing.
-    input .addEventListener("input", () => {
+    let timer;
+    let requestId = 0;
+    input.addEventListener("input", () => {
       clearTimeout(timer);
+      const currentRequest = ++requestId;
       const q = input.value.trim();
-      // Hide the dropdown immediately if the search input is empty, since there are no results to display. This improves the user experience by not showing an empty panel when there's no query.
+      panel.hidden = true;
       if (!q) {
-        panel.hidden = true;
+        panel.innerHTML = "";
         return;
       }
-
-      /* Wait a split second like 150ms after typing pauses so the site doesn't send a separate search request for every single keystoke */
-   timer = setTimeout(() => {
-    // Ask the server for search results matching the user's query. The query is URL-encoded to ensure that special characters are handled correctly. The server is expected to return a JSON response containing an array of matching results.
+      timer = setTimeout(() => {
         fetch("/search/?q=" + encodeURIComponent(q))
           .then(r => r.json())
           .then(data => {
+            if (currentRequest !== requestId || input.value.trim() !== q) return;
             if (!data.results.length) {
               panel.innerHTML = '<p class="search-empty">No courses found</p>';
             } else {
@@ -303,13 +329,20 @@ document.addEventListener("DOMContentLoaded", () => {
                  </a>`
               ).join("");
             }
-            panel.hidden = false; // Reveal the dropdown panel with the search results, allowing users to see and click on the suggestions.
+            panel.hidden = false;
+          })
+          .catch(() => {
+            if (currentRequest === requestId) panel.hidden = true;
           });
       }, 150);
     });
     // Hide the search suggestions panel if the visitor clicks anywhere outside of the search input or the panel itself. This ensures that the dropdown is dismissed when the user interacts with other parts of the page, improving usability and preventing the panel from lingering on the screen.
     document.addEventListener("click", (event) => {
-      if (!wrap.contains(event.target)) panel.hidden = true;
+      if (!wrap.contains(event.target)) {
+        clearTimeout(timer);
+        requestId += 1;
+        panel.hidden = true;
+      }
     });
   });
 });

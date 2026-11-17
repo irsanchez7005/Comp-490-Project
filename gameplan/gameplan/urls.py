@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import include, path
 from accounts import views as user_views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -26,6 +26,7 @@ from facility import views as facility_views
 
 """ This module defines the URL patterns for the gameplan project. It includes routes for various views such as home, courses, admin, user account management (registration, login, logout, profile), password reset, and facility-related views (facility list, facility detail, checkout, booking management). The urlpatterns list maps URL paths to their corresponding view functions or classes. Additionally, if the project is in DEBUG mode, it serves media files during development. """
 urlpatterns = [
+    path('notifications/', include('notifications.urls')),
     path('', facility_views.home, name='home'),
     path('courses/', facility_views.facility_list, name='courses'),
     path('admin/', admin.site.urls),
@@ -63,6 +64,8 @@ urlpatterns = [
     path("bookings/<int:pk>/confirmation/", facility_views.booking_confirmation, name="booking_confirmation"),
     path("bookings/<int:pk>/cancel/", facility_views.cancel_booking, name="cancel_booking"),
     path("search/", facility_views.facility_search, name="facility_search"),
+    path("lessons/", facility_views.instructor_list, name="lessons"),
+path("lessons/<int:pk>/", facility_views.instructor_detail, name="lesson_detail"),
 ]
 # This section checks if the project is in DEBUG mode. If it is, it appends additional URL patterns to serve media files during development. The static() function is used to generate the appropriate URL patterns for serving media files based on the MEDIA_URL and MEDIA_ROOT settings defined in the project's settings.py file.
 if settings.DEBUG:

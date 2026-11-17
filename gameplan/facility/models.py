@@ -65,6 +65,10 @@ class Session(models.Model):
 
 class TimeSlot(models.Model):
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="slots")
+    instructor = models.ForeignKey(
+                Instructor, on_delete=models.CASCADE, null=True, blank=True, related_name="slots"
+
+    )
     date = models.DateField()
     start_time = models.TimeField()
     price_per_player = models.DecimalField(max_digits=6, decimal_places=2)
@@ -84,6 +88,7 @@ class TimeSlot(models.Model):
     def __str__(self):
         """Return the facility name with the date and start time."""
         return f"{self.facility.facility_name} — {self.date} {self.start_time}"
+
 
 
 class Booking(models.Model):
