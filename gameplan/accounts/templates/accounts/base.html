@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"> <!-- Preconnect to the Google Fonts server -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=14"> <!-- This is the main stylesheet for the site. The version number is used for cache busting. -->
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=16"> <!-- This is the main stylesheet for the site. The version number is used for cache busting. -->
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_head %}{% endblock %}
@@ -100,12 +100,11 @@
       <p>More rounds, more memories, more ways to play together.</p>
     </div>
     <!-- In this part of the code, we are defining the footer navigation links. -->
-     <a href="{% url 'lessons' %}">Lessons</a>
     <div><strong>Explore</strong><a href="#" data-template-placeholder="true">Golf Courses</a><a href="#" data-template-placeholder="true">Lessons</a><a href="#" data-template-placeholder="true">Community</a></div> <!-- This part contains the footer navigation links. so this basically defines the links that will be displayed in the footer. -->
     <div><strong>GamePlan</strong><a href="#" data-template-placeholder="true">About Us</a><a href="#" data-template-placeholder="true">Support</a><a href="#" data-template-placeholder="true">Privacy</a></div>
     <p class="footer-meta">&copy; 2026 GamePlan &middot; COMP 490 Project</p>
   </footer>
-  <script src="{% static 'js/site.js' %}?v=7"></script> <!--in this part of the code, we are including the site.js file with a version number of 6. do every time we make a change to the file, we should update the version number. -->
+  <script src="{% static 'js/site.js' %}?v=9"></script> <!--in this part of the code, we are including the site.js file with a version number of 9. do every time we make a change to the file, we should update the version number. -->
   {% block scripts %}{% endblock %}
 </body>
 </html>

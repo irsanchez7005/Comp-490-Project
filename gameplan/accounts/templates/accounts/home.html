@@ -8,15 +8,19 @@
 <section class="home-wrap"> 
   <div class="hero homepage-hero-carousel" data-hero-carousel tabindex="0" role="region" aria-roledescription="carousel" aria-label="Featured golf images">
     <div class="homepage-hero-slides" aria-live="off">
-      <div class="homepage-hero-slide hero-image-1 active" data-hero-slide aria-hidden="false" role="img" aria-label="Scenic golf course at sunset"></div>
-      <div class="homepage-hero-slide hero-image-2" data-hero-slide aria-hidden="true" role="img" aria-label="Golf green surrounded by trees" ></div>
+      <!-- Each slide carries its own link, headline word and button text. site.js reads these when the slide changes. -->
+      <div class="homepage-hero-slide hero-image-1 active" data-hero-slide data-hero-link="{% url 'courses' %}" data-hero-word="Next Round" data-hero-cta-label="Explore courses" aria-hidden="false" role="img" aria-label="Golf ball on a green with the flag behind it"></div>
+      <div class="homepage-hero-slide hero-image-2" data-hero-slide data-hero-link="{% url 'lessons' %}" data-hero-word="Golf Coach" data-hero-cta-label="Find a coach" aria-hidden="true" role="img" aria-label="Man tossing a ball to a child beside a golf cart"></div>
     </div>
     <div class="homepage-hero-overlay" aria-hidden="true"></div>
     <!-- Hero copy and search form for finding golf courses -->
     <div class="hero-copy">
       <small>GOLF BOOKING MADE EASY</small>
-      <h1>Find Your<br><em>Next Round</em></h1>
+      <!-- The typed word is hidden from screen readers so they don't read half-typed letters. They read the sr-only copy instead. -->
+      <h1>Find Your<br><em><span data-hero-typed aria-hidden="true">Next Round</span><span class="hero-caret" aria-hidden="true"></span><span class="sr-only" data-hero-word-label>Next Round</span></em></h1>
       <p>Discover great courses. Book tee times. Play more.</p>
+      <!-- Button that goes to the current slide's page. site.js updates its link and text when the slide changes. -->
+      <a class="hero-cta" href="{% url 'courses' %}" data-hero-cta><span data-hero-cta-text>Explore courses</span> <span aria-hidden="true">&rarr;</span></a>
     </div>
     <!-- Search form for finding golf courses by location, date, and number of players -->
     <form class="hero-search" action="{% url 'courses' %}" method="get">
@@ -25,12 +29,18 @@
       <label><span>Players</span><select name="golfers" aria-label="Players"><option>1 Player</option><option>2 Players</option><option>3 Players</option><option>4 Players</option></select></label>
       <button class="btn hero-search-button" type="submit">Search</button>
     </form>
-     <!-- Navigation buttons for the hero carousel -->
-    <button class="homepage-hero-arrow previous" type="button" data-hero-previous aria-label="Previous hero image">&#8249;</button>
-    <button class="homepage-hero-arrow next" type="button" data-hero-next aria-label="Next hero image">&#8250;</button>
-    <div class="homepage-hero-dots" aria-label="Choose hero image">
-      <button type="button" class="active" data-hero-dot="0" aria-label="Go to slide 1" aria-current="true"></button>
-      <button type="button" data-hero-dot="1" aria-label="Go to slide 2" aria-current="false"></button>
+    <!-- Carousel controls: previous arrow, slide dots and next arrow grouped in one bar, so they never cover the headline -->
+    <div class="homepage-hero-controls">
+      <button class="homepage-hero-arrow" type="button" data-hero-previous aria-label="Previous hero image">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="homepage-hero-dots" aria-label="Choose hero image">
+        <button type="button" class="active" data-hero-dot="0" aria-label="Go to slide 1" aria-current="true"></button>
+        <button type="button" data-hero-dot="1" aria-label="Go to slide 2" aria-current="false"></button>
+      </div>
+      <button class="homepage-hero-arrow" type="button" data-hero-next aria-label="Next hero image">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
   </div>
   <!-- Section for featured golf courses with a link to view all courses -->
@@ -59,7 +69,7 @@
         {% if f.from_price is not None %} <!-- this part checks if the from_price is not None. For example, if the from_price is 0, it will be considered None. -->
           <p>From ${{ f.from_price|floatformat:2 }} per player</p>
         {% endif %}
-      </div>-->
+      </div>
     </a>
     <!--% empty % is used to display a message when the loop is empty -->
   {% empty %}

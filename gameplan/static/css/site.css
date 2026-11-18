@@ -101,7 +101,14 @@ img { display: block; max-width: 100%; }
 .hero-image-1 { background-image: url("../images/homepage/search-home2.jpg"); } /* This CSS rule sets the background image for the first hero slide on the homepage. The image is located in the "images/homepage" directory and is named "search-home2.jpg". The background image will cover the entire hero section and be centered. */
 .hero-image-2 { background-image: url("../images/homepage/search-home.jpg"); }
 .homepage-hero-overlay { z-index: 1; background: linear-gradient(90deg, rgba(0, 40, 25, .84), rgba(0, 40, 25, .08)); pointer-events: none; }
-.hero-copy { position: relative; z-index: 2; max-width: 600px; }
+.homepage-hero-slides { cursor: pointer; } /* The photo opens the current slide's page when clicked. */
+.hero-copy { position: relative; z-index: 2; max-width: 600px; pointer-events: none; } /* Clicks on the headline pass through to the photo underneath. */
+.hero-copy a { pointer-events: auto; }
+.hero-caret { display: inline-block; width: 4px; height: .8em; margin-left: 6px; background: currentColor; vertical-align: -0.04em; animation: hero-caret-blink 1s steps(1) infinite; }
+@keyframes hero-caret-blink { 50% { opacity: 0; } }
+.hero-cta { margin-top: 22px; padding: 11px 18px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, .55); border-radius: 99px; color: white; background: rgba(255, 255, 255, .12); font-size: 15px; font-weight: 700; text-decoration: none; backdrop-filter: blur(6px); transition: background .2s ease, color .2s ease; }
+.hero-cta:hover, .hero-cta:focus-visible { color: var(--dark); background: white; outline: 2px solid white; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hero-caret { animation: none; } }
 .hero-copy small { font-weight: 800; letter-spacing: 5px; }
 .hero-copy h1 { margin: 16px 0; font-size: clamp(54px, 5vw, 72px); line-height: .95; letter-spacing: -3px; }
 .hero-copy h1 em { color: var(--green-bright); font-style: normal; }
@@ -111,11 +118,13 @@ img { display: block; max-width: 100%; }
 .hero-search label > span { color: #69766e; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .hero-search input, .hero-search select { width: 100%; min-width: 0; padding: 7px 0 1px; border: 0; outline: 0; color: var(--text); background: white; font-weight: 600; }
 .hero-search-button { border-radius: 14px; }
-.homepage-hero-arrow { position: absolute; z-index: 4; top: 47%; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; transform: translateY(-50%); border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; color: white; background: rgba(3, 37, 24, .42); font-size: 30px; cursor: pointer; backdrop-filter: blur(5px); transition: background .2s ease, border-color .2s ease; }
-.homepage-hero-arrow:hover, .homepage-hero-arrow:focus-visible { border-color: white; outline: 2px solid white; outline-offset: 2px; background: rgba(7, 93, 57, .82); }
-.homepage-hero-arrow.previous { left: 16px; }
-.homepage-hero-arrow.next { right: 16px; }
-.homepage-hero-dots { position: absolute; z-index: 4; left: 50%; bottom: 112px; padding: 7px 10px; display: flex; gap: 9px; transform: translateX(-50%); border-radius: 99px; background: rgba(3, 37, 24, .25); }
+/* One pill holding ‹ dots ›, centered above the search bar so it stays clear of the headline. */
+.homepage-hero-controls { position: absolute; z-index: 4; left: 50%; bottom: 112px; padding: 4px; display: flex; align-items: center; gap: 4px; transform: translateX(-50%); border: 1px solid rgba(255, 255, 255, .22); border-radius: 99px; background: rgba(3, 37, 24, .45); backdrop-filter: blur(8px); }
+.homepage-hero-arrow { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 50%; color: white; background: transparent; cursor: pointer; transition: background .2s ease, color .2s ease; }
+.homepage-hero-arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.homepage-hero-arrow:hover, .homepage-hero-arrow:focus-visible { color: var(--dark); background: white; outline: none; }
+.homepage-hero-arrow:focus-visible, .homepage-hero-dots button:focus-visible { box-shadow: 0 0 0 2px var(--green-bright); outline: none; }
+.homepage-hero-dots { padding: 0 6px; display: flex; gap: 9px; }
 .homepage-hero-dots button { width: 9px; height: 9px; padding: 0; border: 1px solid rgba(255, 255, 255, .65); border-radius: 50%; background: rgba(255, 255, 255, .35); cursor: pointer; transition: width .2s ease, background .2s ease; }
 .homepage-hero-dots button.active { width: 26px; border-radius: 99px; background: white; }
 
@@ -270,10 +279,7 @@ mark {background: green; color: white; }
   .hero-search label > span { font-size: 9px; }
   .hero-search input, .hero-search select { padding-top: 5px; }
   .hero-search-button { min-height: 48px; margin-top: 4px; }
-  .homepage-hero-arrow { top: 38%; width: 38px; height: 38px; font-size: 26px; }
-  .homepage-hero-arrow.previous { left: 9px; }
-  .homepage-hero-arrow.next { right: 9px; }
-  .homepage-hero-dots { bottom: 290px; }
+  .homepage-hero-controls { bottom: 290px; }
   .section-head { margin: 32px 4px 17px; align-items: flex-start; }
   .section-head > a { font-size: 12px; }
   .section-head h2 { font-size: 26px; }
@@ -294,7 +300,6 @@ mark {background: green; color: white; }
   .hero { height: 625px; padding-inline: 18px; }
   .hero-copy small { font-size: 10px; letter-spacing: 3px; }
   .hero-copy h1 { font-size: 43px; letter-spacing: -2px; }
-  .homepage-hero-arrow { display: none; }
   .section-head { display: block; }
   .section-head > a { display: inline-block; margin-top: 10px; }
   .course-photo { height: 200px; }

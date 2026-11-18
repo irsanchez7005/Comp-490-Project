@@ -96,6 +96,36 @@ document.addEventListener("DOMContentLoaded", () => {
     let timer = null;              // Holds the countdown timer for autoplaying the slides. If null, autoplay is not active.
     let hovering = false;          // Whether a mouse pointer is currently hovering over the carousel. If true, autoplay will be paused.
     let pointerStart = null;       // Where a finger or mouse pointer started a swipe gesture. Used to determine the direction and distance of the swipe.
+    let swiped = false;            // True right after a swipe, so the swipe isn't also treated as a click on the photo.
+    let typingTimer = null;        // Holds the timer for the typewriter effect on the headline word.
+
+    // The headline word, its screen-reader copy, and the call-to-action button. These are optional, so other carousels still work without them.
+    const typed = carousel.querySelector("[data-hero-typed]");
+    const wordLabel = carousel.querySelector("[data-hero-word-label]");
+    const cta = carousel.querySelector("[data-hero-cta]");
+    const ctaText = carousel.querySelector("[data-hero-cta-text]");
+
+    /** Typewriter effect: delete the current word letter by letter, then type the new one. */
+    const typeWord = (word) => {
+      if (!typed) return;
+      window.clearTimeout(typingTimer);
+      if (wordLabel) wordLabel.textContent = word; // Screen readers get the full word right away.
+      if (reducedMotion) {
+        typed.textContent = word; // No animation for visitors who asked for reduced motion.
+        return;
+      }
+      const step = () => {
+        const text = typed.textContent;
+        if (!word.startsWith(text)) {
+          typed.textContent = text.slice(0, -1); // Still deleting the old word.
+          typingTimer = window.setTimeout(step, 40);
+        } else if (text.length < word.length) {
+          typed.textContent = word.slice(0, text.length + 1); // Typing the new word.
+          typingTimer = window.setTimeout(step, 85);
+        }
+      };
+      step();
+    };
 
     /** This function stops the autoplay of the carousel. */
     const stopAutoplay = () => {
@@ -126,6 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
         dot.classList.toggle("active", active);                   // Visually highlight the dot corresponding to the current slide.
         dot.setAttribute("aria-current", String(active));         // Tell screen readers which dot is currently active for accessibility.
       });
+
+      // Point the button at the new slide's page and type the new slide's headline word.
+      const slide = slides[current];
+      if (cta && slide.dataset.heroLink) cta.href = slide.dataset.heroLink;
+      if (ctaText && slide.dataset.heroCtaLabel) ctaText.textContent = slide.dataset.heroCtaLabel;
+      if (slide.dataset.heroWord) typeWord(slide.dataset.heroWord);
       // Restart the autoplay timer if the restart parameter is true. This ensures that the carousel continues to automatically switch slides after a manual navigation action.
       if (restart) startAutoplay();
     };
@@ -142,6 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
     dots.forEach((dot) =>
       dot.addEventListener("click", () => show(Number(dot.dataset.heroDot))),
     );
+    // Clicking the photo opens the current slide's page (courses or lessons). Keyboard users get the same link through the button.
+    carousel
+      .querySelector(".homepage-hero-slides")
+      ?.addEventListener("click", () => {
+        if (swiped) return; // A swipe changes the slide; it shouldn't also open a page.
+        const link = slides[current].dataset.heroLink;
+        if (link) window.location.href = link;
+      });
     // Pause automatic slide switching when the user hovers over the carousel, and resume it when they move the mouse away. This improves usability by allowing users to interact with the carousel without it changing slides unexpectedly.
     carousel.addEventListener("mouseenter", () => {
       hovering = true;
@@ -170,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carousel.addEventListener(
       "pointerdown",
       (event) => {
+        swiped = false; // Every new touch or click starts fresh.
         if (event.pointerType === "mouse") return;
         pointerStart = { x: event.clientX, y: event.clientY };
       },
@@ -183,8 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const dx = event.clientX - pointerStart.x;
         const dy = event.clientY - pointerStart.y;
         pointerStart = null;
-        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) // Only consider horizontal swipes that are significantly larger than vertical movement.
-          show(current + (dx < 0 ? 1 : -1));                        // If the swipe was to the left (dx < 0), go to the next slide; if it was to the right, go to the previous slide.
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) { // Only consider horizontal swipes that are significantly larger than vertical movement.
+          swiped = true;                                               // Remember the swipe so the click that may follow doesn't open a page.
+          show(current + (dx < 0 ? 1 : -1));                           // If the swipe was to the left (dx < 0), go to the next slide; if it was to the right, go to the previous slide.
+        }
       },
       { passive: true },
     );
