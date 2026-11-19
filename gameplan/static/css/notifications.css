@@ -2,8 +2,14 @@
   position: relative;
   min-width: 36px;
   min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
-
+.notification-link:hover, .notification-link[aria-expanded="true"] { background: var(--mint); color: var(--green); }
 .notification-badge {
   position: absolute;
   top: -2px;
@@ -18,62 +24,53 @@
   font-weight: 700;
   text-align: center;
 }
-
-.notifications-page {
-  max-width: 1240px;
-  min-height: 65vh;
-  margin: 0 auto;
-  padding: 46px 28px 72px;
-}
-
-.notifications-heading {
+.notification-dropdown {
+  position: absolute;
+  z-index: 60;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(600px, var(--notification-available-height, 70vh));
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 30px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  color: var(--text);
+  box-shadow: 0 12px 36px rgba(17, 61, 40, .14);
+  font-weight: 400;
 }
-
-.notifications-back { color: var(--green); font-size: 13px; font-weight: 600; }
-.notifications-heading h1 { margin: 16px 0 10px; font-size: clamp(28px, 4vw, 38px); letter-spacing: -1px; }
-.notifications-heading p { margin: 0; color: #506357; line-height: 1.6; }
-.notifications-heading .btn { font-size: 13px; }
-.notifications-heading .btn:disabled { background: #e2ebe3; color: #506357 !important; cursor: default; transform: none; box-shadow: none; }
-.notification-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 26px; }
-.notification-panel { overflow: hidden; background: white; border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-sm); }
-.notification-panel-heading { padding: 26px 26px 22px; border-bottom: 1px solid var(--border); }
-.notification-panel-heading h2 { margin: 0 0 7px; font-size: 20px; }
-.notification-panel-heading p { margin: 0; color: var(--muted); font-size: 13px; }
-.notification-items { margin: 0; padding: 0; list-style: none; }
-.notification-item { display: flex; align-items: flex-start; gap: 14px; padding: 24px; border-left: 3px solid transparent; }
-.notification-item + .notification-item { border-top: 1px solid var(--border); }
-.notification-item.is-unread { background: #f2faf3; border-left-color: #328652; }
-.notification-icon { display: inline-grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #e1f1e5; color: #18713f; font-size: 21px; font-weight: 700; }
-.notification-icon.is-cancelled { background: #fce8e7; color: #b03232; }
-.notification-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.notification-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.notification-title-row h3 { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 600; }
-.is-unread h3 { font-weight: 800; }
-.notification-unread { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-size: 10px; font-weight: 700; }
-.notification-unread::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-.notification-body p { margin: 8px 0 12px; color: #506357; font-size: 13px; line-height: 1.75; }
-.notification-body time { color: #647267; font-size: 11px; }
-.notification-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 12px; }
-.notification-actions a, .notification-actions button { padding: 4px 0; border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.notification-actions form { margin: 0; }
-.notifications-page :focus-visible, .notification-link:focus-visible { outline: 3px solid #328652; outline-offset: 4px; }
-.notifications-empty { padding: 48px 28px; text-align: center; }
-.notifications-empty h3 { margin: 16px 0 8px; font-size: 16px; }
-.notifications-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
-
+.notification-dropdown[hidden], .notification-dropdown [hidden], .notification-badge[hidden] { display: none !important; }
+.notification-dropdown .notification-dropdown-heading { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.notification-dropdown h2 { margin: 0; font-size: 18px; letter-spacing: -.4px; }
+.notification-dropdown form { margin: 0; }
+.notification-dropdown-heading button, .notification-dropdown .notification-load-more, .notification-dropdown .notification-retry { border: 0; border-radius: 6px; padding: 6px; background: transparent; color: var(--green); font-size: 12px; font-weight: 700; cursor: pointer; }
+.notification-dropdown button:disabled { cursor: default; opacity: .55; }
+.notification-dropdown .notification-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.notification-dropdown .notification-items { margin: 0; padding: 0; list-style: none; }
+.notification-dropdown .notification-item + .notification-item { border-top: 1px solid var(--border); }
+.notification-dropdown .notification-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 18px; border: 0; border-left: 3px solid transparent; background: white; color: inherit; text-align: left; cursor: pointer; }
+.notification-dropdown .is-unread .notification-row { background: #f2faf3; border-left-color: #328652; }
+.notification-dropdown .notification-row:hover { background: var(--mint); }
+.notification-dropdown .notification-icon { display: inline-grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: #e1f1e5; color: #18713f; font-size: 19px; font-weight: 700; }
+.notification-dropdown .notification-icon.is-cancelled { background: #fce8e7; color: #b03232; }
+.notification-dropdown .notification-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.notification-dropdown .notification-title { font-size: 14px; line-height: 1.5; font-weight: 600; }
+.notification-dropdown .is-unread .notification-title { font-weight: 800; }
+.notification-dropdown .notification-unread { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; color: var(--green); font-size: 10px; font-weight: 700; }
+.notification-dropdown .notification-unread::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.notification-dropdown .notification-message { display: block; margin: 6px 0 10px; color: #506357; font-size: 13px; line-height: 1.6; }
+.notification-dropdown time { color: #647267; font-size: 11px; }
+.notification-dropdown .notification-load-more, .notification-dropdown .notification-retry { display: block; margin: 12px auto; padding: 10px 18px; background: var(--mint); }
+.notification-dropdown .notification-status { padding: 16px 20px 0; margin: 0; color: var(--muted); line-height: 1.6; }
+.notification-dropdown .notifications-empty { padding: 36px 24px; text-align: center; }
+.notification-dropdown .notifications-empty h3 { margin: 14px 0 8px; font-size: 15px; }
+.notification-dropdown .notifications-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.notification-dropdown:focus-visible, .notification-dropdown :focus-visible { outline: 3px solid #328652; outline-offset: -3px; }
+[data-notifications-toggle]:focus-visible { outline: 3px solid #328652; outline-offset: 3px; }
 @media (max-width: 900px) {
   .top-actions .notification-link { display: grid; }
 }
-
-@media (max-width: 760px) {
-  .notifications-page { padding: 28px 16px 48px; }
-  .notifications-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
-  .notification-columns { grid-template-columns: 1fr; gap: 20px; }
-  .notification-panel-heading { padding: 22px 20px; }
-  .notification-item { padding: 20px 16px; gap: 10px; }
+@media (max-width: 400px) {
+  .notification-dropdown .notification-dropdown-heading { padding: 14px 12px; }
+  .notification-dropdown .notification-row { padding: 14px 10px; gap: 10px; }
 }

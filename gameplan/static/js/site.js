@@ -3,6 +3,184 @@
  * This file contains the main JavaScript code for the site, including functionality for the mobile menu, image carousels, and other interactive elements.
  */
 document.addEventListener("DOMContentLoaded", () => {
+  const notificationPanel = document.querySelector("[data-notification-dropdown]");
+  const notificationBell = document.querySelector("[data-notification-bell]");
+  if (notificationPanel && notificationBell) {
+    const triggers = document.querySelectorAll("[data-notifications-toggle]");
+    const badge = notificationBell.querySelector("[data-notification-badge]");
+    const items = notificationPanel.querySelector("[data-notification-items]");
+    const empty = notificationPanel.querySelector("[data-notification-empty]");
+    const scroll = notificationPanel.querySelector("[data-notification-scroll]");
+    const status = notificationPanel.querySelector("[data-notification-status]");
+    const more = notificationPanel.querySelector("[data-notification-more]");
+    const retry = notificationPanel.querySelector("[data-notification-retry]");
+    const readAll = notificationPanel.querySelector("[data-notification-read-all] button");
+    let unreadCount = Number(badge.textContent);
+    let nextCursor = null;
+    let retryAppend = false;
+    let busy = false;
+    let requestVersion = 0;
+
+    const setBusy = (value) => {
+      busy = value;
+      notificationPanel.setAttribute("aria-busy", String(value));
+      notificationPanel.querySelectorAll("button").forEach((button) => { button.disabled = value; });
+      readAll.disabled = value || unreadCount === 0;
+    };
+    const updateCount = (count) => {
+      unreadCount = count;
+      badge.textContent = count;
+      badge.hidden = count === 0;
+      notificationBell.setAttribute("aria-label", `Notifications, ${count} unread`);
+      readAll.disabled = busy || count === 0;
+    };
+    const showStatus = (message, canRetry = false) => {
+      status.textContent = message;
+      status.hidden = !message;
+      retry.hidden = !canRetry;
+    };
+    const request = async (url, options = {}) => {
+      const response = await fetch(url, {
+        credentials: "same-origin", cache: "no-store", ...options,
+        headers: { Accept: "application/json", ...options.headers },
+      });
+      if (response.redirected || response.status === 401) {
+        throw new Error("Your session has expired. Please reload the page and sign in again.");
+      }
+      if (response.status === 403) {
+        throw new Error("Please reload the page before trying again.");
+      }
+      if (!response.ok || !response.headers.get("Content-Type")?.includes("application/json")) {
+        throw new Error("Notifications couldn't be updated. Please try again.");
+      }
+      return response.json();
+    };
+    const positionPanel = () => {
+      if (notificationPanel.hidden) return;
+      const bell = notificationBell.getBoundingClientRect();
+      const header = notificationPanel.offsetParent.getBoundingClientRect();
+      const width = notificationPanel.getBoundingClientRect().width;
+      const left = Math.max(12, Math.min(bell.right - width, window.innerWidth - width - 12));
+      notificationPanel.style.left = `${left - header.left}px`;
+      notificationPanel.style.top = `${bell.bottom - header.top + 10}px`;
+      notificationPanel.style.setProperty("--notification-available-height", `${Math.max(0, window.innerHeight - bell.bottom - 22)}px`);
+    };
+    const loadNotifications = async (append = false) => {
+      if (busy || (append && nextCursor === null)) return;
+      const previousScroll = scroll.scrollTop;
+      empty.hidden = true;
+      ++requestVersion;
+      setBusy(true);
+      showStatus(append ? "Loading older notifications…" : "Loading notifications…");
+      const url = new URL(notificationPanel.dataset.feedUrl, window.location.origin);
+      if (append && nextCursor) url.searchParams.set("before", nextCursor);
+      try {
+        const data = await request(url);
+        if (append) items.insertAdjacentHTML("beforeend", data.html);
+        else {
+          items.innerHTML = data.html;
+          scroll.scrollTop = 0;
+        }
+        nextCursor = data.html.trim() ? data.next_cursor : null;
+        empty.hidden = items.childElementCount > 0;
+        more.hidden = nextCursor === null;
+        updateCount(data.unread_count);
+        showStatus("");
+        if (append) scroll.scrollTop = previousScroll;
+      } catch (error) {
+        retryAppend = append;
+        more.hidden = true;
+        showStatus(error.message, true);
+      } finally {
+        setBusy(false);
+      }
+    };
+    const closeNotifications = (restoreFocus = false) => {
+      notificationPanel.hidden = true;
+      triggers.forEach((trigger) => trigger.setAttribute("aria-expanded", "false"));
+      if (restoreFocus) notificationBell.focus();
+    };
+    const openNotifications = () => {
+      document.querySelectorAll("[data-account-menu][open]").forEach((menu) => menu.removeAttribute("open"));
+      notificationPanel.hidden = false;
+      triggers.forEach((trigger) => trigger.setAttribute("aria-expanded", "true"));
+      positionPanel();
+      notificationPanel.focus({ preventScroll: true });
+      loadNotifications();
+    };
+    triggers.forEach((trigger) => trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (trigger === notificationBell && !notificationPanel.hidden) closeNotifications(true);
+      else openNotifications();
+    }));
+    document.addEventListener("click", (event) => {
+      if (!notificationPanel.hidden && !notificationPanel.contains(event.target) && !event.target.closest("[data-notifications-toggle]")) {
+        closeNotifications();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !notificationPanel.hidden) closeNotifications(true);
+    });
+    document.querySelectorAll("[data-account-menu]").forEach((menu) => {
+      menu.addEventListener("toggle", () => { if (menu.open) closeNotifications(); });
+    });
+    more.addEventListener("click", () => loadNotifications(true));
+    retry.addEventListener("click", () => loadNotifications(retryAppend));
+    window.addEventListener("resize", positionPanel);
+    window.addEventListener("scroll", positionPanel, { passive: true });
+
+    notificationPanel.addEventListener("submit", async (event) => {
+      const form = event.target.closest("[data-notification-read], [data-notification-read-all]");
+      if (!form) return;
+      event.preventDefault();
+      if (busy) return;
+      ++requestVersion;
+      setBusy(true);
+      showStatus("");
+      try {
+        const data = await request(form.action, { method: "POST", body: new FormData(form) });
+        updateCount(data.unread_count);
+        const rows = form.hasAttribute("data-notification-read-all")
+          ? items.querySelectorAll(".notification-item") : [form.closest(".notification-item")];
+        rows.forEach((row) => {
+          row.classList.remove("is-unread");
+          row.querySelector(".notification-unread")?.remove();
+        });
+        if (data.destination) window.location.assign(data.destination);
+        else {
+          showStatus("All notifications marked as read.");
+          notificationPanel.focus({ preventScroll: true });
+        }
+      } catch (error) {
+        showStatus(error.message);
+        scroll.scrollTop = 0;
+      } finally {
+        setBusy(false);
+      }
+    });
+    const refreshCount = async () => {
+      if (busy || document.hidden) return;
+      const version = ++requestVersion;
+      try {
+        const url = new URL(notificationPanel.dataset.feedUrl, window.location.origin);
+        url.searchParams.set("count_only", "1");
+        const data = await request(url);
+        if (version === requestVersion) updateCount(data.unread_count);
+      } catch (error) {
+        if (version === requestVersion && !notificationPanel.hidden) showStatus(error.message);
+      }
+    };
+    window.addEventListener("focus", refreshCount);
+    window.addEventListener("pageshow", (event) => { if (event.persisted) refreshCount(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshCount(); });
+    const pageUrl = new URL(window.location.href);
+    if (pageUrl.searchParams.get("notifications") === "open") {
+      openNotifications();
+      pageUrl.searchParams.delete("notifications");
+      window.history.replaceState(window.history.state, "", pageUrl);
+    }
+  }
+
   const courseFilters = document.getElementById("course-filter-sidebar");
   const filterToggle = document.querySelector("[data-course-filter-toggle]");
   if (courseFilters && filterToggle) {

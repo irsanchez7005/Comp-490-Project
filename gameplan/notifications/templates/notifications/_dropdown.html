@@ -1,0 +1,20 @@
+<section id="notification-dropdown" class="notification-dropdown" data-notification-dropdown data-feed-url="{% url 'notifications:feed' %}" role="region" aria-labelledby="notification-heading" tabindex="-1" hidden>
+  <div class="notification-dropdown-heading">
+    <h2 id="notification-heading">Notifications</h2>
+    <form method="post" action="{% url 'notifications:mark_all_read' %}" data-notification-read-all>
+      {% csrf_token %}
+      <button type="submit"{% if not unread_notification_count %} disabled{% endif %}>Mark all as read</button>
+    </form>
+  </div>
+  <div class="notification-scroll" data-notification-scroll>
+    <div class="notifications-empty" data-notification-empty hidden>
+      <span class="notification-icon" aria-hidden="true">&#10003;</span>
+      <h3>No notifications yet</h3>
+      <p>Your GamePlan activity will appear here.</p>
+    </div>
+    <ul class="notification-items" data-notification-items></ul>
+    <p class="notification-status" data-notification-status role="status" hidden></p>
+    <button class="notification-retry" type="button" data-notification-retry hidden>Try again</button>
+    <button class="notification-load-more" type="button" data-notification-more hidden>Load more</button>
+  </div>
+</section>

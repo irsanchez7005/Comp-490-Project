@@ -60,39 +60,61 @@ class NotificationTests(TestCase):
         with self.assertRaises(ValueError):
             create_notification(self.user, "unknown", "test", "Test", "Test")
 
-    def test_page_only_shows_own_notifications_newest_first(self):
+    def test_feed_combines_categories_and_read_states_newest_first(self):
         older = self.make_notification()
         newer = self.make_notification()
+        newer.category = Notification.Category.BOOKING
+        newer.is_read = True
+        newer.save()
         private = self.make_notification(self.other)
         private.title = "Other user's private event"
         private.save()
-        response = self.client.get(reverse("notifications:list"))
-        self.assertEqual(list(response.context["gameplan_updates"]), [newer, older])
-        self.assertNotContains(response, private.title)
-        self.assertContains(response, "Notifications, 2 unread")
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(list(response.context["updates"]), [newer, older])
+        self.assertNotIn(private.title, response.json()["html"])
+        self.assertEqual(response.json()["unread_count"], 1)
         self.assertIn("no-store", response.headers["Cache-Control"])
-        self.assertContains(response, "Your latest GamePlan activity in one place.")
+        self.assertNotIn("GamePlan Updates", response.json()["html"])
+        self.assertNotIn("Booking Updates", response.json()["html"])
 
-    def test_empty_sections(self):
-        response = self.client.get(reverse("notifications:list"))
-        self.assertContains(response, "You're all caught up", count=2)
-        self.assertContains(response, "disabled>Mark All as Read")
+    def test_empty_feed(self):
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(response.json()["html"].strip(), "")
+        self.assertContains(self.client.get(reverse("my_gameplan")), "No notifications yet", count=1)
+        self.assertEqual(response.json()["unread_count"], 0)
+        self.assertIsNone(response.json()["next_cursor"])
+
+    def test_legacy_url_redirects_to_shared_dropdown(self):
+        self.assertRedirects(self.client.get(reverse("notifications:list")),
+                             f"{reverse('my_gameplan')}?notifications=open")
 
     def test_mark_one_read_and_refresh_bell_on_other_pages(self):
         first = self.make_notification()
         second = self.make_notification()
-        response = self.client.post(reverse("notifications:mark_read", args=[first.pk]), follow=True)
-        self.assertContains(response, "Notifications, 1 unread")
+        other = self.make_notification(self.other)
+        response = self.client.post(reverse("notifications:mark_read", args=[first.pk]),
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.json(), {"unread_count": 1, "destination": reverse("settings")})
         first.refresh_from_db()
         second.refresh_from_db()
         self.assertTrue(first.is_read)
         self.assertFalse(second.is_read)
-        self.assertContains(response, 'class="notification-item is-unread"', count=1)
-        for name in ("home", "my_gameplan", "my_bookings", "settings", "profile", "courses"):
+        other.refresh_from_db()
+        self.assertFalse(other.is_read)
+        feed = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(list(feed.context["updates"]), [second, first])
+        self.assertEqual(feed.json()["html"].count('class="notification-item is-unread"'), 1)
+        for name in ("home", "my_gameplan", "my_bookings", "settings", "profile", "courses", "lessons"):
             with self.subTest(page=name):
-                self.assertContains(self.client.get(reverse(name)), "Notifications, 1 unread")
+                page = self.client.get(reverse(name))
+                self.assertContains(page, "Notifications, 1 unread")
+                self.assertContains(page, 'id="notification-dropdown"', count=1)
+                self.assertContains(page, 'data-notifications-toggle aria-controls="notification-dropdown"',
+                                    count=3 if name == "my_gameplan" else 2)
+                self.assertContains(page, 'aria-label="Search courses or locations"')
+                self.assertContains(page, 'data-account-menu')
         self.client.post(reverse("notifications:mark_read", args=[first.pk]))
-        self.assertEqual(Notification.objects.filter(is_read=False).count(), 1)
+        self.assertEqual(Notification.objects.filter(recipient=self.user, is_read=False).count(), 1)
 
     def test_cannot_mark_another_users_notification(self):
         notification = self.make_notification(self.other)
@@ -102,19 +124,28 @@ class NotificationTests(TestCase):
         self.assertFalse(notification.is_read)
 
     def test_mark_all_only_changes_own_notifications(self):
-        self.make_notification()
-        self.make_notification()
+        for _ in range(25):
+            self.make_notification()
         other = self.make_notification(self.other)
-        response = self.client.post(reverse("notifications:mark_all_read"), follow=True)
+        response = self.client.post(reverse("notifications:mark_all_read"), HTTP_ACCEPT="application/json")
         self.assertFalse(Notification.objects.filter(recipient=self.user, is_read=False).exists())
         other.refresh_from_db()
         self.assertFalse(other.is_read)
-        self.assertContains(response, "Notifications, 0 unread")
-        self.assertNotContains(response, 'class="notification-badge"')
+        self.assertEqual(response.json()["unread_count"], 0)
+        self.assertEqual(Notification.objects.filter(recipient=self.user).count(), 25)
+        feed = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(len(feed.context["updates"]), 20)
+        self.assertNotIn("is-unread", feed.json()["html"])
+        older = self.client.get(reverse("notifications:feed"), {"before": feed.json()["next_cursor"]})
+        self.assertEqual(len(older.context["updates"]), 5)
+        self.assertNotIn("is-unread", older.json()["html"])
 
     def test_get_requests_do_not_mark_read(self):
         notification = self.make_notification()
         self.client.get(reverse("notifications:list"))
+        self.client.get(reverse("notifications:feed"))
+        response = self.client.get(reverse("notifications:feed"), {"count_only": "1"})
+        self.assertEqual(response.json(), {"unread_count": 1})
         for name, args in (("notifications:mark_read", [notification.pk]), ("notifications:mark_all_read", [])):
             self.assertEqual(self.client.get(reverse(name, args=args)).status_code, 405)
         notification.refresh_from_db()
@@ -127,19 +158,23 @@ class NotificationTests(TestCase):
         for name, args in (("notifications:mark_read", [notification.pk]), ("notifications:mark_all_read", [])):
             url = reverse(name, args=args)
             self.assertEqual(client.post(url).status_code, 403)
-        client.get(reverse("notifications:list"))
+        client.get(reverse("my_gameplan"))
         response = client.post(reverse("notifications:mark_read", args=[notification.pk]), {
             "csrfmiddlewaretoken": client.cookies["csrftoken"].value,
         })
         self.assertEqual(response.status_code, 302)
         notification.refresh_from_db()
         self.assertTrue(notification.is_read)
+        self.assertEqual(client.post(reverse("notifications:mark_all_read"), {
+            "csrfmiddlewaretoken": client.cookies["csrftoken"].value,
+        }, HTTP_ACCEPT="application/json").status_code, 200)
 
     def test_all_routes_require_login(self):
         notification = self.make_notification()
         self.client.logout()
         routes = [
             (self.client.get, reverse("notifications:list")),
+            (self.client.get, reverse("notifications:feed")),
             (self.client.post, reverse("notifications:mark_read", args=[notification.pk])),
             (self.client.post, reverse("notifications:mark_all_read")),
         ]
@@ -150,9 +185,9 @@ class NotificationTests(TestCase):
         notification = self.make_notification()
         notification.message = '<script>alert("test")</script>'
         notification.save()
-        response = self.client.get(reverse("notifications:list"))
-        self.assertContains(response, "&lt;script&gt;")
-        self.assertNotContains(response, notification.message)
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertIn("&lt;script&gt;", response.json()["html"])
+        self.assertNotIn(notification.message, response.json()["html"])
 
     def test_deleted_booking_keeps_notification_history(self):
         booking = Booking.objects.create(user=self.user, slot=create_slot())
@@ -160,11 +195,48 @@ class NotificationTests(TestCase):
         booking.delete()
         notification.refresh_from_db()
         self.assertIsNone(notification.booking)
-        self.assertContains(self.client.get(reverse("notifications:list")), notification.message)
+        self.assertIn(notification.message, self.client.get(reverse("notifications:feed")).json()["html"])
+        response = self.client.post(reverse("notifications:mark_read", args=[notification.pk]),
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.json()["destination"], reverse("my_bookings"))
+
+    def test_older_notifications_remain_accessible_when_new_events_arrive(self):
+        notifications = [self.make_notification() for _ in range(45)]
+        # Equal timestamps also preserve the model's descending primary-key order.
+        Notification.objects.update(created_at=timezone.now())
+        first = self.client.get(reverse("notifications:feed"))
+        seen = list(first.context["updates"])
+        self.make_notification()
+        cursor = first.json()["next_cursor"]
+        while cursor:
+            response = self.client.get(reverse("notifications:feed"), {"before": cursor})
+            seen.extend(response.context["updates"])
+            cursor = response.json()["next_cursor"]
+        self.assertEqual([item.pk for item in seen], [item.pk for item in reversed(notifications)])
+        self.assertEqual(Notification.objects.filter(is_read=False).count(), 46)
+
+    def test_cursor_cannot_access_another_users_notification(self):
+        other = self.make_notification(self.other)
+        self.assertEqual(self.client.get(reverse("notifications:feed"), {"before": other.pk}).status_code, 404)
+        self.assertEqual(self.client.get(reverse("notifications:feed"), {"before": "bad"}).status_code, 400)
+
+    def test_destination_rechecks_booking_ownership(self):
+        booking = Booking.objects.create(user=self.other, slot=create_slot())
+        notification = self.make_notification()
+        Notification.objects.filter(pk=notification.pk).update(
+            booking=booking, category=Notification.Category.BOOKING,
+        )
+        response = self.client.post(reverse("notifications:mark_read", args=[notification.pk]),
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.json()["destination"], reverse("my_bookings"))
 
 
 class BookingNotificationTests(TestCase):
     def setUp(self):
+        for target in ("facility.views.send_booking_confirmation", "facility.views.send_booking_cancellation"):
+            delivery = patch(target)
+            delivery.start()
+            self.addCleanup(delivery.stop)
         self.user = create_user()
         self.slot = create_slot()
         self.client.force_login(self.user)
@@ -184,11 +256,12 @@ class BookingNotificationTests(TestCase):
         for text in (self.slot.facility.facility_name, date_format(self.slot.date, "F j, Y"),
                      "9:30 AM", f"Booking #{booking.pk}"):
             self.assertIn(text, notification.message)
-        response = self.client.get(reverse("notifications:list"))
-        self.assertEqual(list(response.context["booking_updates"]), [notification])
-        self.assertEqual(list(response.context["gameplan_updates"]), [])
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(list(response.context["updates"]), [notification])
         url = reverse("booking_confirmation", args=[booking.pk])
-        self.assertContains(response, f'href="{url}"')
+        response = self.client.post(reverse("notifications:mark_read", args=[notification.pk]),
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.json(), {"destination": url, "unread_count": 0})
         self.assertEqual(self.client.get(url).status_code, 200)
         notify_booking_confirmed(booking)
         self.assertEqual(Notification.objects.count(), 1)
@@ -205,9 +278,9 @@ class BookingNotificationTests(TestCase):
         cancelled = Notification.objects.get(event_type="booking_cancelled")
         self.assertEqual(cancelled.title, "Booking Cancelled")
         self.assertIn("9:30 AM has been successfully cancelled", cancelled.message)
-        response = self.client.get(reverse("notifications:list"))
-        self.assertEqual(response.context["booking_updates"][0], cancelled)
-        self.assertContains(response, "is-cancelled")
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(response.context["updates"][0], cancelled)
+        self.assertIn("is-cancelled", response.json()["html"])
         self.assertContains(self.client.get(reverse("booking_confirmation", args=[booking.pk])), "Booking Cancelled")
 
     def test_already_cancelled_booking_does_not_create_event(self):
@@ -238,7 +311,7 @@ class BookingNotificationTests(TestCase):
         url = reverse("booking_confirmation", args=[booking.pk])
         self.assertEqual(self.client.get(url).status_code, 404)
         self.assertEqual(self.client.post(reverse("cancel_booking", args=[booking.pk])).status_code, 404)
-        self.assertNotContains(self.client.get(reverse("notifications:list")), f'href="{url}"')
+        self.assertEqual(self.client.get(reverse("notifications:feed")).context["updates"], [])
         self.assertEqual(Notification.objects.count(), 1)
         booking.refresh_from_db()
         self.assertEqual(booking.status, Booking.Status.CONFIRMED)
@@ -275,6 +348,9 @@ class BookingNotificationTests(TestCase):
 
 class AccountNotificationTests(TestCase):
     def setUp(self):
+        delivery = patch("accounts.verification.send_mail")
+        delivery.start()
+        self.addCleanup(delivery.stop)
         self.user = create_user()
         self.client.force_login(self.user)
 
@@ -298,9 +374,11 @@ class AccountNotificationTests(TestCase):
         self.assertIsNone(notification.booking)
         self.assertEqual(notification.recipient, self.user)
         self.client.force_login(self.user)
-        response = self.client.get(reverse("notifications:list"))
-        self.assertEqual(list(response.context["gameplan_updates"]), [notification])
-        self.assertEqual(list(response.context["booking_updates"]), [])
+        response = self.client.get(reverse("notifications:feed"))
+        self.assertEqual(list(response.context["updates"]), [notification])
+        response = self.client.post(reverse("notifications:mark_read", args=[notification.pk]),
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.json()["destination"], reverse("settings"))
         return notification
 
     def test_successful_email_verification_notifies_once(self):
